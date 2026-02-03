@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface FloatingAddButtonProps {
   onClick: () => void;
@@ -6,14 +7,14 @@ interface FloatingAddButtonProps {
 
 export function FloatingAddButton({ onClick }: FloatingAddButtonProps) {
   return (
-    <button
-      type="button"
+    <Button
       onClick={onClick}
-      className="fixed bottom-16 right-4 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-chorus-accent text-white shadow-lg shadow-chorus-accent/20 transition-all duration-200 hover:bg-chorus-accent/90 hover:shadow-chorus-accent/30 hover:scale-105 active:scale-95"
+      size="icon"
+      className="fixed bottom-16 right-4 z-20 h-12 w-12 rounded-full shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
       aria-label="Add session"
       title="Add new session"
     >
       <Plus size={24} strokeWidth={1.5} />
-    </button>
+    </Button>
   );
 }

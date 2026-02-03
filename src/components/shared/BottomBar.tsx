@@ -1,14 +1,11 @@
 import { FolderOpen, Play, Plus, Square } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface BottomBarProps {
-  /** Whether in the grid view (project selected and launched) */
   inGridView: boolean;
-  /** Number of total slots (pre-launch + launched) */
   slotCount: number;
-  /** Number of actually running sessions */
   launchedCount: number;
   maxSessions?: number;
-  /** Whether Stop All is currently in progress */
   isStoppingAll?: boolean;
   onSelectDirectory: () => void;
   onLaunchAll: () => void;
@@ -33,50 +30,50 @@ export function BottomBar({
 
   return (
     <div className="no-select flex h-11 items-center justify-center gap-3 px-4">
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
         onClick={inGridView ? undefined : onSelectDirectory}
         disabled={inGridView}
-        className={`flex items-center gap-2 rounded-lg border border-chorus-border bg-chorus-card px-4 py-1.5 text-xs font-medium shadow-md shadow-black/20 transition-colors ${
-          inGridView
-            ? "cursor-not-allowed text-chorus-muted/50 opacity-50"
-            : "text-chorus-text hover:bg-chorus-border/50"
-        }`}
+        className="gap-2"
       >
         <FolderOpen size={13} />
         Select Directory
-      </button>
+      </Button>
 
       {inGridView && (
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onAddSession}
           disabled={slotCount >= maxSessions}
-          className="flex items-center gap-2 rounded-lg border border-chorus-border bg-chorus-card px-4 py-1.5 text-xs font-medium shadow-md shadow-black/20 transition-colors text-chorus-text hover:bg-chorus-border/50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="gap-2"
         >
           <Plus size={13} />
           Add Session
-        </button>
+        </Button>
       )}
 
       {hasRunningSessions && (
-        <button
-          type="button"
+        <Button
+          variant="destructive"
+          size="sm"
           onClick={isStoppingAll ? undefined : onStopAll}
           disabled={isStoppingAll}
-          className="flex items-center gap-2 rounded-lg bg-chorus-red/90 px-4 py-1.5 text-xs font-medium text-white shadow-md shadow-black/20 transition-colors hover:bg-chorus-red disabled:opacity-50 disabled:cursor-not-allowed"
+          className="gap-2"
         >
           <Square size={11} />
           {isStoppingAll ? "Stopping..." : "Stop All"}
-        </button>
+        </Button>
       )}
 
       {(hasUnlaunchedSlots || !inGridView) && (
-        <button
-          type="button"
+        <Button
+          variant="default"
+          size="sm"
           onClick={unlaunchedCount > 0 ? onLaunchAll : undefined}
           disabled={unlaunchedCount === 0}
-          className="flex items-center gap-2 rounded-lg bg-chorus-accent px-4 py-1.5 text-xs font-medium text-white shadow-md shadow-black/20 transition-colors hover:bg-chorus-accent/80 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="gap-2"
         >
           <Play size={11} fill="currentColor" />
           {unlaunchedCount === 0
@@ -84,7 +81,7 @@ export function BottomBar({
             : unlaunchedCount === 1
               ? "Launch Session"
               : `Launch All (${unlaunchedCount})`}
-        </button>
+        </Button>
       )}
     </div>
   );

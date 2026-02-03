@@ -18,14 +18,14 @@ export function RemoteStatusIndicator({ status, size = "sm" }: RemoteStatusIndic
   const iconSize = size === "sm" ? 10 : 12;
 
   if (status === "checking") {
-    return <Loader2 size={iconSize} className="animate-spin text-chorus-muted shrink-0" />;
+    return <Loader2 size={iconSize} className="animate-spin text-muted-foreground shrink-0" />;
   }
 
   if (status === "connected") {
     return (
       <div className="flex items-center gap-1 shrink-0">
-        <span className={`${dotSize} rounded-full bg-chorus-green`} />
-        <Check size={iconSize} className="text-chorus-green" />
+        <span className={`${dotSize} rounded-full bg-green-500`} />
+        <Check size={iconSize} className="text-green-500" />
       </div>
     );
   }
@@ -33,12 +33,12 @@ export function RemoteStatusIndicator({ status, size = "sm" }: RemoteStatusIndic
   if (status === "disconnected") {
     return (
       <div className="flex items-center gap-1 shrink-0">
-        <span className={`${dotSize} rounded-full bg-chorus-red`} />
-        <X size={iconSize} className="text-chorus-red" />
+        <span className={`${dotSize} rounded-full bg-destructive`} />
+        <X size={iconSize} className="text-destructive" />
       </div>
     );
   }
 
   // unknown
-  return <span className={`${dotSize} rounded-full bg-chorus-muted shrink-0`} />;
+  return <span className={`${dotSize} rounded-full bg-muted-foreground shrink-0`} />;
 }

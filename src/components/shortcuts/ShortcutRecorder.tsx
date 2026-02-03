@@ -72,15 +72,15 @@ export function ShortcutRecorder({
           flex h-8 items-center justify-center rounded border px-3
           text-sm font-mono
           ${recording
-            ? "border-chorus-accent bg-chorus-accent/10 animate-pulse"
-            : "border-chorus-border bg-chorus-surface"
+            ? "border-primary bg-primary/10 animate-pulse"
+            : "border-border bg-muted"
           }
         `}
       >
         {recording ? (
-          <span className="text-chorus-muted">Press keys...</span>
+          <span className="text-muted-foreground">Press keys...</span>
         ) : (
-          <span className="text-chorus-text">{formatKeyCombo(currentCombo)}</span>
+          <span className="text-foreground">{formatKeyCombo(currentCombo)}</span>
         )}
       </div>
 
@@ -93,7 +93,7 @@ export function ShortcutRecorder({
       <div className="flex justify-end gap-2">
         <button
           onClick={onCancel}
-          className="rounded px-2 py-1 text-xs text-chorus-muted hover:bg-chorus-border/40"
+          className="rounded px-2 py-1 text-xs text-muted-foreground hover:bg-border/40"
         >
           Cancel
         </button>
@@ -101,7 +101,7 @@ export function ShortcutRecorder({
           <>
             <button
               onClick={handleReset}
-              className="rounded px-2 py-1 text-xs text-chorus-muted hover:bg-chorus-border/40"
+              className="rounded px-2 py-1 text-xs text-muted-foreground hover:bg-border/40"
             >
               Re-record
             </button>
@@ -111,8 +111,8 @@ export function ShortcutRecorder({
               className={`
                 rounded px-2 py-1 text-xs
                 ${conflicts.length > 0
-                  ? "text-chorus-muted cursor-not-allowed"
-                  : "bg-chorus-accent text-white hover:bg-chorus-accent/80"
+                  ? "text-muted-foreground cursor-not-allowed"
+                  : "bg-primary text-primary-foreground hover:bg-primary/80"
                 }
               `}
             >

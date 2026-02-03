@@ -63,9 +63,9 @@ interface SidebarProps {
 
 /* ── Shared card class ── */
 const cardClass =
-  "rounded-lg border border-chorus-border/60 bg-chorus-card p-3 shadow-[0_1px_4px_rgb(0_0_0/0.15),0_0_0_1px_rgb(255_255_255/0.03)_inset] transition-shadow hover:shadow-[0_2px_8px_rgb(0_0_0/0.25),0_0_0_1px_rgb(255_255_255/0.05)_inset]";
+  "rounded-lg border border-border bg-card p-3 shadow-sm transition-shadow hover:shadow-md";
 
-const divider = <div className="h-px bg-chorus-border/30 my-1" />;
+const divider = <div className="h-px bg-border/30 my-1" />;
 
 const SIDEBAR_MIN_WIDTH = 180;
 const SIDEBAR_MAX_WIDTH = 320;
@@ -73,13 +73,13 @@ const SIDEBAR_COLLAPSE_THRESHOLD = 60;
 const SIDEBAR_WIDTH_STEP = 4;
 
 const STATUS_DOT_CLASS: Record<BackendSessionStatus, string> = {
-  Starting: "bg-chorus-orange",
-  Idle: "bg-chorus-muted",
-  Working: "bg-chorus-accent",
-  NeedsInput: "bg-chorus-yellow",
-  Done: "bg-chorus-green",
-  Error: "bg-chorus-red",
-  Timeout: "bg-chorus-red",
+  Starting: "bg-orange-500",
+  Idle: "bg-muted-foreground",
+  Working: "bg-primary",
+  NeedsInput: "bg-yellow-500",
+  Done: "bg-green-500",
+  Error: "bg-destructive",
+  Timeout: "bg-destructive",
 };
 
 const STATUS_LABEL: Record<BackendSessionStatus, string> = {
@@ -184,19 +184,19 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme }: Sidebar
   return (
     // Use a class-based width to avoid inline styles (CSP-friendly).
     <aside
-      className={`theme-transition no-select relative flex h-full flex-col border-r border-chorus-border bg-chorus-surface ${sidebarWidthClass} ${
+      className={`theme-transition no-select relative flex h-full flex-col border-r border-border bg-muted ${sidebarWidthClass} ${
         isDragging ? "" : "transition-all duration-200 ease-out"
       } ${collapsed ? "overflow-hidden border-r-0 opacity-0" : "opacity-100"}`}
     >
       {/* Tab switcher */}
-      <div className="flex shrink-0 border-b border-chorus-border">
+      <div className="flex shrink-0 border-b border-border">
         <button
           type="button"
           onClick={() => setActiveTab("config")}
           className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold tracking-wide uppercase ${
             activeTab === "config"
-              ? "border-b-2 border-chorus-accent text-chorus-accent"
-              : "text-chorus-muted hover:text-chorus-text"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           <Settings size={12} />
@@ -207,8 +207,8 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme }: Sidebar
           onClick={() => setActiveTab("processes")}
           className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold tracking-wide uppercase ${
             activeTab === "processes"
-              ? "border-b-2 border-chorus-accent text-chorus-accent"
-              : "text-chorus-muted hover:text-chorus-text"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           <Activity size={12} />
@@ -237,7 +237,7 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme }: Sidebar
           aria-valuetext={`${Math.round(width)} pixels`}
           tabIndex={0}
           aria-label="Resize sidebar"
-          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-chorus-accent/30 active:bg-chorus-accent/40"
+          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/30 active:bg-primary/40"
           onMouseDown={handleDragStart}
           onKeyDown={handleResizeKeyDown}
         />
@@ -266,10 +266,10 @@ function SectionHeader({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
+    <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
       <Icon
         size={13}
-        className={`${iconColor ?? "text-chorus-muted/80"} ${breathe ? "animate-breathe" : ""}`}
+        className={`${iconColor ?? "text-muted-foreground/80"} ${breathe ? "animate-breathe" : ""}`}
       />
       <span className="flex-1">{label}</span>
       {badge}
@@ -367,9 +367,9 @@ function GitRepositorySection() {
         <SectionHeader
           icon={GitBranch}
           label="Git Repository"
-          iconColor="text-chorus-muted"
+          iconColor="text-muted-foreground"
         />
-        <div className="px-1 py-1 text-xs text-chorus-muted">No project selected</div>
+        <div className="px-1 py-1 text-xs text-muted-foreground">No project selected</div>
       </div>
     );
   }
@@ -380,38 +380,38 @@ function GitRepositorySection() {
         <SectionHeader
           icon={GitBranch}
           label="Git Repository"
-          iconColor="text-chorus-green"
+          iconColor="text-green-500"
           right={
             <button
               type="button"
               onClick={() => setShowSettings(true)}
-              className="rounded p-0.5 hover:bg-chorus-border/40"
+              className="rounded p-0.5 hover:bg-muted/40"
               title="Git settings"
             >
-              <Settings size={12} className="text-chorus-muted" />
+              <Settings size={12} className="text-muted-foreground" />
             </button>
           }
         />
         {/* User */}
         <div className="flex items-center gap-2 px-1 py-1">
-          <User size={12} className={hasUser ? "text-chorus-green" : "text-chorus-muted"} />
-          <span className="text-xs font-semibold text-chorus-text truncate">{displayName}</span>
+          <User size={12} className={hasUser ? "text-green-500" : "text-muted-foreground"} />
+          <span className="text-xs font-semibold text-foreground truncate">{displayName}</span>
         </div>
-        <div className="pl-5 text-[11px] text-chorus-muted truncate">{displayEmail}</div>
+        <div className="pl-5 text-[11px] text-muted-foreground truncate">{displayEmail}</div>
 
         {/* Remotes */}
         {remotes.length === 0 ? (
-          <div className="mt-2 px-1 py-1 text-xs text-chorus-muted">No remotes configured</div>
+          <div className="mt-2 px-1 py-1 text-xs text-muted-foreground">No remotes configured</div>
         ) : (
           remotes.map((remote) => (
             <div key={remote.name} className="mt-1">
               <div className="flex items-center gap-2 px-1 py-1">
                 <RemoteStatusIndicator status={remoteStatuses[remote.name] ?? "unknown"} />
-                <span className="text-xs font-semibold text-chorus-text truncate">
+                <span className="text-xs font-semibold text-foreground truncate">
                   {remote.name}
                 </span>
               </div>
-              <div className="pl-5 text-[11px] text-chorus-muted truncate">
+              <div className="pl-5 text-[11px] text-muted-foreground truncate">
                 {formatRemoteUrl(remote.url)}
               </div>
             </div>
@@ -479,10 +479,10 @@ function ProjectContextSection() {
         <SectionHeader
           icon={FileText}
           label="Project Context"
-          iconColor="text-chorus-muted"
+          iconColor="text-muted-foreground"
         />
         <div className="flex items-center gap-2 px-1 py-1">
-          <span className="text-xs text-chorus-muted">No project selected</span>
+          <span className="text-xs text-muted-foreground">No project selected</span>
         </div>
       </div>
     );
@@ -497,38 +497,38 @@ function ProjectContextSection() {
         <SectionHeader
           icon={FileText}
           label="Project Context"
-          iconColor={fileExists ? "text-chorus-green" : "text-chorus-orange"}
+          iconColor={fileExists ? "text-green-500" : "text-orange-400"}
           right={
             <button
               type="button"
               onClick={handleRefresh}
-              className="rounded p-0.5 hover:bg-chorus-border/40"
+              className="rounded p-0.5 hover:bg-muted/40"
               disabled={isLoading}
             >
               <RefreshCw
                 size={12}
-                className={`text-chorus-muted ${isLoading ? "animate-spin" : ""}`}
+                className={`text-muted-foreground ${isLoading ? "animate-spin" : ""}`}
               />
             </button>
           }
         />
         {isLoading ? (
           <div className="flex items-center gap-2 px-1 py-1">
-            <Loader2 size={13} className="text-chorus-muted shrink-0 animate-spin" />
-            <span className="text-xs text-chorus-muted">Checking...</span>
+            <Loader2 size={13} className="text-muted-foreground shrink-0 animate-spin" />
+            <span className="text-xs text-muted-foreground">Checking...</span>
           </div>
         ) : fileExists ? (
           <div className="flex items-center gap-2 px-1 py-1">
-            <Check size={13} className="text-chorus-green shrink-0" />
-            <span className="text-xs text-chorus-text">CLAUDE.md</span>
+            <Check size={13} className="text-green-500 shrink-0" />
+            <span className="text-xs text-foreground">CLAUDE.md</span>
           </div>
         ) : (
           <>
             <div className="flex items-center gap-2 px-1 py-1">
-              <AlertTriangle size={13} className="text-chorus-orange shrink-0" />
-              <span className="text-xs text-chorus-text">No CLAUDE.md</span>
+              <AlertTriangle size={13} className="text-orange-400 shrink-0" />
+              <span className="text-xs text-foreground">No CLAUDE.md</span>
             </div>
-            <div className="pl-7 text-[11px] text-chorus-muted">
+            <div className="pl-7 text-[11px] text-muted-foreground">
               Click to create project context file
             </div>
           </>
@@ -564,21 +564,21 @@ function SessionsSection() {
 
   return (
     <div className={cardClass}>
-      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
+      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 hover:text-chorus-text"
+          className="flex items-center gap-1 hover:text-foreground"
         >
           {expanded ? (
-            <ChevronDown size={13} className="text-chorus-muted/80" />
+            <ChevronDown size={13} className="text-muted-foreground/80" />
           ) : (
-            <ChevronRight size={13} className="text-chorus-muted/80" />
+            <ChevronRight size={13} className="text-muted-foreground/80" />
           )}
         </button>
-        <Bot size={13} className="text-chorus-accent animate-breathe" />
+        <Bot size={13} className="text-primary animate-breathe" />
         <span className="flex-1">Sessions</span>
-        <span className="bg-chorus-accent/20 text-chorus-accent text-[10px] px-1.5 rounded-full font-bold">
+        <span className="bg-primary/20 text-primary text-[10px] px-1.5 rounded-full font-bold">
           {sessions.length}
         </span>
       </div>
@@ -586,18 +586,18 @@ function SessionsSection() {
       {expanded && (
         <div className="space-y-0.5">
           {sessions.length === 0 ? (
-            <div className="px-2 py-1 text-[11px] text-chorus-muted/60">No sessions yet</div>
+            <div className="px-2 py-1 text-[11px] text-muted-foreground/60">No sessions yet</div>
           ) : (
             sessions.map((s) => (
               <div
                 key={s.id}
                 title={s.statusMessage || s.needsInputPrompt || STATUS_LABEL[s.status]}
-                className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
+                className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
               >
                 <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT_CLASS[s.status]}`} />
-                <Bot size={12} className="text-chorus-purple shrink-0" />
+                <Bot size={12} className="text-purple-400 shrink-0" />
                 <span className="flex-1 font-medium">#{s.id}</span>
-                <span className="text-[10px] text-chorus-muted">{STATUS_LABEL[s.status]}</span>
+                <span className="text-[10px] text-muted-foreground">{STATUS_LABEL[s.status]}</span>
               </div>
             ))
           )}
@@ -660,7 +660,7 @@ function StatusSection() {
 
   return (
     <div className={cardClass}>
-      <SectionHeader icon={Activity} label="Status" iconColor="text-chorus-accent" />
+      <SectionHeader icon={Activity} label="Status" iconColor="text-primary" />
       <div className="space-y-0.5">
         {/* AI mode buckets - only show modes with count > 0 */}
         {AI_MODES.filter((mode) => counts.mode[mode] > 0).map((mode) => {
@@ -668,34 +668,34 @@ function StatusSection() {
           return (
             <div
               key={mode}
-              className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text"
+              className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground"
             >
-              <ModeIcon size={12} className="text-chorus-purple shrink-0" />
+              <ModeIcon size={12} className="text-purple-400 shrink-0" />
               <span className="flex-1">{mode}:</span>
-              <span className="font-semibold text-chorus-text">{counts.mode[mode]}</span>
+              <span className="font-semibold text-foreground">{counts.mode[mode]}</span>
             </div>
           );
         })}
         {/* Divider between types and states - only show if both sections have items */}
         {AI_MODES.some((mode) => counts.mode[mode] > 0) &&
           SESSION_STATUSES.some((st) => counts.status[st] > 0) && (
-            <div className="h-px bg-chorus-border/40 my-1.5" />
+            <div className="h-px bg-border/40 my-1.5" />
           )}
         {/* Session status buckets - only show statuses with count > 0 */}
         {SESSION_STATUSES.filter((st) => counts.status[st] > 0).map((st) => (
           <div
             key={st}
-            className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text"
+            className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground"
           >
             <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT_CLASS[st]}`} />
             <span className="flex-1">{STATUS_LABEL[st]}:</span>
-            <span className="font-semibold text-chorus-text">{counts.status[st]}</span>
+            <span className="font-semibold text-foreground">{counts.status[st]}</span>
           </div>
         ))}
         {/* Empty state when no sessions */}
         {!AI_MODES.some((mode) => counts.mode[mode] > 0) &&
           !SESSION_STATUSES.some((st) => counts.status[st] > 0) && (
-            <div className="px-2 py-1 text-[11px] text-chorus-muted/60">No active sessions</div>
+            <div className="px-2 py-1 text-[11px] text-muted-foreground/60">No active sessions</div>
           )}
       </div>
     </div>
@@ -710,18 +710,18 @@ function ChorusMCPSection() {
       <SectionHeader
         icon={Server}
         label="Chorus MCP"
-        iconColor="text-chorus-green"
+        iconColor="text-green-500"
         right={
-          <button type="button" className="rounded p-0.5 hover:bg-chorus-border/40">
-            <RefreshCw size={12} className="text-chorus-muted" />
+          <button type="button" className="rounded p-0.5 hover:bg-muted/40">
+            <RefreshCw size={12} className="text-muted-foreground" />
           </button>
         }
       />
       <div className="flex items-center gap-2 px-1 py-1">
-        <span className="h-2 w-2 shrink-0 rounded-full bg-chorus-green" />
-        <span className="text-xs text-chorus-text font-medium">Available</span>
+        <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
+        <span className="text-xs text-foreground font-medium">Available</span>
       </div>
-      <div className="pl-5 text-[10px] text-chorus-muted truncate">
+      <div className="pl-5 text-[10px] text-muted-foreground truncate">
         /usr/lib/chorus...MCPServer
       </div>
     </div>
@@ -800,22 +800,22 @@ function MCPServersSection() {
   return (
     <>
       <div className={cardClass}>
-        <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
+        <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-1 hover:text-chorus-text"
+            className="flex items-center gap-1 hover:text-foreground"
           >
             {expanded ? (
-              <ChevronDown size={13} className="text-chorus-muted/80" />
+              <ChevronDown size={13} className="text-muted-foreground/80" />
             ) : (
-              <ChevronRight size={13} className="text-chorus-muted/80" />
+              <ChevronRight size={13} className="text-muted-foreground/80" />
             )}
           </button>
-          <Server size={13} className={totalCount > 0 ? "text-chorus-green" : "text-chorus-muted/80"} />
+          <Server size={13} className={totalCount > 0 ? "text-green-500" : "text-muted-foreground/80"} />
           <span className="flex-1">MCP Servers</span>
           {totalCount > 0 && (
-            <span className="bg-chorus-green/20 text-chorus-green text-[10px] px-1.5 rounded-full font-bold">
+            <span className="bg-green-500/20 text-green-500 text-[10px] px-1.5 rounded-full font-bold">
               {totalCount}
             </span>
           )}
@@ -823,18 +823,18 @@ function MCPServersSection() {
             <button
               type="button"
               onClick={handleRefresh}
-              className="rounded p-0.5 hover:bg-chorus-border/40"
+              className="rounded p-0.5 hover:bg-muted/40"
               title="Refresh MCP servers"
             >
-              <RefreshCw size={12} className={`text-chorus-muted ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw size={12} className={`text-muted-foreground ${loading ? "animate-spin" : ""}`} />
             </button>
             <button
               type="button"
               onClick={handleAddServer}
-              className="rounded p-0.5 hover:bg-chorus-border/40"
+              className="rounded p-0.5 hover:bg-muted/40"
               title="Add custom MCP server"
             >
-              <Plus size={12} className="text-chorus-accent" />
+              <Plus size={12} className="text-primary" />
             </button>
           </div>
         </div>
@@ -844,7 +844,7 @@ function MCPServersSection() {
             {/* Discovered servers from .mcp.json */}
             {discoveredServers.length > 0 && (
               <>
-                <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted/60">
+                <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/60">
                   Discovered ({discoveredServers.length})
                 </div>
                 {discoveredServers.map((server) => {
@@ -853,11 +853,11 @@ function MCPServersSection() {
                   return (
                     <div
                       key={server.name}
-                      className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
+                      className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
                     >
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-chorus-green" />
+                      <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
                       <span className="flex-1 truncate font-medium">{server.name}</span>
-                      <span className="text-[10px] text-chorus-muted">
+                      <span className="text-[10px] text-muted-foreground">
                         {isHttp ? "HTTP" : "stdio"}
                       </span>
                     </div>
@@ -869,37 +869,37 @@ function MCPServersSection() {
             {/* Custom servers */}
             {customServers.length > 0 && (
               <>
-                <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted/60">
+                <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/60">
                   Custom ({customServers.length})
                 </div>
                 {customServers.map((server) => (
                   <div
                     key={server.id}
-                    className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
+                    className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
                   >
                     <span
                       className={`h-2 w-2 shrink-0 rounded-full ${
-                        server.isEnabled ? "bg-chorus-green" : "bg-chorus-muted"
+                        server.isEnabled ? "bg-green-500" : "bg-muted-foreground"
                       }`}
                     />
                     <span className="flex-1 truncate font-medium">{server.name}</span>
-                    <span className="text-[10px] text-chorus-muted">custom</span>
+                    <span className="text-[10px] text-muted-foreground">custom</span>
                     <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         type="button"
                         onClick={() => handleEditServer(server)}
-                        className="rounded p-0.5 hover:bg-chorus-border/40"
+                        className="rounded p-0.5 hover:bg-muted/40"
                         title="Edit server"
                       >
-                        <Edit2 size={10} className="text-chorus-muted" />
+                        <Edit2 size={10} className="text-muted-foreground" />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteServer(server.id)}
-                        className="rounded p-0.5 hover:bg-chorus-red/10"
+                        className="rounded p-0.5 hover:bg-destructive/10"
                         title="Delete server"
                       >
-                        <Trash2 size={10} className="text-chorus-red" />
+                        <Trash2 size={10} className="text-destructive" />
                       </button>
                     </div>
                   </div>
@@ -909,7 +909,7 @@ function MCPServersSection() {
 
             {/* Empty state */}
             {totalCount === 0 && (
-              <div className="px-2 py-1 text-[11px] text-chorus-muted/60">
+              <div className="px-2 py-1 text-[11px] text-muted-foreground/60">
                 No MCP servers configured
               </div>
             )}
@@ -939,25 +939,25 @@ function getSkillSourceBadge(source: SkillSource): { text: string; className: st
     case "project":
       return {
         text: "Project",
-        className: "bg-chorus-accent/20 text-chorus-accent",
+        className: "bg-primary/20 text-primary",
         icon: FileText,
       };
     case "personal":
       return {
         text: "Personal",
-        className: "bg-chorus-green/20 text-chorus-green",
+        className: "bg-green-500/20 text-green-500",
         icon: Home,
       };
     case "plugin":
       return {
         text: source.name,
-        className: "bg-chorus-purple/20 text-chorus-purple",
+        className: "bg-purple-400/20 text-purple-400",
         icon: Package,
       };
     case "legacy":
       return {
         text: "Legacy",
-        className: "bg-chorus-muted/20 text-chorus-muted",
+        className: "bg-muted-foreground/20 text-muted-foreground",
         icon: FileText,
       };
   }
@@ -1093,22 +1093,22 @@ function PluginsSection() {
 
   return (
     <div className={cardClass}>
-      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
+      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 hover:text-chorus-text"
+          className="flex items-center gap-1 hover:text-foreground"
         >
           {expanded ? (
-            <ChevronDown size={13} className="text-chorus-muted/80" />
+            <ChevronDown size={13} className="text-muted-foreground/80" />
           ) : (
-            <ChevronRight size={13} className="text-chorus-muted/80" />
+            <ChevronRight size={13} className="text-muted-foreground/80" />
           )}
         </button>
-        <Store size={13} className={totalCount > 0 ? "text-chorus-purple" : "text-chorus-muted/80"} />
+        <Store size={13} className={totalCount > 0 ? "text-purple-400" : "text-muted-foreground/80"} />
         <span className="flex-1">Plugins & Skills</span>
         {totalCount > 0 && (
-          <span className="bg-chorus-purple/20 text-chorus-purple text-[10px] px-1.5 rounded-full font-bold">
+          <span className="bg-purple-400/20 text-purple-400 text-[10px] px-1.5 rounded-full font-bold">
             {totalCount}
           </span>
         )}
@@ -1116,18 +1116,18 @@ function PluginsSection() {
           <button
             type="button"
             onClick={handleRefresh}
-            className="rounded p-0.5 hover:bg-chorus-border/40"
+            className="rounded p-0.5 hover:bg-muted/40"
             title="Refresh plugins"
           >
-            <RefreshCw size={12} className={`text-chorus-muted ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw size={12} className={`text-muted-foreground ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
             type="button"
             onClick={() => setShowMarketplace(true)}
-            className="rounded p-0.5 hover:bg-chorus-border/40"
+            className="rounded p-0.5 hover:bg-muted/40"
             title="Add plugin"
           >
-            <PlusCircle size={12} className="text-chorus-accent" />
+            <PlusCircle size={12} className="text-primary" />
           </button>
         </div>
       </div>
@@ -1135,13 +1135,13 @@ function PluginsSection() {
       {expanded && (
         <div className="space-y-0.5">
           {!projectPath ? (
-            <div className="px-2 py-1 text-[11px] text-chorus-muted/60">No project selected</div>
+            <div className="px-2 py-1 text-[11px] text-muted-foreground/60">No project selected</div>
           ) : totalCount === 0 ? (
             <>
-              <div className="px-2 py-1 text-[11px] text-chorus-muted/60">
+              <div className="px-2 py-1 text-[11px] text-muted-foreground/60">
                 No skills found
               </div>
-              <div className="px-2 text-[10px] text-chorus-muted/40">
+              <div className="px-2 text-[10px] text-muted-foreground/40">
                 Add skills to .claude/skills/ or ~/.claude/skills/
               </div>
             </>
@@ -1150,7 +1150,7 @@ function PluginsSection() {
               {/* Plugins with their skills */}
               {plugins.length > 0 && (
                 <>
-                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted/60">
+                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/60">
                     Plugins ({plugins.length})
                   </div>
                   {plugins.map((plugin) => {
@@ -1168,7 +1168,7 @@ function PluginsSection() {
                       <div key={plugin.id}>
                         {/* Plugin row - clickable to expand */}
                         <div
-                          className="group flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
+                          className="group flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
                           title={plugin.description || plugin.path || undefined}
                         >
                           <button
@@ -1178,31 +1178,31 @@ function PluginsSection() {
                           >
                             {pluginSkills.length > 0 ? (
                               isPluginExpanded ? (
-                                <ChevronDown size={10} className="shrink-0 text-chorus-muted" />
+                                <ChevronDown size={10} className="shrink-0 text-muted-foreground" />
                               ) : (
-                                <ChevronRight size={10} className="shrink-0 text-chorus-muted" />
+                                <ChevronRight size={10} className="shrink-0 text-muted-foreground" />
                               )
                             ) : (
                               <span className="w-[10px]" />
                             )}
-                            <Package size={12} className="shrink-0 text-chorus-purple" />
+                            <Package size={12} className="shrink-0 text-purple-400" />
                             <span className="flex-1 truncate font-medium text-left">{plugin.name}</span>
                           </button>
                           {pluginSkills.length > 0 && (
-                            <span className="text-[10px] text-chorus-muted">{pluginSkills.length}</span>
+                            <span className="text-[10px] text-muted-foreground">{pluginSkills.length}</span>
                           )}
-                          <span className="text-[10px] text-chorus-muted">v{plugin.version}</span>
+                          <span className="text-[10px] text-muted-foreground">v{plugin.version}</span>
                           {canUninstallPlugin(plugin) && (
                             <button
                               type="button"
                               onClick={(e) => handleUninstallPlugin(e, plugin.id, plugin.path, plugin.plugin_source)}
                               disabled={isUninstalling}
-                              className="shrink-0 rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-chorus-red/10 transition-opacity"
+                              className="shrink-0 rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-opacity"
                               title="Uninstall plugin"
                             >
                               <Trash2
                                 size={10}
-                                className={isUninstalling ? "text-chorus-muted animate-pulse" : "text-chorus-red"}
+                                className={isUninstalling ? "text-muted-foreground animate-pulse" : "text-destructive"}
                               />
                             </button>
                           )}
@@ -1210,14 +1210,14 @@ function PluginsSection() {
 
                         {/* Expanded skills */}
                         {isPluginExpanded && pluginSkills.length > 0 && (
-                          <div className="ml-4 border-l border-chorus-border/40 pl-2">
+                          <div className="ml-4 border-l border-border/40 pl-2">
                             {pluginSkills.map((skill) => (
                               <div
                                 key={skill.id}
-                                className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
+                                className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
                                 title={skill.description || skill.path || undefined}
                               >
-                                <Zap size={11} className="shrink-0 text-chorus-orange" />
+                                <Zap size={11} className="shrink-0 text-orange-400" />
                                 <span className="flex-1 truncate">{skill.name}</span>
                               </div>
                             ))}
@@ -1232,7 +1232,7 @@ function PluginsSection() {
               {/* Standalone Skills */}
               {standaloneSkills.length > 0 && (
                 <>
-                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted/60">
+                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/60">
                     Skills ({standaloneSkills.length})
                   </div>
                   {standaloneSkills.map((skill) => {
@@ -1241,10 +1241,10 @@ function PluginsSection() {
                     return (
                       <div
                         key={skill.id}
-                        className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
+                        className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
                         title={skill.description || skill.path || undefined}
                       >
-                        <Zap size={12} className="shrink-0 text-chorus-orange" />
+                        <Zap size={12} className="shrink-0 text-orange-400" />
                         <span className="flex-1 truncate font-medium">{skill.name}</span>
                         <span className={`shrink-0 rounded px-1 text-[9px] ${badge.className}`}>
                           {badge.text}
@@ -1254,12 +1254,12 @@ function PluginsSection() {
                             type="button"
                             onClick={(e) => handleDeleteSkill(e, skill.id, skill.path)}
                             disabled={isDeleting}
-                            className="shrink-0 rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-chorus-red/10 transition-opacity"
+                            className="shrink-0 rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-opacity"
                             title="Delete skill"
                           >
                             <Trash2
                               size={10}
-                              className={isDeleting ? "text-chorus-muted animate-pulse" : "text-chorus-red"}
+                              className={isDeleting ? "text-muted-foreground animate-pulse" : "text-destructive"}
                             />
                           </button>
                         )}
@@ -1290,10 +1290,10 @@ function QuickActionsSection() {
   const [showManager, setShowManager] = useState(false);
 
   const actions = [
-    { label: "Run App", icon: Play, color: "text-chorus-green" },
-    { label: "Commit & Push", icon: Circle, color: "text-chorus-accent" },
-    { label: "Fix Errors", icon: AlertTriangle, color: "text-chorus-orange" },
-    { label: "Lint & Format", icon: Wrench, color: "text-chorus-purple" },
+    { label: "Run App", icon: Play, color: "text-green-500" },
+    { label: "Commit & Push", icon: Circle, color: "text-primary" },
+    { label: "Fix Errors", icon: AlertTriangle, color: "text-orange-400" },
+    { label: "Lint & Format", icon: Wrench, color: "text-purple-400" },
   ];
 
   return (
@@ -1302,18 +1302,18 @@ function QuickActionsSection() {
         <SectionHeader
           icon={Zap}
           label="Quick Actions"
-          iconColor="text-chorus-orange"
+          iconColor="text-orange-400"
           breathe
           right={
             <div className="flex items-center gap-1">
-              <span className="h-2 w-2 shrink-0 rounded-full bg-chorus-yellow" />
+              <span className="h-2 w-2 shrink-0 rounded-full bg-yellow-400" />
               <button
                 type="button"
-                className="rounded p-0.5 hover:bg-chorus-border/40"
+                className="rounded p-0.5 hover:bg-muted/40"
                 onClick={() => setShowManager(true)}
                 title="Manage Quick Actions"
               >
-                <Settings size={12} className="text-chorus-muted" />
+                <Settings size={12} className="text-muted-foreground" />
               </button>
             </div>
           }
@@ -1323,7 +1323,7 @@ function QuickActionsSection() {
             <button
               type="button"
               key={a.label}
-              className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
+              className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-muted/40"
             >
               <a.icon size={14} className={a.color} />
               <span>{a.label}</span>
@@ -1356,44 +1356,44 @@ function AppearanceSection({
   return (
     <>
       <div className={cardClass}>
-        <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
+        <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <Settings size={13} />
           Appearance
         </div>
         <button
           type="button"
           onClick={onToggle}
-          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-muted/40"
         >
           {isDark ? (
-            <Sun size={14} className="text-chorus-orange" />
+            <Sun size={14} className="text-orange-400" />
           ) : (
-            <Moon size={14} className="text-chorus-accent" />
+            <Moon size={14} className="text-primary" />
           )}
           <span>{isDark ? "Switch to Light" : "Switch to Dark"}</span>
         </button>
         <button
           type="button"
           onClick={() => setShowThemeSettings(true)}
-          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-muted/40"
         >
-          <Palette size={14} className="text-chorus-purple" />
+          <Palette size={14} className="text-purple-400" />
           <span>Theme Settings</span>
         </button>
         <button
           type="button"
           onClick={() => setShowTerminalSettings(true)}
-          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-muted/40"
         >
-          <Wrench size={14} className="text-chorus-muted" />
+          <Wrench size={14} className="text-muted-foreground" />
           <span>Terminal Settings</span>
         </button>
         <button
           type="button"
           onClick={() => setShowShortcuts(true)}
-          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-muted/40"
         >
-          <Keyboard size={14} className="text-chorus-accent" />
+          <Keyboard size={14} className="text-primary" />
           <span>Keyboard Shortcuts</span>
         </button>
       </div>
@@ -1446,29 +1446,29 @@ function AgentSessionsSection() {
       <SectionHeader
         icon={Cpu}
         label="Agent Sessions"
-        iconColor="text-chorus-accent"
+        iconColor="text-primary"
         breathe
         badge={
-          <span className="bg-chorus-accent/20 text-chorus-accent text-[10px] px-1.5 rounded-full font-bold">
+          <span className="bg-primary/20 text-primary text-[10px] px-1.5 rounded-full font-bold">
             {sessions.length}
           </span>
         }
       />
       <div className="space-y-0.5">
         {sessions.length === 0 ? (
-          <div className="px-2 py-1 text-[11px] text-chorus-muted/60">No active agents</div>
+          <div className="px-2 py-1 text-[11px] text-muted-foreground/60">No active agents</div>
         ) : (
           sessions.map((s) => (
             <div
               key={s.id}
-              className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
+              className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
             >
               <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT_CLASS[s.status]}`} />
               <span className="flex-1 truncate">
                 <span className="font-medium">#{s.id}</span>{" "}
-                <span className="text-chorus-muted">{s.mode}</span>{" "}
-                <span className="text-chorus-muted">-</span>{" "}
-                <span className="text-chorus-muted">{STATUS_LABEL[s.status]}</span>
+                <span className="text-muted-foreground">{s.mode}</span>{" "}
+                <span className="text-muted-foreground">-</span>{" "}
+                <span className="text-muted-foreground">{STATUS_LABEL[s.status]}</span>
               </span>
             </div>
           ))
@@ -1574,27 +1574,27 @@ function ProcessTreeSection() {
     };
 
     return (
-      <div className={depth > 0 ? "ml-3 border-l border-chorus-border/40 pl-2" : ""}>
-        <div className="group flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] text-chorus-text hover:bg-chorus-border/40">
+      <div className={depth > 0 ? "ml-3 border-l border-border/40 pl-2" : ""}>
+        <div className="group flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] text-foreground hover:bg-muted/40">
           {hasChildren ? (
             <button
               type="button"
               onClick={() => setNodeExpanded(!nodeExpanded)}
-              className="shrink-0 p-0.5 hover:bg-chorus-border/40 rounded"
+              className="shrink-0 p-0.5 hover:bg-muted/40 rounded"
             >
               {nodeExpanded ? (
-                <ChevronDown size={10} className="text-chorus-muted" />
+                <ChevronDown size={10} className="text-muted-foreground" />
               ) : (
-                <ChevronRight size={10} className="text-chorus-muted" />
+                <ChevronRight size={10} className="text-muted-foreground" />
               )}
             </button>
           ) : (
             <span className="w-[18px]" />
           )}
-          <Cpu size={10} className="shrink-0 text-chorus-accent" />
+          <Cpu size={10} className="shrink-0 text-primary" />
           <span className="flex-1 truncate font-medium">{process.name}</span>
-          <span className="shrink-0 text-[9px] text-chorus-muted">{process.pid}</span>
-          <span className="shrink-0 text-[9px] text-chorus-muted/60">
+          <span className="shrink-0 text-[9px] text-muted-foreground">{process.pid}</span>
+          <span className="shrink-0 text-[9px] text-muted-foreground/60">
             {formatMemory(process.memoryBytes)}
           </span>
           {/* Kill button - only for non-root processes */}
@@ -1603,10 +1603,10 @@ function ProcessTreeSection() {
               type="button"
               onClick={handleKill}
               disabled={isKilling}
-              className="shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-chorus-red/20 transition-opacity"
+              className="shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/20 transition-opacity"
               title={`Kill process ${process.pid}`}
             >
-              <X size={10} className={isKilling ? "text-chorus-muted animate-pulse" : "text-chorus-red"} />
+              <X size={10} className={isKilling ? "text-muted-foreground animate-pulse" : "text-destructive"} />
             </button>
           )}
         </div>
@@ -1626,39 +1626,39 @@ function ProcessTreeSection() {
 
   return (
     <div className={cardClass}>
-      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
+      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 hover:text-chorus-text"
+          className="flex items-center gap-1 hover:text-foreground"
         >
           {expanded ? (
-            <ChevronDown size={13} className="text-chorus-muted/80" />
+            <ChevronDown size={13} className="text-muted-foreground/80" />
           ) : (
-            <ChevronRight size={13} className="text-chorus-muted/80" />
+            <ChevronRight size={13} className="text-muted-foreground/80" />
           )}
         </button>
-        <Globe size={13} className={totalProcesses > 0 ? "text-chorus-green" : "text-chorus-muted/80"} />
+        <Globe size={13} className={totalProcesses > 0 ? "text-green-500" : "text-muted-foreground/80"} />
         <span className="flex-1">Process Tree</span>
         {totalProcesses > 0 && (
-          <span className="bg-chorus-green/20 text-chorus-green text-[10px] px-1.5 rounded-full font-bold">
+          <span className="bg-green-500/20 text-green-500 text-[10px] px-1.5 rounded-full font-bold">
             {totalProcesses}
           </span>
         )}
         <button
           type="button"
           onClick={handleRefresh}
-          className="rounded p-0.5 hover:bg-chorus-border/40"
+          className="rounded p-0.5 hover:bg-muted/40"
           title="Refresh process tree"
         >
-          <RefreshCw size={12} className={`text-chorus-muted ${isLoading ? "animate-spin" : ""}`} />
+          <RefreshCw size={12} className={`text-muted-foreground ${isLoading ? "animate-spin" : ""}`} />
         </button>
       </div>
 
       {expanded && (
         <div className="space-y-1">
           {projectTrees.length === 0 ? (
-            <div className="px-2 py-1 text-[11px] text-chorus-muted/60">
+            <div className="px-2 py-1 text-[11px] text-muted-foreground/60">
               {projectSessions.length === 0 ? "No active sessions" : "No running processes"}
             </div>
           ) : (
@@ -1674,23 +1674,23 @@ function ProcessTreeSection() {
                   <button
                     type="button"
                     onClick={() => toggleSession(tree.sessionId)}
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
                   >
                     {isSessionExpanded ? (
-                      <ChevronDown size={10} className="shrink-0 text-chorus-muted" />
+                      <ChevronDown size={10} className="shrink-0 text-muted-foreground" />
                     ) : (
-                      <ChevronRight size={10} className="shrink-0 text-chorus-muted" />
+                      <ChevronRight size={10} className="shrink-0 text-muted-foreground" />
                     )}
-                    <Bot size={12} className="shrink-0 text-chorus-purple" />
+                    <Bot size={12} className="shrink-0 text-purple-400" />
                     <span className="flex-1 text-left font-medium">
                       Session #{tree.sessionId}
                       {session && (
-                        <span className="ml-1 text-chorus-muted font-normal">
+                        <span className="ml-1 text-muted-foreground font-normal">
                           ({session.mode})
                         </span>
                       )}
                     </span>
-                    <span className="text-[10px] text-chorus-muted">
+                    <span className="text-[10px] text-muted-foreground">
                       {tree.processes.length} proc{tree.processes.length !== 1 && "s"}
                     </span>
                   </button>
@@ -1724,16 +1724,16 @@ function OrphanedProcessesSection() {
       <SectionHeader
         icon={Skull}
         label="Orphaned Processes"
-        iconColor="text-chorus-red"
+        iconColor="text-destructive"
         right={
-          <button type="button" className="rounded p-0.5 hover:bg-chorus-border/40">
-            <RefreshCw size={12} className="text-chorus-muted" />
+          <button type="button" className="rounded p-0.5 hover:bg-muted/40">
+            <RefreshCw size={12} className="text-muted-foreground" />
           </button>
         }
       />
       <div className="flex items-center gap-2 px-2 py-1">
-        <span className="h-2 w-2 shrink-0 rounded-full bg-chorus-green" />
-        <span className="text-[11px] text-chorus-muted/60">No orphaned processes</span>
+        <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" />
+        <span className="text-[11px] text-muted-foreground/60">No orphaned processes</span>
       </div>
     </div>
   );

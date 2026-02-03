@@ -1,17 +1,22 @@
-import { Loader2, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useRef, useState } from "react";
 import { writeClaudeMd } from "@/lib/claudemd";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ClaudeMdEditorModalProps {
-  /** Current project path */
   projectPath: string;
-  /** Whether the file exists (determines create vs edit mode) */
   exists: boolean;
-  /** Initial content (if editing existing file) */
   initialContent?: string;
-  /** Close handler */
   onClose: () => void;
-  /** Callback after successful save */
   onSaved?: () => void;
 }
 
@@ -29,9 +34,6 @@ const DEFAULT_TEMPLATE = `# Project Context
 [Any important context Claude should know]
 `;
 
-/**
- * Modal for viewing and editing CLAUDE.md files.
- */
 export function ClaudeMdEditorModal({
   projectPath,
   exists,
@@ -39,7 +41,6 @@ export function ClaudeMdEditorModal({
   onClose,
   onSaved,
 }: ClaudeMdEditorModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [content, setContent] = useState(
@@ -47,33 +48,6 @@ export function ClaudeMdEditorModal({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Close on outside click
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [onClose]);
-
-  // Close on Escape
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
-  // Focus textarea on mount
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
 
   const handleSave = async () => {
     setError(null);
@@ -91,61 +65,37 @@ export function ClaudeMdEditorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div
-        ref={modalRef}
-        className="w-full max-w-2xl rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-chorus-text">
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
             {exists ? "Edit CLAUDE.md" : "Create CLAUDE.md"}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded p-1 hover:bg-chorus-border/40"
-          >
-            <X size={16} className="text-chorus-muted" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-4">
-          <p className="mb-3 text-xs text-chorus-muted">
+          </DialogTitle>
+          <DialogDescription>
             {exists
               ? "Edit the project context file that provides instructions to Claude."
               : "Create a CLAUDE.md file to provide project-specific context and instructions to Claude."}
-          </p>
+          </DialogDescription>
+        </DialogHeader>
 
-          <textarea
+        <div className="py-4">
+          <Textarea
             ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Enter project context..."
-            className="h-80 w-full resize-none rounded border border-chorus-border bg-chorus-surface p-3 font-mono text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
+            className="h-80 resize-none font-mono text-xs"
             spellCheck={false}
           />
 
-          {/* Error */}
-          {error && <p className="mt-2 text-xs text-chorus-red">{error}</p>}
+          {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-2 border-t border-chorus-border px-4 py-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded px-4 py-2 text-xs text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
-          >
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 rounded bg-chorus-accent px-4 py-2 text-xs text-white hover:bg-chorus-accent/80 disabled:opacity-50"
-          >
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
             {saving ? (
               <>
                 <Loader2 size={12} className="animate-spin" />
@@ -156,9 +106,9 @@ export function ClaudeMdEditorModal({
             ) : (
               "Create File"
             )}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

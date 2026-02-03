@@ -475,7 +475,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
   return (
     <div
-      className={`terminal-cell flex h-full flex-col bg-chorus-bg ${cellStatusClass(effectiveStatus)} ${isFocused ? "ring-2 ring-chorus-accent ring-inset" : ""}`}
+      className={`terminal-cell flex h-full flex-col bg-background ${cellStatusClass(effectiveStatus)} ${isFocused ? "ring-2 ring-primary ring-inset" : ""}`}
       onClick={onFocus}
     >
       {/* Rich header bar */}

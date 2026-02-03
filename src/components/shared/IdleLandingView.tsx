@@ -1,4 +1,5 @@
 import { BrainCircuit, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface IdleLandingViewProps {
   onAdd: () => void;
@@ -7,29 +8,26 @@ interface IdleLandingViewProps {
 export function IdleLandingView({ onAdd }: IdleLandingViewProps) {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6">
-      {/* Large centered Claude brain icon */}
       <BrainCircuit
         size={56}
         strokeWidth={1.2}
         className="motion-safe:animate-breathe motion-reduce:animate-none text-violet-500 drop-shadow-[0_0_10px_rgba(139,92,246,0.6)]"
       />
 
-      {/* Prompt text */}
       <div className="flex flex-col items-center gap-1.5">
-        <p className="text-sm text-chorus-muted">Select branch and click Launch</p>
-        <p className="text-xs text-chorus-muted/50">Using current branch</p>
+        <p className="text-sm text-muted-foreground">Select branch and click Launch</p>
+        <p className="text-xs text-muted-foreground/50">Using current branch</p>
       </div>
 
-      {/* Centered blue + button */}
-      <button
-        type="button"
+      <Button
         onClick={onAdd}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-chorus-accent text-white shadow-lg shadow-chorus-accent/25 transition-all duration-200 hover:bg-chorus-accent/90 hover:shadow-chorus-accent/35 hover:scale-105 active:scale-95"
+        size="icon"
+        className="h-14 w-14 rounded-full shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
         aria-label="Launch new session"
         title="Launch new session"
       >
         <Plus size={28} strokeWidth={1.5} />
-      </button>
+      </Button>
     </div>
   );
 }

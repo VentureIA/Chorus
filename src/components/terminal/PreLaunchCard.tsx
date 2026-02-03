@@ -29,22 +29,22 @@ function getSkillSourceLabel(source: SkillSource): { text: string; className: st
     case "project":
       return {
         text: "Project",
-        className: "bg-chorus-accent/20 text-chorus-accent",
+        className: "bg-primary/20 text-primary",
       };
     case "personal":
       return {
         text: "Personal",
-        className: "bg-chorus-green/20 text-chorus-green",
+        className: "bg-green-500/20 text-green-500",
       };
     case "plugin":
       return {
         text: source.name,
-        className: "bg-chorus-purple/20 text-chorus-purple",
+        className: "bg-purple-400/20 text-purple-400",
       };
     case "legacy":
       return {
         text: "Legacy",
-        className: "bg-chorus-muted/20 text-chorus-muted",
+        className: "bg-muted-foreground/20 text-muted-foreground",
       };
   }
 }
@@ -91,7 +91,7 @@ const AI_MODES: { mode: AiMode; icon: typeof BrainCircuit; label: string; color:
   { mode: "Claude", icon: BrainCircuit, label: "Claude Code", color: "text-violet-500" },
   { mode: "Gemini", icon: Sparkles, label: "Gemini CLI", color: "text-blue-400" },
   { mode: "Codex", icon: Code2, label: "Codex", color: "text-green-400" },
-  { mode: "Plain", icon: Terminal, label: "Terminal", color: "text-chorus-muted" },
+  { mode: "Plain", icon: Terminal, label: "Terminal", color: "text-muted-foreground" },
 ];
 
 function getModeConfig(mode: AiMode) {
@@ -220,16 +220,16 @@ export function PreLaunchCard({
   const remoteBranches = branches.filter((b) => b.isRemote);
 
   return (
-    <div className="content-dark terminal-cell flex h-full flex-col items-center justify-center bg-chorus-bg p-4">
+    <div className="content-dark terminal-cell flex h-full flex-col items-center justify-center bg-background p-4">
       {/* Card content */}
       <div className="flex w-full max-w-xs flex-col gap-4">
         {/* Header with remove button */}
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-chorus-text">Configure Session</span>
+          <span className="text-sm font-medium text-foreground">Configure Session</span>
           <button
             type="button"
             onClick={onRemove}
-            className="rounded p-1 text-chorus-muted transition-colors hover:bg-chorus-card hover:text-chorus-red"
+            className="rounded p-1 text-muted-foreground transition-colors hover:bg-card hover:text-destructive"
             title="Remove session slot"
             aria-label="Remove session slot"
           >
@@ -239,23 +239,23 @@ export function PreLaunchCard({
 
         {/* AI Mode Selector */}
         <div className="relative" ref={modeDropdownRef}>
-          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-chorus-muted">
+          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
             AI Mode
           </label>
           <button
             type="button"
             onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
-            className="flex w-full items-center justify-between gap-2 rounded border border-chorus-border bg-chorus-card px-3 py-2 text-left text-sm text-chorus-text transition-colors hover:border-chorus-accent/50"
+            className="flex w-full items-center justify-between gap-2 rounded border border-border bg-card px-3 py-2 text-left text-sm text-foreground transition-colors hover:border-primary/50"
           >
             <div className="flex items-center gap-2">
               <ModeIcon size={16} className={modeConfig.color} />
               <span>{modeConfig.label}</span>
             </div>
-            <ChevronDown size={14} className="text-chorus-muted" />
+            <ChevronDown size={14} className="text-muted-foreground" />
           </button>
 
           {modeDropdownOpen && (
-            <div className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded border border-chorus-border bg-chorus-card shadow-lg">
+            <div className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded border border-border bg-card shadow-lg">
               {AI_MODES.map((option) => {
                 const Icon = option.icon;
                 const isSelected = option.mode === slot.mode;
@@ -269,8 +269,8 @@ export function PreLaunchCard({
                     }}
                     className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
                       isSelected
-                        ? "bg-chorus-accent/10 text-chorus-text"
-                        : "text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
+                        ? "bg-primary/10 text-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`}
                   >
                     <Icon size={16} className={option.color} />
@@ -284,11 +284,11 @@ export function PreLaunchCard({
 
         {/* Branch Selector */}
         <div className="relative" ref={branchDropdownRef}>
-          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-chorus-muted">
+          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
             Git Branch
           </label>
           {!isGitRepo ? (
-            <div className="flex items-center gap-2 rounded border border-chorus-border bg-chorus-card/50 px-3 py-2 text-sm text-chorus-muted">
+            <div className="flex items-center gap-2 rounded border border-border bg-card/50 px-3 py-2 text-sm text-muted-foreground">
               <Terminal size={14} />
               <span>Not a Git repository</span>
             </div>
@@ -298,37 +298,37 @@ export function PreLaunchCard({
                 type="button"
                 onClick={() => setBranchDropdownOpen(!branchDropdownOpen)}
                 disabled={isLoadingBranches}
-                className="flex w-full items-center justify-between gap-2 rounded border border-chorus-border bg-chorus-card px-3 py-2 text-left text-sm text-chorus-text transition-colors hover:border-chorus-accent/50 disabled:opacity-50"
+                className="flex w-full items-center justify-between gap-2 rounded border border-border bg-card px-3 py-2 text-left text-sm text-foreground transition-colors hover:border-primary/50 disabled:opacity-50"
               >
                 <div className="flex min-w-0 items-center gap-2">
-                  <GitBranch size={14} className="shrink-0 text-chorus-accent" />
+                  <GitBranch size={14} className="shrink-0 text-primary" />
                   <span className="truncate">{displayBranch}</span>
                   {selectedBranchInfo?.hasWorktree && (
                     <span title="Worktree exists">
-                      <FolderGit2 size={12} className="shrink-0 text-chorus-orange" />
+                      <FolderGit2 size={12} className="shrink-0 text-orange-400" />
                     </span>
                   )}
                   {selectedBranchInfo?.isCurrent && (
-                    <span className="shrink-0 rounded bg-chorus-green/20 px-1 text-[9px] text-chorus-green">
+                    <span className="shrink-0 rounded bg-green-500/20 px-1 text-[9px] text-green-500">
                       current
                     </span>
                   )}
                 </div>
-                <ChevronDown size={14} className="shrink-0 text-chorus-muted" />
+                <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
               </button>
 
               {branchDropdownOpen && (
-                <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded border border-chorus-border bg-chorus-card shadow-lg">
+                <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded border border-border bg-card shadow-lg">
                   {/* Search input */}
-                  <div className="border-b border-chorus-border p-2">
+                  <div className="border-b border-border p-2">
                     <div className="relative">
-                      <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-chorus-muted" />
+                      <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
                       <input
                         type="text"
                         placeholder="Search branches..."
                         value={branchSearchQuery}
                         onChange={(e) => setBranchSearchQuery(e.target.value)}
-                        className="w-full rounded border border-chorus-border bg-chorus-surface py-1.5 pl-7 pr-2 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
+                        className="w-full rounded border border-border bg-muted py-1.5 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
@@ -346,8 +346,8 @@ export function PreLaunchCard({
                         }}
                         className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
                           slot.branch === null
-                            ? "bg-chorus-accent/10 text-chorus-text"
-                            : "text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
+                            ? "bg-primary/10 text-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                         }`}
                       >
                         <GitBranch size={14} />
@@ -360,7 +360,7 @@ export function PreLaunchCard({
                       b.name.toLowerCase().includes(branchSearchQuery.toLowerCase())
                     ).length > 0 && (
                       <>
-                        <div className="border-t border-chorus-border px-3 py-1 text-[9px] font-medium uppercase tracking-wide text-chorus-muted">
+                        <div className="border-t border-border px-3 py-1 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
                           Local
                         </div>
                         {localBranches
@@ -376,19 +376,19 @@ export function PreLaunchCard({
                               }}
                               className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
                                 slot.branch === branch.name
-                                  ? "bg-chorus-accent/10 text-chorus-text"
-                                  : "text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
+                                  ? "bg-primary/10 text-foreground"
+                                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
                               }`}
                             >
                               <GitBranch size={14} />
                               <span className="truncate">{branch.name}</span>
                               {branch.hasWorktree && (
                                 <span title="Worktree exists">
-                                  <FolderGit2 size={12} className="shrink-0 text-chorus-orange" />
+                                  <FolderGit2 size={12} className="shrink-0 text-orange-400" />
                                 </span>
                               )}
                               {branch.isCurrent && (
-                                <span className="shrink-0 rounded bg-chorus-green/20 px-1 text-[9px] text-chorus-green">
+                                <span className="shrink-0 rounded bg-green-500/20 px-1 text-[9px] text-green-500">
                                   current
                                 </span>
                               )}
@@ -402,7 +402,7 @@ export function PreLaunchCard({
                       b.name.toLowerCase().includes(branchSearchQuery.toLowerCase())
                     ).length > 0 && (
                       <>
-                        <div className="border-t border-chorus-border px-3 py-1 text-[9px] font-medium uppercase tracking-wide text-chorus-muted">
+                        <div className="border-t border-border px-3 py-1 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
                           Remote
                         </div>
                         {remoteBranches
@@ -418,15 +418,15 @@ export function PreLaunchCard({
                               }}
                               className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
                                 slot.branch === branch.name
-                                  ? "bg-chorus-accent/10 text-chorus-text"
-                                  : "text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
+                                  ? "bg-primary/10 text-foreground"
+                                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
                               }`}
                             >
-                              <GitBranch size={14} className="text-chorus-muted/60" />
+                              <GitBranch size={14} className="text-muted-foreground/60" />
                               <span className="truncate">{branch.name}</span>
                               {branch.hasWorktree && (
                                 <span title="Worktree exists">
-                                  <FolderGit2 size={12} className="shrink-0 text-chorus-orange" />
+                                  <FolderGit2 size={12} className="shrink-0 text-orange-400" />
                                 </span>
                               )}
                             </button>
@@ -439,7 +439,7 @@ export function PreLaunchCard({
                       localBranches.filter((b) => b.name.toLowerCase().includes(branchSearchQuery.toLowerCase())).length === 0 &&
                       remoteBranches.filter((b) => b.name.toLowerCase().includes(branchSearchQuery.toLowerCase())).length === 0 &&
                       !"use current branch".includes(branchSearchQuery.toLowerCase()) && (
-                        <div className="px-3 py-2 text-center text-xs text-chorus-muted">
+                        <div className="px-3 py-2 text-center text-xs text-muted-foreground">
                           No branches match "{branchSearchQuery}"
                         </div>
                       )}
@@ -452,11 +452,11 @@ export function PreLaunchCard({
 
         {/* MCP Servers Selector */}
         <div className="relative" ref={mcpDropdownRef}>
-          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-chorus-muted">
+          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
             MCP Servers
           </label>
           {!hasMcpServers ? (
-            <div className="flex items-center gap-2 rounded border border-chorus-border bg-chorus-card/50 px-3 py-2 text-sm text-chorus-muted">
+            <div className="flex items-center gap-2 rounded border border-border bg-card/50 px-3 py-2 text-sm text-muted-foreground">
               <Server size={14} />
               <span>No MCP servers configured</span>
             </div>
@@ -465,35 +465,35 @@ export function PreLaunchCard({
               <button
                 type="button"
                 onClick={() => setMcpDropdownOpen(!mcpDropdownOpen)}
-                className="flex w-full items-center justify-between gap-2 rounded border border-chorus-border bg-chorus-card px-3 py-2 text-left text-sm text-chorus-text transition-colors hover:border-chorus-accent/50"
+                className="flex w-full items-center justify-between gap-2 rounded border border-border bg-card px-3 py-2 text-left text-sm text-foreground transition-colors hover:border-primary/50"
               >
                 <div className="flex items-center gap-2">
-                  <Server size={14} className="text-chorus-green" />
+                  <Server size={14} className="text-green-500" />
                   <span>
                     {enabledCount} of {totalCount} servers
                   </span>
                 </div>
-                <ChevronDown size={14} className="text-chorus-muted" />
+                <ChevronDown size={14} className="text-muted-foreground" />
               </button>
 
               {mcpDropdownOpen && (
-                <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded border border-chorus-border bg-chorus-card shadow-lg">
+                <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded border border-border bg-card shadow-lg">
                   {/* Search input */}
-                  <div className="border-b border-chorus-border p-2">
+                  <div className="border-b border-border p-2">
                     <div className="relative">
-                      <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-chorus-muted" />
+                      <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
                       <input
                         type="text"
                         placeholder="Search servers..."
                         value={mcpSearchQuery}
                         onChange={(e) => setMcpSearchQuery(e.target.value)}
-                        className="w-full rounded border border-chorus-border bg-chorus-surface py-1.5 pl-7 pr-2 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
+                        className="w-full rounded border border-border bg-muted py-1.5 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
                   </div>
                   {/* Select All / Unselect All buttons */}
-                  <div className="flex items-center justify-between border-b border-chorus-border px-2 py-1.5">
+                  <div className="flex items-center justify-between border-b border-border px-2 py-1.5">
                     <div className="flex gap-1">
                       <button
                         type="button"
@@ -501,7 +501,7 @@ export function PreLaunchCard({
                           e.stopPropagation();
                           onMcpSelectAll();
                         }}
-                        className="rounded bg-chorus-surface px-2 py-0.5 text-[10px] text-chorus-muted transition-colors hover:bg-chorus-border hover:text-chorus-text"
+                        className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-border hover:text-foreground"
                       >
                         Select All
                       </button>
@@ -511,12 +511,12 @@ export function PreLaunchCard({
                           e.stopPropagation();
                           onMcpUnselectAll();
                         }}
-                        className="rounded bg-chorus-surface px-2 py-0.5 text-[10px] text-chorus-muted transition-colors hover:bg-chorus-border hover:text-chorus-text"
+                        className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-border hover:text-foreground"
                       >
                         Unselect All
                       </button>
                     </div>
-                    <span className="text-[10px] text-chorus-muted">
+                    <span className="text-[10px] text-muted-foreground">
                       {enabledCount}/{totalCount}
                     </span>
                   </div>
@@ -534,21 +534,21 @@ export function PreLaunchCard({
                             key={server.name}
                             type="button"
                             onClick={() => onMcpToggle(server.name)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-chorus-surface"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted"
                           >
                             <span
                               className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                                 isEnabled
-                                  ? "border-chorus-green bg-chorus-green"
-                                  : "border-chorus-border bg-transparent"
+                                  ? "border-green-500 bg-green-500"
+                                  : "border-border bg-transparent"
                               }`}
                             >
                               {isEnabled && <Check size={12} className="text-white" />}
                             </span>
-                            <span className={isEnabled ? "text-chorus-text" : "text-chorus-muted"}>
+                            <span className={isEnabled ? "text-foreground" : "text-muted-foreground"}>
                               {server.name}
                             </span>
-                            <span className="ml-auto text-[10px] text-chorus-muted/60">
+                            <span className="ml-auto text-[10px] text-muted-foreground/60">
                               {serverType}
                             </span>
                           </button>
@@ -557,7 +557,7 @@ export function PreLaunchCard({
                     {mcpServers.filter((server) =>
                       server.name.toLowerCase().includes(mcpSearchQuery.toLowerCase())
                     ).length === 0 && (
-                      <div className="px-3 py-2 text-center text-xs text-chorus-muted">
+                      <div className="px-3 py-2 text-center text-xs text-muted-foreground">
                         No servers match "{mcpSearchQuery}"
                       </div>
                     )}
@@ -570,11 +570,11 @@ export function PreLaunchCard({
 
         {/* Plugins & Skills Selector */}
         <div className="relative" ref={pluginsSkillsDropdownRef}>
-          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-chorus-muted">
+          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
             Plugins & Skills
           </label>
           {!hasPluginsOrSkills ? (
-            <div className="flex items-center gap-2 rounded border border-chorus-border bg-chorus-card/50 px-3 py-2 text-sm text-chorus-muted">
+            <div className="flex items-center gap-2 rounded border border-border bg-card/50 px-3 py-2 text-sm text-muted-foreground">
               <Store size={14} />
               <span>No plugins or skills configured</span>
             </div>
@@ -583,35 +583,35 @@ export function PreLaunchCard({
               <button
                 type="button"
                 onClick={() => setPluginsSkillsDropdownOpen(!pluginsSkillsDropdownOpen)}
-                className="flex w-full items-center justify-between gap-2 rounded border border-chorus-border bg-chorus-card px-3 py-2 text-left text-sm text-chorus-text transition-colors hover:border-chorus-accent/50"
+                className="flex w-full items-center justify-between gap-2 rounded border border-border bg-card px-3 py-2 text-left text-sm text-foreground transition-colors hover:border-primary/50"
               >
                 <div className="flex items-center gap-2">
-                  <Store size={14} className="text-chorus-purple" />
+                  <Store size={14} className="text-purple-400" />
                   <span>
                     {enabledPluginsCount} plugins, {enabledSkillsCount} skills
                   </span>
                 </div>
-                <ChevronDown size={14} className="text-chorus-muted" />
+                <ChevronDown size={14} className="text-muted-foreground" />
               </button>
 
               {pluginsSkillsDropdownOpen && (
-                <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded border border-chorus-border bg-chorus-card shadow-lg">
+                <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded border border-border bg-card shadow-lg">
                   {/* Search input */}
-                  <div className="border-b border-chorus-border p-2">
+                  <div className="border-b border-border p-2">
                     <div className="relative">
-                      <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-chorus-muted" />
+                      <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
                       <input
                         type="text"
                         placeholder="Search plugins & skills..."
                         value={pluginsSearchQuery}
                         onChange={(e) => setPluginsSearchQuery(e.target.value)}
-                        className="w-full rounded border border-chorus-border bg-chorus-surface py-1.5 pl-7 pr-2 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
+                        className="w-full rounded border border-border bg-muted py-1.5 pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
                   </div>
                   {/* Select All / Unselect All buttons */}
-                  <div className="flex items-center justify-between border-b border-chorus-border px-2 py-1.5">
+                  <div className="flex items-center justify-between border-b border-border px-2 py-1.5">
                     <div className="flex gap-1">
                       <button
                         type="button"
@@ -619,7 +619,7 @@ export function PreLaunchCard({
                           e.stopPropagation();
                           onPluginsSelectAll();
                         }}
-                        className="rounded bg-chorus-surface px-2 py-0.5 text-[10px] text-chorus-muted transition-colors hover:bg-chorus-border hover:text-chorus-text"
+                        className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-border hover:text-foreground"
                       >
                         Select All
                       </button>
@@ -629,12 +629,12 @@ export function PreLaunchCard({
                           e.stopPropagation();
                           onPluginsUnselectAll();
                         }}
-                        className="rounded bg-chorus-surface px-2 py-0.5 text-[10px] text-chorus-muted transition-colors hover:bg-chorus-border hover:text-chorus-text"
+                        className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground transition-colors hover:bg-border hover:text-foreground"
                       >
                         Unselect All
                       </button>
                     </div>
-                    <span className="text-[10px] text-chorus-muted">
+                    <span className="text-[10px] text-muted-foreground">
                       {enabledPluginsCount}P / {enabledSkillsCount}S
                     </span>
                   </div>
@@ -643,7 +643,7 @@ export function PreLaunchCard({
                     {/* Plugins with their skills */}
                     {plugins.length > 0 && (
                       <>
-                        <div className="border-b border-chorus-border px-3 py-1.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted">
+                        <div className="border-b border-border px-3 py-1.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
                           Plugins ({plugins.length})
                         </div>
                         {plugins
@@ -674,18 +674,18 @@ export function PreLaunchCard({
                             return (
                               <div key={plugin.id}>
                                 {/* Plugin row */}
-                                <div className="flex items-center gap-1 px-2 py-1.5 hover:bg-chorus-surface">
+                                <div className="flex items-center gap-1 px-2 py-1.5 hover:bg-muted">
                                   {/* Expand/collapse button */}
                                   {hasSkillsToShow ? (
                                     <button
                                       type="button"
                                       onClick={() => togglePluginExpanded(plugin.id)}
-                                      className="shrink-0 rounded p-0.5 hover:bg-chorus-border/40"
+                                      className="shrink-0 rounded p-0.5 hover:bg-border/40"
                                     >
                                       {isExpanded ? (
-                                        <ChevronDown size={12} className="text-chorus-muted" />
+                                        <ChevronDown size={12} className="text-muted-foreground" />
                                       ) : (
-                                        <ChevronRight size={12} className="text-chorus-muted" />
+                                        <ChevronRight size={12} className="text-muted-foreground" />
                                       )}
                                     </button>
                                   ) : (
@@ -700,25 +700,25 @@ export function PreLaunchCard({
                                     <span
                                       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                                         isPluginEnabled
-                                          ? "border-chorus-purple bg-chorus-purple"
-                                          : "border-chorus-border bg-transparent"
+                                          ? "border-purple-400 bg-purple-400"
+                                          : "border-border bg-transparent"
                                       }`}
                                     >
                                       {isPluginEnabled && <Check size={12} className="text-white" />}
                                     </span>
-                                    <Package size={12} className="shrink-0 text-chorus-purple" />
-                                    <span className={`flex-1 truncate ${isPluginEnabled ? "text-chorus-text" : "text-chorus-muted"}`}>
+                                    <Package size={12} className="shrink-0 text-purple-400" />
+                                    <span className={`flex-1 truncate ${isPluginEnabled ? "text-foreground" : "text-muted-foreground"}`}>
                                       {plugin.name}
                                     </span>
                                     {hasSkillsToShow && (
-                                      <span className="text-[10px] text-chorus-muted">{pluginSkills.length}</span>
+                                      <span className="text-[10px] text-muted-foreground">{pluginSkills.length}</span>
                                     )}
-                                    <span className="text-[10px] text-chorus-muted/60">v{plugin.version}</span>
+                                    <span className="text-[10px] text-muted-foreground/60">v{plugin.version}</span>
                                   </button>
                                 </div>
                                 {/* Expanded skills */}
                                 {isExpanded && hasSkillsToShow && (
-                                  <div className="ml-5 border-l border-chorus-border/40 pl-2">
+                                  <div className="ml-5 border-l border-border/40 pl-2">
                                     {(pluginsSearchQuery ? filteredPluginSkills : pluginSkills).map((skill) => {
                                       const isSkillEnabled = slot.enabledSkills.includes(skill.id);
                                       return (
@@ -726,20 +726,20 @@ export function PreLaunchCard({
                                           key={skill.id}
                                           type="button"
                                           onClick={() => onSkillToggle(skill.id)}
-                                          className="flex w-full items-center gap-2 px-2 py-1 text-left text-sm transition-colors hover:bg-chorus-surface"
+                                          className="flex w-full items-center gap-2 px-2 py-1 text-left text-sm transition-colors hover:bg-muted"
                                           title={skill.description || undefined}
                                         >
                                           <span
                                             className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border ${
                                               isSkillEnabled
-                                                ? "border-chorus-orange bg-chorus-orange"
-                                                : "border-chorus-border bg-transparent"
+                                                ? "border-orange-400 bg-orange-400"
+                                                : "border-border bg-transparent"
                                             }`}
                                           >
                                             {isSkillEnabled && <Check size={10} className="text-white" />}
                                           </span>
-                                          <Zap size={11} className="shrink-0 text-chorus-orange" />
-                                          <span className={`flex-1 truncate text-xs ${isSkillEnabled ? "text-chorus-text" : "text-chorus-muted"}`}>
+                                          <Zap size={11} className="shrink-0 text-orange-400" />
+                                          <span className={`flex-1 truncate text-xs ${isSkillEnabled ? "text-foreground" : "text-muted-foreground"}`}>
                                             {skill.name}
                                           </span>
                                         </button>
@@ -756,7 +756,7 @@ export function PreLaunchCard({
                     {/* Standalone Skills */}
                     {standaloneSkills.length > 0 && (
                       <>
-                        <div className="border-b border-t border-chorus-border px-3 py-1.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted">
+                        <div className="border-b border-t border-border px-3 py-1.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
                           Skills ({standaloneSkills.length})
                         </div>
                         {standaloneSkills
@@ -772,20 +772,20 @@ export function PreLaunchCard({
                                 key={skill.id}
                                 type="button"
                                 onClick={() => onSkillToggle(skill.id)}
-                                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors hover:bg-chorus-surface"
+                                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors hover:bg-muted"
                                 title={skill.description || undefined}
                               >
                                 <span
                                   className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                                     isEnabled
-                                      ? "border-chorus-orange bg-chorus-orange"
-                                      : "border-chorus-border bg-transparent"
+                                      ? "border-orange-400 bg-orange-400"
+                                      : "border-border bg-transparent"
                                   }`}
                                 >
                                   {isEnabled && <Check size={12} className="text-white" />}
                                 </span>
-                                <Zap size={12} className="shrink-0 text-chorus-orange" />
-                                <span className={`flex-1 truncate ${isEnabled ? "text-chorus-text" : "text-chorus-muted"}`}>
+                                <Zap size={12} className="shrink-0 text-orange-400" />
+                                <span className={`flex-1 truncate ${isEnabled ? "text-foreground" : "text-muted-foreground"}`}>
                                   {skill.name}
                                 </span>
                                 <span className={`shrink-0 rounded px-1 text-[9px] ${sourceLabel.className}`}>
@@ -808,7 +808,7 @@ export function PreLaunchCard({
                      standaloneSkills.filter((skill) =>
                        skill.name.toLowerCase().includes(pluginsSearchQuery.toLowerCase())
                      ).length === 0 && (
-                      <div className="px-3 py-2 text-center text-xs text-chorus-muted">
+                      <div className="px-3 py-2 text-center text-xs text-muted-foreground">
                         No results match "{pluginsSearchQuery}"
                       </div>
                     )}
@@ -823,7 +823,7 @@ export function PreLaunchCard({
         <button
           type="button"
           onClick={onLaunch}
-          className="flex items-center justify-center gap-2 rounded bg-chorus-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-chorus-accent/80"
+          className="flex items-center justify-center gap-2 rounded bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
         >
           <Play size={16} fill="currentColor" />
           Launch Session

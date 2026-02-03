@@ -1,20 +1,33 @@
-import { Loader2, RefreshCw, RotateCcw, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Loader2, RefreshCw, RotateCcw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { clearFontCache, EMBEDDED_FONT } from "@/lib/fonts";
 import { useTerminalSettingsStore } from "@/stores/useTerminalSettingsStore";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 
 interface TerminalSettingsModalProps {
   onClose: () => void;
 }
 
-/**
- * Modal for managing terminal display settings:
- * - Font family selection (with detected system fonts)
- * - Font size adjustment
- * - Line height adjustment
- */
 export function TerminalSettingsModal({ onClose }: TerminalSettingsModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
   const {
     settings,
     availableFonts,
@@ -27,34 +40,11 @@ export function TerminalSettingsModal({ onClose }: TerminalSettingsModalProps) {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Initialize settings store on mount
   useEffect(() => {
     if (!isInitialized) {
       initialize();
     }
   }, [isInitialized, initialize]);
-
-  // Close on outside click
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [onClose]);
-
-  // Close on Escape
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
 
   const handleRefreshFonts = async () => {
     setIsRefreshing(true);
@@ -63,207 +53,143 @@ export function TerminalSettingsModal({ onClose }: TerminalSettingsModalProps) {
     setIsRefreshing(false);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div
-        ref={modalRef}
-        className="w-full max-w-md rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-chorus-text">Terminal Settings</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded p-1 hover:bg-chorus-border/40"
-          >
-            <X size={16} className="text-chorus-muted" />
-          </button>
-        </div>
+  const nerdFonts = availableFonts.filter((f) => f.is_nerd_font && f.family !== EMBEDDED_FONT);
+  const monoFonts = availableFonts.filter((f) => !f.is_nerd_font && f.family !== EMBEDDED_FONT);
 
-        {/* Content */}
-        <div className="space-y-4 p-4">
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Terminal Settings</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6 py-4">
           {isLoading && !isInitialized ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 size={20} className="animate-spin text-chorus-muted" />
+              <Loader2 size={20} className="animate-spin text-muted-foreground" />
             </div>
           ) : (
             <>
-              {/* Font Family Section */}
-              <FontFamilySection
-                availableFonts={availableFonts}
-                selectedFont={settings.fontFamily}
-                onSelect={(font) => setSetting("fontFamily", font)}
-                onRefresh={handleRefreshFonts}
-                isRefreshing={isRefreshing}
-              />
-
-              {/* Font Size Section */}
-              <section>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-chorus-muted">
-                  Font Size
-                </h3>
-                <div className="rounded-lg border border-chorus-border bg-chorus-card p-3">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="range"
-                      min={10}
-                      max={20}
-                      step={1}
-                      value={settings.fontSize}
-                      onChange={(e) => setSetting("fontSize", Number(e.target.value))}
-                      className="flex-1 accent-chorus-accent"
-                    />
-                    <span className="w-8 text-right text-xs font-medium text-chorus-text">
-                      {settings.fontSize}px
-                    </span>
-                  </div>
+              {/* Font Family */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Font Family</Label>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleRefreshFonts}
+                    disabled={isRefreshing}
+                    className="h-6 w-6"
+                  >
+                    {isRefreshing ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <RefreshCw size={12} />
+                    )}
+                  </Button>
                 </div>
-              </section>
-
-              {/* Line Height Section */}
-              <section>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-chorus-muted">
-                  Line Height
-                </h3>
-                <div className="rounded-lg border border-chorus-border bg-chorus-card p-3">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="range"
-                      min={1.0}
-                      max={2.0}
-                      step={0.1}
-                      value={settings.lineHeight}
-                      onChange={(e) => setSetting("lineHeight", Number(e.target.value))}
-                      className="flex-1 accent-chorus-accent"
-                    />
-                    <span className="w-8 text-right text-xs font-medium text-chorus-text">
-                      {settings.lineHeight.toFixed(1)}
-                    </span>
-                  </div>
-                </div>
-              </section>
-
-              {/* Reset Button */}
-              <div className="flex justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={resetToDefaults}
-                  className="flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium text-chorus-muted hover:bg-chorus-border/40 hover:text-chorus-text"
+                <Select
+                  value={settings.fontFamily}
+                  onValueChange={(value) => setSetting("fontFamily", value)}
                 >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a font" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={EMBEDDED_FONT}>
+                      {EMBEDDED_FONT} (Embedded)
+                    </SelectItem>
+                    {nerdFonts.length > 0 && (
+                      <SelectGroup>
+                        <SelectLabel>Nerd Fonts</SelectLabel>
+                        {nerdFonts.map((font) => (
+                          <SelectItem key={font.family} value={font.family}>
+                            {font.family}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    )}
+                    {monoFonts.length > 0 && (
+                      <SelectGroup>
+                        <SelectLabel>Monospace Fonts</SelectLabel>
+                        {monoFonts.map((font) => (
+                          <SelectItem key={font.family} value={font.family}>
+                            {font.family}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    )}
+                  </SelectContent>
+                </Select>
+
+                {/* Font preview */}
+                <Card className="p-3">
+                  <div
+                    className="text-xs text-foreground"
+                    style={{ fontFamily: settings.fontFamily }}
+                  >
+                    The quick brown fox jumps over the lazy dog
+                    <br />
+                    <span className="text-muted-foreground">0123456789 !@#$%^&*()</span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {availableFonts.find((f) => f.family === settings.fontFamily)?.is_nerd_font && (
+                      <Badge variant="secondary">Nerd Font</Badge>
+                    )}
+                    {settings.fontFamily === EMBEDDED_FONT && (
+                      <Badge variant="secondary" className="bg-green-500/20 text-green-500">
+                        Embedded
+                      </Badge>
+                    )}
+                  </div>
+                </Card>
+              </div>
+
+              {/* Font Size */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Font Size</Label>
+                  <span className="text-xs font-medium text-foreground">
+                    {settings.fontSize}px
+                  </span>
+                </div>
+                <Slider
+                  value={[settings.fontSize]}
+                  onValueChange={([value]) => setSetting("fontSize", value)}
+                  min={10}
+                  max={20}
+                  step={1}
+                />
+              </div>
+
+              {/* Line Height */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Line Height</Label>
+                  <span className="text-xs font-medium text-foreground">
+                    {settings.lineHeight.toFixed(1)}
+                  </span>
+                </div>
+                <Slider
+                  value={[settings.lineHeight]}
+                  onValueChange={([value]) => setSetting("lineHeight", value)}
+                  min={1.0}
+                  max={2.0}
+                  step={0.1}
+                />
+              </div>
+
+              {/* Reset */}
+              <div className="flex justify-end pt-2">
+                <Button variant="ghost" size="sm" onClick={resetToDefaults}>
                   <RotateCcw size={12} />
                   Reset to Defaults
-                </button>
+                </Button>
               </div>
             </>
           )}
         </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Font Family Section ── */
-
-interface FontFamilySectionProps {
-  availableFonts: { family: string; is_nerd_font: boolean; is_monospace: boolean }[];
-  selectedFont: string;
-  onSelect: (font: string) => void;
-  onRefresh: () => void;
-  isRefreshing: boolean;
-}
-
-function FontFamilySection({
-  availableFonts,
-  selectedFont,
-  onSelect,
-  onRefresh,
-  isRefreshing,
-}: FontFamilySectionProps) {
-  return (
-    <section>
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-chorus-muted">
-          Font Family
-        </h3>
-        <button
-          type="button"
-          onClick={onRefresh}
-          disabled={isRefreshing}
-          className="rounded p-1 hover:bg-chorus-border/40 disabled:opacity-50"
-          title="Refresh font list"
-        >
-          {isRefreshing ? (
-            <Loader2 size={12} className="animate-spin text-chorus-muted" />
-          ) : (
-            <RefreshCw size={12} className="text-chorus-muted" />
-          )}
-        </button>
-      </div>
-      <div className="rounded-lg border border-chorus-border bg-chorus-card p-3">
-        <select
-          value={selectedFont}
-          onChange={(e) => onSelect(e.target.value)}
-          className="w-full rounded border border-chorus-border bg-chorus-bg px-3 py-2 text-sm text-chorus-text focus:outline-none focus:border-chorus-accent"
-          style={{ fontFamily: selectedFont }}
-          size={8}
-        >
-          {/* Always show embedded font first */}
-          <option value={EMBEDDED_FONT}>
-            {EMBEDDED_FONT} (Embedded)
-          </option>
-
-          {/* Nerd Fonts group */}
-          {availableFonts.some((f) => f.is_nerd_font) && (
-            <optgroup label="Nerd Fonts">
-              {availableFonts
-                .filter((f) => f.is_nerd_font && f.family !== EMBEDDED_FONT)
-                .map((font) => (
-                  <option key={font.family} value={font.family}>
-                    {font.family}
-                  </option>
-                ))}
-            </optgroup>
-          )}
-
-          {/* Other monospace fonts group */}
-          {availableFonts.some((f) => !f.is_nerd_font) && (
-            <optgroup label="Monospace Fonts">
-              {availableFonts
-                .filter((f) => !f.is_nerd_font && f.family !== EMBEDDED_FONT)
-                .map((font) => (
-                  <option key={font.family} value={font.family}>
-                    {font.family}
-                  </option>
-                ))}
-            </optgroup>
-          )}
-        </select>
-
-        {/* Font preview */}
-        <div
-          className="mt-2 rounded border border-chorus-border bg-chorus-bg p-2 text-xs text-chorus-text"
-          style={{ fontFamily: selectedFont }}
-        >
-          The quick brown fox jumps over the lazy dog
-          <br />
-          <span className="text-chorus-muted">0123456789 !@#$%^&*()</span>
-        </div>
-
-        {/* Selected font badges */}
-        <div className="mt-2 flex flex-wrap gap-1">
-          {availableFonts.find((f) => f.family === selectedFont)?.is_nerd_font && (
-            <span className="rounded bg-chorus-accent/20 px-1.5 py-0.5 text-[10px] font-medium text-chorus-accent">
-              Nerd Font
-            </span>
-          )}
-          {selectedFont === EMBEDDED_FONT && (
-            <span className="rounded bg-chorus-green/20 px-1.5 py-0.5 text-[10px] font-medium text-chorus-green">
-              Embedded
-            </span>
-          )}
-        </div>
-      </div>
-    </section>
+      </DialogContent>
+    </Dialog>
   );
 }

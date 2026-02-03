@@ -39,14 +39,14 @@ export function MarketplaceSourcesPanel() {
   };
 
   return (
-    <div className="flex h-full w-72 flex-col border-l border-chorus-border bg-chorus-bg">
+    <div className="flex h-full w-72 flex-col border-l border-border bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-chorus-border px-3 py-2">
-        <h3 className="text-xs font-semibold text-chorus-text">Sources</h3>
+      <div className="flex items-center justify-between border-b border-border px-3 py-2">
+        <h3 className="text-xs font-semibold text-foreground">Sources</h3>
         <button
           type="button"
           onClick={() => setShowAddForm(true)}
-          className="rounded p-1 text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
+          className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <Plus size={14} />
         </button>
@@ -54,14 +54,14 @@ export function MarketplaceSourcesPanel() {
 
       {/* Add form */}
       {showAddForm && (
-        <div className="border-b border-chorus-border p-3">
+        <div className="border-b border-border p-3">
           <div className="mb-2">
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Source name"
-              className="w-full rounded border border-chorus-border bg-chorus-surface px-2 py-1.5 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
+              className="w-full rounded border border-border bg-muted px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
               autoFocus
             />
           </div>
@@ -71,7 +71,7 @@ export function MarketplaceSourcesPanel() {
               value={newUrl}
               onChange={(e) => setNewUrl(e.target.value)}
               placeholder="https://github.com/owner/repo"
-              className="w-full rounded border border-chorus-border bg-chorus-surface px-2 py-1.5 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
+              className="w-full rounded border border-border bg-muted px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
           </div>
           <div className="flex justify-end gap-2">
@@ -82,7 +82,7 @@ export function MarketplaceSourcesPanel() {
                 setNewName("");
                 setNewUrl("");
               }}
-              className="rounded px-2 py-1 text-[10px] text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
+              className="rounded px-2 py-1 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               Cancel
             </button>
@@ -90,7 +90,7 @@ export function MarketplaceSourcesPanel() {
               type="button"
               onClick={handleAddSource}
               disabled={!newName.trim() || !newUrl.trim()}
-              className="rounded bg-chorus-accent px-2 py-1 text-[10px] text-white hover:bg-chorus-accent/80 disabled:opacity-50"
+              className="rounded bg-primary px-2 py-1 text-[10px] text-primary-foreground hover:bg-primary/80 disabled:opacity-50"
             >
               Add
             </button>
@@ -102,17 +102,17 @@ export function MarketplaceSourcesPanel() {
       <div className="flex-1 overflow-y-auto">
         {sources.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-6 text-center">
-            <p className="mb-2 text-xs text-chorus-muted">No marketplace sources</p>
+            <p className="mb-2 text-xs text-muted-foreground">No marketplace sources</p>
             <button
               type="button"
               onClick={() => setShowAddForm(true)}
-              className="rounded bg-chorus-accent px-3 py-1.5 text-xs text-white hover:bg-chorus-accent/80"
+              className="rounded bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:bg-primary/80"
             >
               Add Source
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-chorus-border">
+          <div className="divide-y divide-border">
             {sources.map((source) => (
               <div
                 key={source.id}
@@ -121,11 +121,11 @@ export function MarketplaceSourcesPanel() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="truncate text-xs font-medium text-chorus-text">
+                      <span className="truncate text-xs font-medium text-foreground">
                         {source.name}
                       </span>
                       {source.is_official && (
-                        <span className="shrink-0 rounded-full bg-chorus-accent/10 px-1.5 py-0.5 text-[8px] text-chorus-accent">
+                        <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[8px] text-primary">
                           Official
                         </span>
                       )}
@@ -134,7 +134,7 @@ export function MarketplaceSourcesPanel() {
                       href={source.repository_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex items-center gap-1 text-[10px] text-chorus-muted hover:text-chorus-accent"
+                      className="group flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary"
                     >
                       <span className="truncate">
                         {source.repository_url.replace("https://github.com/", "")}
@@ -149,7 +149,7 @@ export function MarketplaceSourcesPanel() {
                       type="button"
                       onClick={() => refreshSource(source.id)}
                       disabled={isRefreshing}
-                      className="rounded p-1 text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text disabled:opacity-50"
+                      className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
                       title="Refresh"
                     >
                       <RefreshCw
@@ -163,7 +163,7 @@ export function MarketplaceSourcesPanel() {
                       className={`rounded p-1 ${
                         source.is_enabled
                           ? "text-green-400 hover:bg-green-500/10"
-                          : "text-chorus-muted hover:bg-chorus-surface"
+                          : "text-muted-foreground hover:bg-muted"
                       }`}
                       title={source.is_enabled ? "Disable" : "Enable"}
                     >
@@ -173,7 +173,7 @@ export function MarketplaceSourcesPanel() {
                       <button
                         type="button"
                         onClick={() => setDeleteConfirmId(source.id)}
-                        className="rounded p-1 text-chorus-muted hover:bg-red-500/10 hover:text-red-400"
+                        className="rounded p-1 text-muted-foreground hover:bg-red-500/10 hover:text-red-400"
                         title="Remove"
                       >
                         <Trash2 size={12} />
@@ -190,11 +190,11 @@ export function MarketplaceSourcesPanel() {
                       {source.last_error}
                     </span>
                   ) : source.last_fetched ? (
-                    <span className="text-chorus-muted">
+                    <span className="text-muted-foreground">
                       Last updated: {new Date(source.last_fetched).toLocaleDateString()}
                     </span>
                   ) : (
-                    <span className="text-chorus-muted">Never fetched</span>
+                    <span className="text-muted-foreground">Never fetched</span>
                   )}
                 </div>
 
@@ -207,7 +207,7 @@ export function MarketplaceSourcesPanel() {
                     <button
                       type="button"
                       onClick={() => setDeleteConfirmId(null)}
-                      className="rounded px-2 py-0.5 text-[10px] text-chorus-muted hover:bg-chorus-surface"
+                      className="rounded px-2 py-0.5 text-[10px] text-muted-foreground hover:bg-muted"
                     >
                       Cancel
                     </button>

@@ -107,24 +107,24 @@ export function PluginInstallModal({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="w-full max-w-md rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
+        className="w-full max-w-md rounded-lg border border-border bg-background shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-chorus-text">Install Plugin</h2>
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-sm font-semibold text-foreground">Install Plugin</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 hover:bg-chorus-border/40"
+            className="rounded p-1 hover:bg-border/40"
           >
-            <X size={16} className="text-chorus-muted" />
+            <X size={16} className="text-muted-foreground" />
           </button>
         </div>
 
         {/* Plugin info */}
-        <div className="border-b border-chorus-border px-4 py-3">
+        <div className="border-b border-border px-4 py-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-chorus-accent/10">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
               {plugin.icon_url ? (
                 <img
                   src={plugin.icon_url}
@@ -132,14 +132,14 @@ export function PluginInstallModal({
                   className="h-6 w-6 rounded"
                 />
               ) : (
-                <Package size={20} className="text-chorus-accent" />
+                <Package size={20} className="text-primary" />
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-medium text-chorus-text">
+              <h3 className="text-sm font-medium text-foreground">
                 {plugin.name}
               </h3>
-              <p className="text-xs text-chorus-muted">
+              <p className="text-xs text-muted-foreground">
                 {plugin.author} · v{plugin.version}
               </p>
             </div>
@@ -148,7 +148,7 @@ export function PluginInstallModal({
 
         {/* Scope selection */}
         <div className="p-4">
-          <label className="mb-2 block text-xs font-medium text-chorus-text">
+          <label className="mb-2 block text-xs font-medium text-foreground">
             Installation Scope
           </label>
           <div className="space-y-2">
@@ -159,29 +159,29 @@ export function PluginInstallModal({
                 onClick={() => setScope(option.value)}
                 className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
                   scope === option.value
-                    ? "border-chorus-accent bg-chorus-accent/5"
-                    : "border-chorus-border hover:border-chorus-accent/50"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
                 }`}
               >
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded ${
                     scope === option.value
-                      ? "bg-chorus-accent text-white"
-                      : "bg-chorus-surface text-chorus-muted"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
                   }`}
                 >
                   {option.icon}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-chorus-text">
+                    <span className="text-sm font-medium text-foreground">
                       {option.label}
                     </span>
                     {scope === option.value && (
-                      <Check size={14} className="text-chorus-accent" />
+                      <Check size={14} className="text-primary" />
                     )}
                   </div>
-                  <p className="text-xs text-chorus-muted">{option.description}</p>
+                  <p className="text-xs text-muted-foreground">{option.description}</p>
                 </div>
               </button>
             ))}
@@ -190,7 +190,7 @@ export function PluginInstallModal({
           {/* Project path picker (for project/local scopes) */}
           {(scope === "project" || scope === "local") && (
             <div className="mt-4">
-              <label className="mb-2 block text-xs font-medium text-chorus-text">
+              <label className="mb-2 block text-xs font-medium text-foreground">
                 Project Directory
               </label>
               <div className="flex gap-2">
@@ -199,12 +199,12 @@ export function PluginInstallModal({
                   value={projectPath}
                   onChange={(e) => setProjectPath(e.target.value)}
                   placeholder="/path/to/project"
-                  className="flex-1 rounded border border-chorus-border bg-chorus-surface px-3 py-2 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
+                  className="flex-1 rounded border border-border bg-muted px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={handleBrowseProject}
-                  className="rounded border border-chorus-border bg-chorus-card px-3 py-2 text-xs text-chorus-text hover:bg-chorus-surface"
+                  className="rounded border border-border bg-card px-3 py-2 text-xs text-foreground hover:bg-muted"
                 >
                   Browse
                 </button>
@@ -219,11 +219,11 @@ export function PluginInstallModal({
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 border-t border-chorus-border px-4 py-3">
+        <div className="flex justify-end gap-2 border-t border-border px-4 py-3">
           <button
             type="button"
             onClick={onClose}
-            className="rounded px-4 py-2 text-xs text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
+            className="rounded px-4 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             Cancel
           </button>
@@ -231,7 +231,7 @@ export function PluginInstallModal({
             type="button"
             onClick={handleInstall}
             disabled={isInstalling}
-            className="flex items-center gap-2 rounded bg-chorus-accent px-4 py-2 text-xs text-white hover:bg-chorus-accent/80 disabled:opacity-50"
+            className="flex items-center gap-2 rounded bg-primary px-4 py-2 text-xs text-primary-foreground hover:bg-primary/80 disabled:opacity-50"
           >
             {isInstalling ? (
               <>

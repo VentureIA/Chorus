@@ -89,13 +89,13 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="w-full max-w-2xl rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
+        className="w-full max-w-2xl rounded-lg border border-border bg-background shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="flex items-center gap-2">
-            <Keyboard size={16} className="text-chorus-accent" />
-            <h2 className="text-sm font-semibold text-chorus-text">
+            <Keyboard size={16} className="text-primary" />
+            <h2 className="text-sm font-semibold text-foreground">
               Keyboard Shortcuts
             </h2>
           </div>
@@ -103,7 +103,7 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
             {hasModifications() && (
               <button
                 onClick={resetToDefaults}
-                className="flex items-center gap-1 rounded px-2 py-1 text-xs text-chorus-muted hover:bg-chorus-border/40"
+                className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-border/40"
                 title="Reset all to defaults"
               >
                 <RotateCcw size={12} />
@@ -112,9 +112,9 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
             )}
             <button
               onClick={onClose}
-              className="rounded p-1 hover:bg-chorus-border/40"
+              className="rounded p-1 hover:bg-border/40"
             >
-              <X size={16} className="text-chorus-muted" />
+              <X size={16} className="text-muted-foreground" />
             </button>
           </div>
         </div>
@@ -130,7 +130,7 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
 
               return (
                 <div key={category}>
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-chorus-muted">
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     {info.label}
                   </h3>
                   <div className="space-y-1">
@@ -155,8 +155,8 @@ export function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsModalProps)
         </div>
 
         {/* Footer */}
-        <div className="border-t border-chorus-border px-4 py-3">
-          <p className="text-xs text-chorus-muted">
+        <div className="border-t border-border px-4 py-3">
+          <p className="text-xs text-muted-foreground">
             Click a shortcut to edit. Press Escape to cancel. Changes are saved automatically.
           </p>
         </div>
@@ -188,9 +188,9 @@ function ShortcutRow({
 }: ShortcutRowProps) {
   if (isEditing) {
     return (
-      <div className="rounded-lg border border-chorus-accent/50 bg-chorus-card p-3">
+      <div className="rounded-lg border border-primary/50 bg-card p-3">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm text-chorus-text">{shortcut.label}</span>
+          <span className="text-sm text-foreground">{shortcut.label}</span>
         </div>
         <ShortcutRecorder
           value={shortcut.keys}
@@ -204,17 +204,17 @@ function ShortcutRow({
 
   return (
     <div
-      className="group flex items-center justify-between rounded-lg border border-transparent px-3 py-2 hover:border-chorus-border hover:bg-chorus-card/50"
+      className="group flex items-center justify-between rounded-lg border border-transparent px-3 py-2 hover:border-border hover:bg-card/50"
     >
       <div className="flex flex-col">
-        <span className="text-sm text-chorus-text">{shortcut.label}</span>
-        <span className="text-xs text-chorus-muted">{shortcut.description}</span>
+        <span className="text-sm text-foreground">{shortcut.label}</span>
+        <span className="text-xs text-muted-foreground">{shortcut.description}</span>
       </div>
       <div className="flex items-center gap-2">
         {isModified && (
           <button
             onClick={onReset}
-            className="rounded p-1 text-chorus-muted opacity-0 hover:bg-chorus-border/40 group-hover:opacity-100"
+            className="rounded p-1 text-muted-foreground opacity-0 hover:bg-border/40 group-hover:opacity-100"
             title="Reset to default"
           >
             <RotateCcw size={12} />
@@ -222,10 +222,10 @@ function ShortcutRow({
         )}
         <button
           onClick={onEdit}
-          className="flex items-center gap-1.5 rounded border border-chorus-border bg-chorus-surface px-2 py-1 font-mono text-xs text-chorus-text hover:border-chorus-accent"
+          className="flex items-center gap-1.5 rounded border border-border bg-muted px-2 py-1 font-mono text-xs text-foreground hover:border-primary"
         >
           <span>{formatKeyCombo(shortcut.keys)}</span>
-          <Edit2 size={10} className="text-chorus-muted opacity-0 group-hover:opacity-100" />
+          <Edit2 size={10} className="text-muted-foreground opacity-0 group-hover:opacity-100" />
         </button>
       </div>
     </div>

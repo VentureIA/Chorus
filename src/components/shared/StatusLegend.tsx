@@ -6,10 +6,10 @@ const STATUS_DEFS: {
   colorClass: string;
 }[] = [
   { key: "Starting", label: "Starting...", colorClass: "bg-orange-400" },
-  { key: "Idle", label: "Idle", colorClass: "bg-chorus-muted" },
-  { key: "Working", label: "Working", colorClass: "bg-chorus-accent" },
+  { key: "Idle", label: "Idle", colorClass: "bg-muted-foreground" },
+  { key: "Working", label: "Working", colorClass: "bg-primary" },
   { key: "NeedsInput", label: "Needs Input", colorClass: "bg-yellow-300" },
-  { key: "Done", label: "Done", colorClass: "bg-chorus-green" },
+  { key: "Done", label: "Done", colorClass: "bg-green-500" },
   { key: "Error", label: "Error", colorClass: "bg-red-400" },
   { key: "Timeout", label: "Timeout", colorClass: "bg-red-400" },
 ];
@@ -39,9 +39,9 @@ export function StatusLegend() {
         return (
           <div key={s.key} className="flex items-center gap-1.5">
             <span className={`h-2.5 w-2.5 rounded-full ${s.colorClass}`} />
-            <span className="text-[11px] text-chorus-text/70">
+            <span className="text-[11px] text-foreground/70">
               {s.label}
-              {count > 0 && <span className="ml-0.5 text-chorus-text/50">({count})</span>}
+              {count > 0 && <span className="ml-0.5 text-foreground/50">({count})</span>}
             </span>
           </div>
         );

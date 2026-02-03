@@ -1050,15 +1050,15 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 text-chorus-muted">
-        <span className="text-sm text-chorus-red">{error}</span>
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
+        <span className="text-sm text-destructive">{error}</span>
         <button
           type="button"
           onClick={() => {
             setError(null);
             setSlots([createEmptySlot()]);
           }}
-          className="rounded bg-chorus-border px-3 py-1.5 text-xs text-chorus-text hover:bg-chorus-muted/20"
+          className="rounded bg-border px-3 py-1.5 text-xs text-foreground hover:bg-muted-foreground/20"
         >
           Retry
         </button>
@@ -1068,7 +1068,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
 
   if (slots.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center text-chorus-muted text-sm">
+      <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
         Initializing...
       </div>
     );
@@ -1079,7 +1079,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
   const isMaximizedMode = maximizedSlotId !== null;
 
   return (
-    <div className="relative h-full w-full bg-chorus-bg p-2 overflow-hidden">
+    <div className="relative h-full w-full bg-background p-2 overflow-hidden">
       {/* Container that switches between grid and stacked layout */}
       <div
         className={`h-full w-full ${

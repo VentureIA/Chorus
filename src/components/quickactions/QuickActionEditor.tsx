@@ -67,19 +67,19 @@ export function QuickActionEditor({ action, onSave, onClose }: QuickActionEditor
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="w-full max-w-lg rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
+        className="w-full max-w-lg rounded-lg border border-border bg-background shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-chorus-text">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-sm font-semibold text-foreground">
             {action ? "Edit Quick Action" : "New Quick Action"}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 hover:bg-chorus-border/40"
+            className="rounded p-1 hover:bg-border/40"
           >
-            <X size={16} className="text-chorus-muted" />
+            <X size={16} className="text-muted-foreground" />
           </button>
         </div>
 
@@ -87,7 +87,7 @@ export function QuickActionEditor({ action, onSave, onClose }: QuickActionEditor
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4">
           {/* Name input */}
           <div>
-            <label className="mb-1 block text-xs font-medium text-chorus-muted">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">
               Name
             </label>
             <input
@@ -95,17 +95,17 @@ export function QuickActionEditor({ action, onSave, onClose }: QuickActionEditor
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Quick action name"
-              className="w-full rounded border border-chorus-border bg-chorus-card px-3 py-2 text-sm text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
+              className="w-full rounded border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
               autoFocus
             />
           </div>
 
           {/* Icon picker */}
           <div>
-            <label className="mb-2 block text-xs font-medium text-chorus-muted">
+            <label className="mb-2 block text-xs font-medium text-muted-foreground">
               Icon
             </label>
-            <div className="grid grid-cols-8 gap-1 rounded border border-chorus-border bg-chorus-card p-2">
+            <div className="grid grid-cols-8 gap-1 rounded border border-border bg-card p-2">
               {QUICK_ACTION_ICONS.map((iconName) => (
                 <button
                   key={iconName}
@@ -113,15 +113,15 @@ export function QuickActionEditor({ action, onSave, onClose }: QuickActionEditor
                   onClick={() => setIcon(iconName)}
                   className={`flex h-8 w-8 items-center justify-center rounded transition-colors ${
                     icon === iconName
-                      ? "bg-chorus-accent/20 ring-1 ring-chorus-accent"
-                      : "hover:bg-chorus-border/40"
+                      ? "bg-primary/20 ring-1 ring-primary"
+                      : "hover:bg-border/40"
                   }`}
                   title={iconName}
                 >
                   <DynamicIcon
                     name={iconName}
                     size={16}
-                    className={icon === iconName ? "text-chorus-accent" : "text-chorus-muted"}
+                    className={icon === iconName ? "text-primary" : "text-muted-foreground"}
                   />
                 </button>
               ))}
@@ -130,17 +130,17 @@ export function QuickActionEditor({ action, onSave, onClose }: QuickActionEditor
 
           {/* Color picker */}
           <div>
-            <label className="mb-2 block text-xs font-medium text-chorus-muted">
+            <label className="mb-2 block text-xs font-medium text-muted-foreground">
               Color
             </label>
-            <div className="flex flex-wrap gap-2 rounded border border-chorus-border bg-chorus-card p-2">
+            <div className="flex flex-wrap gap-2 rounded border border-border bg-card p-2">
               {QUICK_ACTION_COLORS.map((color) => (
                 <button
                   key={color.name}
                   type="button"
                   onClick={() => setColorHex(color.hex)}
                   className={`h-6 w-6 rounded-full transition-transform ${
-                    colorHex === color.hex ? "scale-110 ring-2 ring-white ring-offset-2 ring-offset-chorus-card" : "hover:scale-105"
+                    colorHex === color.hex ? "scale-110 ring-2 ring-white ring-offset-2 ring-offset-card" : "hover:scale-105"
                   }`}
                   style={{ backgroundColor: color.hex }}
                   title={color.name}
@@ -151,7 +151,7 @@ export function QuickActionEditor({ action, onSave, onClose }: QuickActionEditor
 
           {/* Prompt textarea */}
           <div>
-            <label className="mb-1 block text-xs font-medium text-chorus-muted">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">
               Prompt
             </label>
             <textarea
@@ -159,31 +159,31 @@ export function QuickActionEditor({ action, onSave, onClose }: QuickActionEditor
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Enter the prompt that will be sent to Claude..."
               rows={6}
-              className="w-full rounded border border-chorus-border bg-chorus-card px-3 py-2 font-mono text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
+              className="w-full rounded border border-border bg-card px-3 py-2 font-mono text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
           </div>
 
           {/* Enabled toggle */}
-          <label className="flex items-center gap-2 text-xs text-chorus-muted">
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <input
               type="checkbox"
               checked={isEnabled}
               onChange={(e) => setIsEnabled(e.target.checked)}
-              className="h-3 w-3 rounded border-chorus-border"
+              className="h-3 w-3 rounded border-border"
             />
             Enabled
           </label>
 
           {/* Live preview */}
           <div>
-            <label className="mb-2 block text-xs font-medium text-chorus-muted">
+            <label className="mb-2 block text-xs font-medium text-muted-foreground">
               Preview
             </label>
-            <div className="flex items-center gap-2 rounded border border-chorus-border bg-chorus-surface p-2">
+            <div className="flex items-center gap-2 rounded border border-border bg-muted p-2">
               <button
                 type="button"
                 disabled
-                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-chorus-muted"
+                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-muted-foreground"
               >
                 <DynamicIcon
                   name={icon}
@@ -198,11 +198,11 @@ export function QuickActionEditor({ action, onSave, onClose }: QuickActionEditor
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 border-t border-chorus-border px-4 py-3">
+        <div className="flex items-center justify-end gap-2 border-t border-border px-4 py-3">
           <button
             type="button"
             onClick={onClose}
-            className="rounded px-3 py-1.5 text-xs text-chorus-muted hover:bg-chorus-border/40"
+            className="rounded px-3 py-1.5 text-xs text-muted-foreground hover:bg-border/40"
           >
             Cancel
           </button>
@@ -210,7 +210,7 @@ export function QuickActionEditor({ action, onSave, onClose }: QuickActionEditor
             type="button"
             onClick={handleSave}
             disabled={!isValid}
-            className="flex items-center gap-1 rounded bg-chorus-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-chorus-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1 rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Check size={12} />
             Save

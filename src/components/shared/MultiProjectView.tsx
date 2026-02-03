@@ -130,7 +130,7 @@ export const MultiProjectView = forwardRef<MultiProjectViewHandle, MultiProjectV
   if (tabs.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-sm text-chorus-muted">
+        <p className="text-sm text-muted-foreground">
           Select a directory to launch Claude Code instances
         </p>
       </div>

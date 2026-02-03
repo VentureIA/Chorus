@@ -118,13 +118,13 @@ export function CommitGraph({
   if (error) {
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <div className="text-center text-sm text-chorus-red">
+        <div className="text-center text-sm text-destructive">
           <p>Failed to load commits</p>
-          <p className="mt-1 text-xs text-chorus-muted">{error}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{error}</p>
           <button
             type="button"
             onClick={() => fetchCommits(repoPath)}
-            className="mt-3 rounded border border-chorus-border px-3 py-1 text-xs text-chorus-text hover:bg-chorus-card"
+            className="mt-3 rounded border border-border px-3 py-1 text-xs text-foreground hover:bg-card"
           >
             Retry
           </button>
@@ -136,7 +136,7 @@ export function CommitGraph({
   if (isLoading && commits.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="text-sm text-chorus-muted">Loading commits...</div>
+        <div className="text-sm text-muted-foreground">Loading commits...</div>
       </div>
     );
   }
@@ -144,7 +144,7 @@ export function CommitGraph({
   if (commits.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="text-sm text-chorus-muted">No commits found</div>
+        <div className="text-sm text-muted-foreground">No commits found</div>
       </div>
     );
   }
@@ -185,14 +185,14 @@ export function CommitGraph({
         {/* Load more indicator */}
         {isLoadingMore && (
           <div className="flex items-center justify-center py-2">
-            <span className="text-xs text-chorus-muted">Loading more...</span>
+            <span className="text-xs text-muted-foreground">Loading more...</span>
           </div>
         )}
 
         {/* End of history indicator */}
         {!hasMoreCommits && commits.length > 0 && (
           <div className="flex items-center justify-center py-2">
-            <span className="text-[10px] text-chorus-muted/50">
+            <span className="text-[10px] text-muted-foreground/50">
               End of history
             </span>
           </div>

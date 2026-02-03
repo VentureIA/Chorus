@@ -97,20 +97,20 @@ export function ThemeSettingsModal({ onClose, currentTheme }: ThemeSettingsModal
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
+        className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-lg border border-border bg-background shadow-2xl"
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-chorus-border bg-chorus-bg px-4 py-3">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background px-4 py-3">
           <div className="flex items-center gap-2">
-            <Palette size={16} className="text-chorus-accent" />
-            <h2 className="text-sm font-semibold text-chorus-text">Theme Settings</h2>
+            <Palette size={16} className="text-primary" />
+            <h2 className="text-sm font-semibold text-foreground">Theme Settings</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 hover:bg-chorus-border/40"
+            className="rounded p-1 hover:bg-border/40"
           >
-            <X size={16} className="text-chorus-muted" />
+            <X size={16} className="text-muted-foreground" />
           </button>
         </div>
 
@@ -118,12 +118,12 @@ export function ThemeSettingsModal({ onClose, currentTheme }: ThemeSettingsModal
         <div className="space-y-4 p-4">
           {/* Enable Custom Theme Toggle */}
           <section>
-            <div className="flex items-center justify-between rounded-lg border border-chorus-border bg-chorus-card p-3">
+            <div className="flex items-center justify-between rounded-lg border border-border bg-card p-3">
               <div>
-                <h3 className="text-sm font-medium text-chorus-text">
+                <h3 className="text-sm font-medium text-foreground">
                   Enable Custom Theme
                 </h3>
-                <p className="text-xs text-chorus-muted">
+                <p className="text-xs text-muted-foreground">
                   Override default colors with your own
                 </p>
               </div>
@@ -132,8 +132,8 @@ export function ThemeSettingsModal({ onClose, currentTheme }: ThemeSettingsModal
                 onClick={handleToggleEnabled}
                 className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
                   settings.isCustomThemeEnabled
-                    ? "bg-chorus-accent"
-                    : "bg-chorus-border"
+                    ? "bg-primary"
+                    : "bg-border"
                 }`}
               >
                 <span
@@ -148,16 +148,16 @@ export function ThemeSettingsModal({ onClose, currentTheme }: ThemeSettingsModal
           </section>
 
           {/* Current theme indicator */}
-          <div className="flex items-center gap-2 rounded-lg border border-chorus-border bg-chorus-card px-3 py-2">
-            <span className="text-xs text-chorus-muted">Editing colors for:</span>
-            <span className="rounded bg-chorus-accent/20 px-2 py-0.5 text-xs font-medium text-chorus-accent">
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
+            <span className="text-xs text-muted-foreground">Editing colors for:</span>
+            <span className="rounded bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">
               {currentTheme === "dark" ? "Dark Mode" : "Light Mode"}
             </span>
           </div>
 
           {/* Colors Section */}
           <section className={!settings.isCustomThemeEnabled ? "opacity-50 pointer-events-none" : ""}>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-chorus-muted">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Colors
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -175,15 +175,15 @@ export function ThemeSettingsModal({ onClose, currentTheme }: ThemeSettingsModal
 
           {/* Typography Section */}
           <section className={!settings.isCustomThemeEnabled ? "opacity-50 pointer-events-none" : ""}>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-chorus-muted">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               UI Font
             </h3>
-            <div className="rounded-lg border border-chorus-border bg-chorus-card p-3">
+            <div className="rounded-lg border border-border bg-card p-3">
               <select
                 value={settings.fontFamily}
                 onChange={(e) => handleFontChange(e.target.value)}
                 disabled={!settings.isCustomThemeEnabled}
-                className="w-full rounded border border-chorus-border bg-chorus-bg px-3 py-2 text-sm text-chorus-text focus:outline-none focus:border-chorus-accent disabled:opacity-50"
+                className="w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary disabled:opacity-50"
               >
                 {UI_FONTS.map((font) => (
                   <option key={font.value} value={font.value}>
@@ -193,7 +193,7 @@ export function ThemeSettingsModal({ onClose, currentTheme }: ThemeSettingsModal
               </select>
               {/* Preview */}
               <div
-                className="mt-2 rounded border border-chorus-border bg-chorus-bg p-2 text-sm text-chorus-text"
+                className="mt-2 rounded border border-border bg-background p-2 text-sm text-foreground"
                 style={{
                   fontFamily: settings.isCustomThemeEnabled
                     ? `${settings.fontFamily}, -apple-system, BlinkMacSystemFont, sans-serif`
@@ -207,7 +207,7 @@ export function ThemeSettingsModal({ onClose, currentTheme }: ThemeSettingsModal
 
           {/* Preview Section */}
           <section className={!settings.isCustomThemeEnabled ? "opacity-50" : ""}>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-chorus-muted">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Preview
             </h3>
             <ThemePreview colors={colors} fontFamily={settings.fontFamily} />
@@ -218,7 +218,7 @@ export function ThemeSettingsModal({ onClose, currentTheme }: ThemeSettingsModal
             <button
               type="button"
               onClick={handleReset}
-              className="flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium text-chorus-muted hover:bg-chorus-border/40 hover:text-chorus-text"
+              className="flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-border/40 hover:text-foreground"
             >
               <RotateCcw size={12} />
               Reset to Defaults
@@ -241,7 +241,7 @@ interface ColorPickerProps {
 
 function ColorPicker({ label, description, value, onChange }: ColorPickerProps) {
   return (
-    <div className="rounded-lg border border-chorus-border bg-chorus-card p-2">
+    <div className="rounded-lg border border-border bg-card p-2">
       <div className="flex items-center gap-2">
         <input
           type="color"
@@ -250,8 +250,8 @@ function ColorPicker({ label, description, value, onChange }: ColorPickerProps) 
           className="h-8 w-8 cursor-pointer rounded border-0 bg-transparent"
         />
         <div className="flex-1 min-w-0">
-          <div className="text-xs font-medium text-chorus-text">{label}</div>
-          <div className="text-[10px] text-chorus-muted truncate">{description}</div>
+          <div className="text-xs font-medium text-foreground">{label}</div>
+          <div className="text-[10px] text-muted-foreground truncate">{description}</div>
         </div>
       </div>
     </div>

@@ -21,14 +21,14 @@ export function MarketplacePluginRow({ plugin, onInstall, onSelect }: Marketplac
 
   return (
     <div
-      className="group flex items-center gap-3 border-b border-chorus-border px-4 py-3 transition-colors hover:bg-chorus-surface/50 cursor-pointer"
+      className="group flex items-center gap-3 border-b border-border px-4 py-3 transition-colors hover:bg-muted/50 cursor-pointer"
       onClick={onSelect}
       onKeyDown={(e) => e.key === "Enter" && onSelect()}
       role="button"
       tabIndex={0}
     >
       {/* Icon */}
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-chorus-accent/10">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
         {plugin.icon_url ? (
           <img
             src={plugin.icon_url}
@@ -36,17 +36,17 @@ export function MarketplacePluginRow({ plugin, onInstall, onSelect }: Marketplac
             className="h-5 w-5 rounded"
           />
         ) : (
-          <Package size={16} className="text-chorus-accent" />
+          <Package size={16} className="text-primary" />
         )}
       </div>
 
       {/* Info */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium text-chorus-text">
+          <span className="truncate text-sm font-medium text-foreground">
             {plugin.name}
           </span>
-          <span className="shrink-0 text-[10px] text-chorus-muted">
+          <span className="shrink-0 text-[10px] text-muted-foreground">
             v{plugin.version}
           </span>
           {installed && (
@@ -57,25 +57,25 @@ export function MarketplacePluginRow({ plugin, onInstall, onSelect }: Marketplac
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="truncate text-xs text-chorus-muted">
+          <span className="truncate text-xs text-muted-foreground">
             {plugin.description || "No description"}
           </span>
         </div>
       </div>
 
       {/* Category and types */}
-      <div className="hidden shrink-0 items-center gap-2 text-[10px] text-chorus-muted sm:flex">
-        <span className="rounded bg-chorus-accent/10 px-1.5 py-0.5 text-chorus-accent">
+      <div className="hidden shrink-0 items-center gap-2 text-[10px] text-muted-foreground sm:flex">
+        <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">
           {plugin.category}
         </span>
         {typesLabel && (
-          <span className="text-chorus-border">|</span>
+          <span className="text-border">|</span>
         )}
         <span>{typesLabel}</span>
       </div>
 
       {/* Stats */}
-      <div className="hidden shrink-0 items-center gap-3 text-[10px] text-chorus-muted md:flex">
+      <div className="hidden shrink-0 items-center gap-3 text-[10px] text-muted-foreground md:flex">
         {plugin.downloads !== null && (
           <span className="flex items-center gap-1">
             <Download size={10} />
@@ -93,7 +93,7 @@ export function MarketplacePluginRow({ plugin, onInstall, onSelect }: Marketplac
       {/* Install button */}
       <div className="shrink-0">
         {installed ? (
-          <span className="text-xs text-chorus-muted">
+          <span className="text-xs text-muted-foreground">
             <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
           </span>
         ) : (
@@ -104,7 +104,7 @@ export function MarketplacePluginRow({ plugin, onInstall, onSelect }: Marketplac
               onInstall();
             }}
             disabled={isInstalling}
-            className="rounded bg-chorus-accent px-3 py-1 text-xs text-white transition-colors hover:bg-chorus-accent/80 disabled:opacity-50"
+            className="rounded bg-primary px-3 py-1 text-xs text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-50"
           >
             {isInstalling ? (
               <span className="flex items-center gap-1">

@@ -47,8 +47,8 @@ function TabItem({
       onKeyDown={onKeyDown}
       className={`flex items-center gap-1.5 rounded-t px-2 py-1.5 text-xs font-medium cursor-pointer ${
         tab.active
-          ? "bg-chorus-bg text-chorus-text"
-          : "text-chorus-muted hover:text-chorus-text"
+          ? "bg-background text-foreground"
+          : "text-muted-foreground hover:text-foreground"
       }`}
     >
       <span className="flex items-center gap-1.5">
@@ -65,10 +65,10 @@ function TabItem({
           <span
             className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
               status === "working"
-                ? "bg-chorus-accent/20 text-chorus-accent"
+                ? "bg-primary/20 text-primary"
                 : status === "needs-input"
                   ? "bg-yellow-500/20 text-yellow-500"
-                  : "bg-chorus-muted/20 text-chorus-muted"
+                  : "bg-muted-foreground/20 text-muted-foreground"
             }`}
           >
             {sessionCount}
@@ -81,7 +81,7 @@ function TabItem({
           e.stopPropagation();
           onClose();
         }}
-        className="ml-1 rounded p-0.5 hover:bg-chorus-border"
+        className="ml-1 rounded p-0.5 hover:bg-border"
         aria-label={`Close ${tab.name}`}
       >
         <X size={10} />
@@ -112,7 +112,7 @@ export function ProjectTabs({
   return (
     <div
       data-tauri-drag-region
-      className="theme-transition no-select flex h-9 items-center border-b border-chorus-border bg-chorus-surface"
+      className="theme-transition no-select flex h-9 items-center border-b border-border bg-muted"
     >
       {/* Left: sidebar toggle + tabs */}
       <div className="flex items-center gap-0.5 px-1.5">
@@ -121,19 +121,19 @@ export function ProjectTabs({
           onClick={onToggleSidebar}
           className={`rounded p-1.5 transition-colors ${
             sidebarOpen
-              ? "text-chorus-accent hover:bg-chorus-accent/10"
-              : "text-chorus-muted hover:bg-chorus-border hover:text-chorus-text"
+              ? "text-primary hover:bg-primary/10"
+              : "text-muted-foreground hover:bg-border hover:text-foreground"
           }`}
           aria-label="Toggle sidebar"
         >
           <PanelLeft size={14} />
         </button>
 
-        <div className="mx-1 h-4 w-px bg-chorus-border" />
+        <div className="mx-1 h-4 w-px bg-border" />
 
         <div role="tablist" aria-label="Open projects" className="flex items-center gap-0.5">
           {tabs.length === 0 ? (
-            <span className="px-2 text-xs text-chorus-muted">No projects</span>
+            <span className="px-2 text-xs text-muted-foreground">No projects</span>
           ) : (
             tabs.map((tab) => (
               <TabItem
@@ -170,7 +170,7 @@ export function ProjectTabs({
         <button
           type="button"
           onClick={onNewTab}
-          className="rounded p-1 text-chorus-muted hover:bg-chorus-border hover:text-chorus-text"
+          className="rounded p-1 text-muted-foreground hover:bg-border hover:text-foreground"
           aria-label="Open new project"
         >
           <Plus size={14} />
@@ -185,7 +185,7 @@ export function ProjectTabs({
         <button
           type="button"
           onClick={() => appWindow.minimize()}
-          className="flex h-9 w-11 items-center justify-center text-chorus-muted transition-colors hover:bg-chorus-muted/10 hover:text-chorus-text"
+          className="flex h-9 w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-muted-foreground/10 hover:text-foreground"
           aria-label="Minimize"
         >
           <Minus size={14} />
@@ -193,7 +193,7 @@ export function ProjectTabs({
         <button
           type="button"
           onClick={() => appWindow.toggleMaximize()}
-          className="flex h-9 w-11 items-center justify-center text-chorus-muted transition-colors hover:bg-chorus-muted/10 hover:text-chorus-text"
+          className="flex h-9 w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-muted-foreground/10 hover:text-foreground"
           aria-label="Maximize"
         >
           <Square size={12} />
@@ -201,7 +201,7 @@ export function ProjectTabs({
         <button
           type="button"
           onClick={() => appWindow.close()}
-          className="flex h-9 w-11 items-center justify-center text-chorus-muted transition-colors hover:bg-chorus-red/80 hover:text-white"
+          className="flex h-9 w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-destructive/80 hover:text-white"
           aria-label="Close"
         >
           <X size={14} />

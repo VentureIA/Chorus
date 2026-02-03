@@ -53,17 +53,17 @@ export function GitSettingsModal({ repoPath, onClose }: GitSettingsModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="w-full max-w-md rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
+        className="w-full max-w-md rounded-lg border border-border bg-background shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-chorus-text">Git Settings</h2>
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-sm font-semibold text-foreground">Git Settings</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 hover:bg-chorus-border/40"
+            className="rounded p-1 hover:bg-border/40"
           >
-            <X size={16} className="text-chorus-muted" />
+            <X size={16} className="text-muted-foreground" />
           </button>
         </div>
 
@@ -119,37 +119,37 @@ function UserIdentitySection({ repoPath }: { repoPath: string }) {
 
   return (
     <section>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-chorus-muted">
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         User Identity
       </h3>
-      <div className="space-y-2 rounded-lg border border-chorus-border bg-chorus-card p-3">
+      <div className="space-y-2 rounded-lg border border-border bg-card p-3">
         <div className="flex items-center gap-2">
-          <User size={14} className="text-chorus-muted shrink-0" />
+          <User size={14} className="text-muted-foreground shrink-0" />
           <input
             type="text"
             value={name}
             onChange={handleChange(setName)}
             placeholder="Name"
-            className="flex-1 bg-transparent text-xs text-chorus-text placeholder:text-chorus-muted focus:outline-none"
+            className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
         </div>
         <div className="flex items-center gap-2">
-          <Mail size={14} className="text-chorus-muted shrink-0" />
+          <Mail size={14} className="text-muted-foreground shrink-0" />
           <input
             type="email"
             value={email}
             onChange={handleChange(setEmail)}
             placeholder="Email"
-            className="flex-1 bg-transparent text-xs text-chorus-text placeholder:text-chorus-muted focus:outline-none"
+            className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
         </div>
         <div className="flex items-center justify-between pt-1">
-          <label className="flex items-center gap-2 text-xs text-chorus-muted">
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <input
               type="checkbox"
               checked={global}
               onChange={(e) => setGlobal(e.target.checked)}
-              className="h-3 w-3 rounded border-chorus-border"
+              className="h-3 w-3 rounded border-border"
             />
             Apply globally
           </label>
@@ -157,7 +157,7 @@ function UserIdentitySection({ repoPath }: { repoPath: string }) {
             type="button"
             onClick={handleSave}
             disabled={!dirty || saving}
-            className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-chorus-accent hover:bg-chorus-accent/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
             Save
@@ -238,32 +238,32 @@ function RemotesSection({ repoPath }: { repoPath: string }) {
   return (
     <section>
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-chorus-muted">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Remotes
         </h3>
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => testAllRemotes(repoPath)}
-            className="rounded p-1 hover:bg-chorus-border/40"
+            className="rounded p-1 hover:bg-border/40"
             title="Test all connections"
           >
-            <RefreshCw size={12} className="text-chorus-muted" />
+            <RefreshCw size={12} className="text-muted-foreground" />
           </button>
           <button
             type="button"
             onClick={() => setShowAdd(true)}
-            className="rounded p-1 hover:bg-chorus-border/40"
+            className="rounded p-1 hover:bg-border/40"
             title="Add remote"
           >
-            <Plus size={12} className="text-chorus-muted" />
+            <Plus size={12} className="text-muted-foreground" />
           </button>
         </div>
       </div>
 
-      <div className="space-y-2 rounded-lg border border-chorus-border bg-chorus-card p-3">
+      <div className="space-y-2 rounded-lg border border-border bg-card p-3">
         {remotes.length === 0 && !showAdd && (
-          <p className="text-xs text-chorus-muted">No remotes configured</p>
+          <p className="text-xs text-muted-foreground">No remotes configured</p>
         )}
 
         {remotes.map((remote) => (
@@ -271,14 +271,14 @@ function RemotesSection({ repoPath }: { repoPath: string }) {
             {editingRemote === remote.name ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-chorus-text">{remote.name}</span>
+                  <span className="text-xs font-semibold text-foreground">{remote.name}</span>
                 </div>
                 <input
                   type="text"
                   value={editUrl}
                   onChange={(e) => setEditUrl(e.target.value)}
                   placeholder="URL"
-                  className="w-full rounded border border-chorus-border bg-chorus-bg px-2 py-1 text-xs text-chorus-text placeholder:text-chorus-muted focus:outline-none focus:border-chorus-accent"
+                  className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleEditSave();
@@ -289,14 +289,14 @@ function RemotesSection({ repoPath }: { repoPath: string }) {
                   <button
                     type="button"
                     onClick={handleEditCancel}
-                    className="rounded px-2 py-1 text-xs text-chorus-muted hover:bg-chorus-border/40"
+                    className="rounded px-2 py-1 text-xs text-muted-foreground hover:bg-border/40"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={handleEditSave}
-                    className="rounded px-2 py-1 text-xs text-chorus-accent hover:bg-chorus-accent/10"
+                    className="rounded px-2 py-1 text-xs text-primary hover:bg-primary/10"
                   >
                     Save
                   </button>
@@ -306,48 +306,48 @@ function RemotesSection({ repoPath }: { repoPath: string }) {
               <>
                 <div className="flex items-center gap-2">
                   <RemoteStatusIndicator status={remoteStatuses[remote.name] ?? "unknown"} />
-                  <span className="text-xs font-semibold text-chorus-text">{remote.name}</span>
+                  <span className="text-xs font-semibold text-foreground">{remote.name}</span>
                   <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       type="button"
                       onClick={() => testRemote(repoPath, remote.name)}
-                      className="rounded p-1 hover:bg-chorus-border/40"
+                      className="rounded p-1 hover:bg-border/40"
                       title="Test connection"
                     >
-                      <RefreshCw size={10} className="text-chorus-muted" />
+                      <RefreshCw size={10} className="text-muted-foreground" />
                     </button>
                     <button
                       type="button"
                       onClick={() => handleEditStart(remote.name, remote.url)}
-                      className="rounded p-1 hover:bg-chorus-border/40"
+                      className="rounded p-1 hover:bg-border/40"
                       title="Edit remote"
                     >
-                      <Edit2 size={10} className="text-chorus-muted" />
+                      <Edit2 size={10} className="text-muted-foreground" />
                     </button>
                     <button
                       type="button"
                       onClick={() => handleRemove(remote.name)}
-                      className="rounded p-1 hover:bg-chorus-border/40"
+                      className="rounded p-1 hover:bg-border/40"
                       title="Remove remote"
                     >
-                      <Trash2 size={10} className="text-chorus-red" />
+                      <Trash2 size={10} className="text-destructive" />
                     </button>
                   </div>
                 </div>
-                <div className="pl-5 text-[11px] text-chorus-muted truncate">{remote.url}</div>
+                <div className="pl-5 text-[11px] text-muted-foreground truncate">{remote.url}</div>
               </>
             )}
           </div>
         ))}
 
         {showAdd && (
-          <div className="space-y-2 border-t border-chorus-border pt-2">
+          <div className="space-y-2 border-t border-border pt-2">
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Remote name (e.g., origin)"
-              className="w-full rounded border border-chorus-border bg-chorus-bg px-2 py-1 text-xs text-chorus-text placeholder:text-chorus-muted focus:outline-none focus:border-chorus-accent"
+              className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
               autoFocus
             />
             <input
@@ -355,7 +355,7 @@ function RemotesSection({ repoPath }: { repoPath: string }) {
               value={newUrl}
               onChange={(e) => setNewUrl(e.target.value)}
               placeholder="URL (e.g., git@github.com:user/repo.git)"
-              className="w-full rounded border border-chorus-border bg-chorus-bg px-2 py-1 text-xs text-chorus-text placeholder:text-chorus-muted focus:outline-none focus:border-chorus-accent"
+              className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleAdd();
                 if (e.key === "Escape") setShowAdd(false);
@@ -365,7 +365,7 @@ function RemotesSection({ repoPath }: { repoPath: string }) {
               <button
                 type="button"
                 onClick={() => setShowAdd(false)}
-                className="rounded px-2 py-1 text-xs text-chorus-muted hover:bg-chorus-border/40"
+                className="rounded px-2 py-1 text-xs text-muted-foreground hover:bg-border/40"
               >
                 Cancel
               </button>
@@ -373,7 +373,7 @@ function RemotesSection({ repoPath }: { repoPath: string }) {
                 type="button"
                 onClick={handleAdd}
                 disabled={adding || !newName.trim() || !newUrl.trim()}
-                className="flex items-center gap-1 rounded px-2 py-1 text-xs text-chorus-accent hover:bg-chorus-accent/10 disabled:opacity-50"
+                className="flex items-center gap-1 rounded px-2 py-1 text-xs text-primary hover:bg-primary/10 disabled:opacity-50"
               >
                 {adding ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                 Add
@@ -428,10 +428,10 @@ function DefaultBranchSection({ repoPath }: { repoPath: string }) {
 
   return (
     <section>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-chorus-muted">
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         Default Branch
       </h3>
-      <div className="space-y-2 rounded-lg border border-chorus-border bg-chorus-card p-3">
+      <div className="space-y-2 rounded-lg border border-border bg-card p-3">
         <input
           type="text"
           value={branch}
@@ -440,7 +440,7 @@ function DefaultBranchSection({ repoPath }: { repoPath: string }) {
             setDirty(true);
           }}
           placeholder="Branch name"
-          className="w-full bg-transparent text-xs text-chorus-text placeholder:text-chorus-muted focus:outline-none"
+          className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
         <div className="flex flex-wrap gap-1">
           {presets.map((preset) => (
@@ -450,8 +450,8 @@ function DefaultBranchSection({ repoPath }: { repoPath: string }) {
               onClick={() => handlePresetClick(preset)}
               className={`rounded px-2 py-0.5 text-[11px] ${
                 branch === preset
-                  ? "bg-chorus-accent/20 text-chorus-accent"
-                  : "bg-chorus-border/40 text-chorus-muted hover:bg-chorus-border"
+                  ? "bg-primary/20 text-primary"
+                  : "bg-border/40 text-muted-foreground hover:bg-border"
               }`}
             >
               {preset}
@@ -459,12 +459,12 @@ function DefaultBranchSection({ repoPath }: { repoPath: string }) {
           ))}
         </div>
         <div className="flex items-center justify-between pt-1">
-          <label className="flex items-center gap-2 text-xs text-chorus-muted">
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <input
               type="checkbox"
               checked={global}
               onChange={(e) => setGlobal(e.target.checked)}
-              className="h-3 w-3 rounded border-chorus-border"
+              className="h-3 w-3 rounded border-border"
             />
             Apply globally
           </label>
@@ -472,7 +472,7 @@ function DefaultBranchSection({ repoPath }: { repoPath: string }) {
             type="button"
             onClick={handleSave}
             disabled={!dirty || saving || !branch.trim()}
-            className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-chorus-accent hover:bg-chorus-accent/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
             Save
