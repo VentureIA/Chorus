@@ -5,6 +5,8 @@ import {
   Code2,
   GitBranch,
   GitCompareArrows,
+  Minus,
+  Plus,
   Sparkles,
   Terminal,
   X,
@@ -24,8 +26,12 @@ interface TerminalHeaderProps {
   branchName?: string;
   showLaunch?: boolean;
   isWorktree?: boolean;
+  fontSize?: number;
   onKill: (sessionId: number) => void;
   onLaunch?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onZoomReset?: () => void;
 }
 
 const STATUS_COLOR: Record<SessionStatus, string> = {
@@ -65,8 +71,12 @@ export function TerminalHeader({
   branchName = "Current",
   showLaunch = false,
   isWorktree = false,
+  fontSize,
   onKill,
   onLaunch,
+  onZoomIn,
+  onZoomOut,
+  onZoomReset,
 }: TerminalHeaderProps) {
   const { icon: ProviderIcon, label: providerLabel } = providerConfig[provider];
 
@@ -173,6 +183,40 @@ export function TerminalHeader({
         <span className={`text-[10px] font-medium ${STATUS_COLOR[status]}`}>
           {STATUS_LABEL[status]}
         </span>
+
+        {/* Zoom controls */}
+        {onZoomOut && onZoomIn && (
+          <div className="flex items-center gap-0.5 border-l border-maestro-border pl-1 ml-1">
+            <button
+              type="button"
+              onClick={onZoomOut}
+              className="rounded p-0.5 text-maestro-muted transition-colors hover:bg-maestro-card hover:text-maestro-text"
+              title="Zoom out (Cmd+-)"
+              aria-label="Zoom out"
+            >
+              <Minus size={11} />
+            </button>
+            {fontSize && (
+              <button
+                type="button"
+                onClick={onZoomReset}
+                className="min-w-[28px] rounded px-1 py-0.5 text-[9px] font-medium text-maestro-muted transition-colors hover:bg-maestro-card hover:text-maestro-text"
+                title="Reset zoom (Cmd+0)"
+              >
+                {fontSize}px
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onZoomIn}
+              className="rounded p-0.5 text-maestro-muted transition-colors hover:bg-maestro-card hover:text-maestro-text"
+              title="Zoom in (Cmd++)"
+              aria-label="Zoom in"
+            >
+              <Plus size={11} />
+            </button>
+          </div>
+        )}
 
         {/* Close button */}
         <button

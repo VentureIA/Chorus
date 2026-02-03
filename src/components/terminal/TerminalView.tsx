@@ -120,6 +120,10 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
   // Quick actions manager modal state
   const [showQuickActionsManager, setShowQuickActionsManager] = useState(false);
 
+  // Local font size override for this terminal (allows per-terminal zoom)
+  const [localFontSize, setLocalFontSize] = useState<number | null>(null);
+  const effectiveFontSize = localFontSize ?? terminalSettings.fontSize;
+
   // Backend capabilities (for future enhanced features like terminal state queries)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_backendInfo, setBackendInfo] = useState<BackendInfo | null>(null);
@@ -165,7 +169,7 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
       const effectiveFont = getEffectiveFontFamily();
       const fontFamily = buildFontFamily(effectiveFont);
 
-      termRef.current.options.fontSize = terminalSettings.fontSize;
+      termRef.current.options.fontSize = effectiveFontSize;
       termRef.current.options.fontFamily = fontFamily;
       termRef.current.options.lineHeight = terminalSettings.lineHeight;
 
@@ -178,7 +182,58 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
         }
       });
     }
-  }, [terminalSettings.fontSize, terminalSettings.fontFamily, terminalSettings.lineHeight, getEffectiveFontFamily]);
+  }, [effectiveFontSize, terminalSettings.fontFamily, terminalSettings.lineHeight, getEffectiveFontFamily]);
+
+  // Handle Cmd+Plus/Minus for per-terminal zoom
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.metaKey || e.ctrlKey) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -1 : 1;
+        setLocalFontSize((prev) => {
+          const current = prev ?? terminalSettings.fontSize;
+          return Math.max(8, Math.min(32, current + delta));
+        });
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isFocused) return;
+      const isMod = e.metaKey || e.ctrlKey;
+      if (!isMod) return;
+
+      if (e.key === "=" || e.key === "+") {
+        e.preventDefault();
+        e.stopPropagation();
+        setLocalFontSize((prev) => {
+          const current = prev ?? terminalSettings.fontSize;
+          return Math.min(32, current + 1);
+        });
+      } else if (e.key === "-") {
+        e.preventDefault();
+        e.stopPropagation();
+        setLocalFontSize((prev) => {
+          const current = prev ?? terminalSettings.fontSize;
+          return Math.max(8, current - 1);
+        });
+      } else if (e.key === "0") {
+        e.preventDefault();
+        e.stopPropagation();
+        setLocalFontSize(null); // Reset to global setting
+      }
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isFocused, terminalSettings.fontSize]);
 
   /**
    * Immediately removes the terminal from UI (optimistic update),
@@ -360,11 +415,15 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
         mcpCount={mcpCount}
         branchName={effectiveBranch}
         isWorktree={isWorktree}
+        fontSize={effectiveFontSize}
         onKill={handleKill}
+        onZoomIn={() => setLocalFontSize((prev) => Math.min(32, (prev ?? terminalSettings.fontSize) + 1))}
+        onZoomOut={() => setLocalFontSize((prev) => Math.max(8, (prev ?? terminalSettings.fontSize) - 1))}
+        onZoomReset={() => setLocalFontSize(null)}
       />
 
       {/* xterm.js container */}
-      <div ref={containerRef} className="flex-1 overflow-hidden" />
+      <div ref={containerRef} className="flex-1 overflow-hidden p-2" />
 
       {/* Quick action pills */}
       <QuickActionPills

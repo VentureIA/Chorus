@@ -15,6 +15,10 @@ import { TopBar } from "./components/shared/TopBar";
 import { Sidebar } from "./components/sidebar/Sidebar";
 
 const DEFAULT_SESSION_COUNT = 6;
+const ZOOM_STEP = 0.1;
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 2.0;
+const ZOOM_DEFAULT = 1.0;
 
 type Theme = "dark" | "light";
 
@@ -40,11 +44,43 @@ function App() {
     const stored = localStorage.getItem("maestro-theme");
     return isValidTheme(stored) ? stored : "dark";
   });
+  const [zoom, setZoom] = useState<number>(() => {
+    const stored = localStorage.getItem("maestro-zoom");
+    return stored ? Number.parseFloat(stored) : ZOOM_DEFAULT;
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("maestro-theme", theme);
   }, [theme]);
+
+  // Apply zoom level to document
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${zoom * 100}%`;
+    localStorage.setItem("maestro-zoom", zoom.toString());
+  }, [zoom]);
+
+  // Keyboard shortcuts for zoom (Cmd/Ctrl + Plus/Minus/0)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMod = e.metaKey || e.ctrlKey;
+      if (!isMod) return;
+
+      if (e.key === "=" || e.key === "+") {
+        e.preventDefault();
+        setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP));
+      } else if (e.key === "-") {
+        e.preventDefault();
+        setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP));
+      } else if (e.key === "0") {
+        e.preventDefault();
+        setZoom(ZOOM_DEFAULT);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Clean up orphaned PTY sessions on mount (e.g., after page reload)
   // This ensures no stale processes remain from the previous frontend state
