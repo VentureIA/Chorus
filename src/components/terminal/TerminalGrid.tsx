@@ -23,7 +23,6 @@ import {
   writeStdin,
 } from "@/lib/terminal";
 import { cleanupSessionWorktree, prepareSessionWorktree } from "@/lib/worktreeManager";
-import { useTerminalKeyboard } from "@/hooks/useTerminalKeyboard";
 import { useMcpStore } from "@/stores/useMcpStore";
 import { usePluginStore } from "@/stores/usePluginStore";
 import { useSessionStore } from "@/stores/useSessionStore";
@@ -117,6 +116,16 @@ function createEmptySlot(
 export interface TerminalGridHandle {
   addSession: () => void;
   launchAll: () => Promise<void>;
+  // Terminal navigation
+  focusTerminal: (index: number) => void;
+  cycleNextTerminal: () => void;
+  cyclePrevTerminal: () => void;
+  unfocusTerminal: () => void;
+  getFocusedIndex: () => number | null;
+  // Terminal actions
+  clearTerminal: () => Promise<void>;
+  closeSession: () => Promise<void>;
+  restartSession: () => Promise<void>;
 }
 
 /**
@@ -200,29 +209,8 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     return idx >= 0 ? idx : null;
   }, [focusedSlotId, launchedSlots]);
 
-  // Terminal keyboard navigation hook
-  useTerminalKeyboard({
-    terminalCount: launchedSlots.length,
-    focusedIndex,
-    onFocusTerminal: useCallback((index: number) => {
-      const slot = launchedSlots[index];
-      if (slot) {
-        setFocusedSlotId(slot.id);
-      }
-    }, [launchedSlots]),
-    onCycleNext: useCallback(() => {
-      if (launchedSlots.length === 0) return;
-      const currentIdx = focusedIndex ?? -1;
-      const nextIdx = (currentIdx + 1) % launchedSlots.length;
-      setFocusedSlotId(launchedSlots[nextIdx].id);
-    }, [launchedSlots, focusedIndex]),
-    onCyclePrevious: useCallback(() => {
-      if (launchedSlots.length === 0) return;
-      const currentIdx = focusedIndex ?? 0;
-      const prevIdx = (currentIdx - 1 + launchedSlots.length) % launchedSlots.length;
-      setFocusedSlotId(launchedSlots[prevIdx].id);
-    }, [launchedSlots, focusedIndex]),
-  });
+  // Note: Terminal keyboard navigation is now handled globally via useKeyboardShortcuts in App.tsx
+  // which calls the methods exposed through useImperativeHandle (focusTerminal, cycleNextTerminal, etc.)
 
   // Sync refs with state and report counts to parent
   useEffect(() => {
@@ -796,7 +784,136 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     });
   }, [mcpServers, skills, plugins]);
 
-  useImperativeHandle(ref, () => ({ addSession, launchAll }), [addSession, launchAll]);
+  // Terminal navigation methods for keyboard shortcuts
+  const focusTerminal = useCallback((index: number) => {
+    console.log("[TerminalGrid] focusTerminal called, index:", index, "launchedSlots:", launchedSlots.length);
+    const slot = launchedSlots[index];
+    if (slot) {
+      console.log("[TerminalGrid] Focusing slot:", slot.id);
+      setFocusedSlotId(slot.id);
+    } else {
+      console.log("[TerminalGrid] No slot at index", index);
+    }
+  }, [launchedSlots]);
+
+  const cycleNextTerminal = useCallback(() => {
+    if (launchedSlots.length === 0) return;
+    const currentIdx = focusedIndex ?? -1;
+    const nextIdx = (currentIdx + 1) % launchedSlots.length;
+    setFocusedSlotId(launchedSlots[nextIdx].id);
+  }, [launchedSlots, focusedIndex]);
+
+  const cyclePrevTerminal = useCallback(() => {
+    if (launchedSlots.length === 0) return;
+    const currentIdx = focusedIndex ?? 0;
+    const prevIdx = (currentIdx - 1 + launchedSlots.length) % launchedSlots.length;
+    setFocusedSlotId(launchedSlots[prevIdx].id);
+  }, [launchedSlots, focusedIndex]);
+
+  const unfocusTerminal = useCallback(() => {
+    setFocusedSlotId(null);
+  }, []);
+
+  const getFocusedIndex = useCallback(() => {
+    return focusedIndex;
+  }, [focusedIndex]);
+
+  const clearTerminal = useCallback(async () => {
+    if (!focusedSlotId) return;
+    const slot = slotsRef.current.find((s) => s.id === focusedSlotId);
+    if (slot?.sessionId) {
+      // Send Ctrl+L to clear the terminal
+      await writeStdin(slot.sessionId, "\x0c");
+    }
+  }, [focusedSlotId]);
+
+  const closeSession = useCallback(async () => {
+    if (!focusedSlotId) return;
+    const slot = slotsRef.current.find((s) => s.id === focusedSlotId);
+    if (slot?.sessionId) {
+      await killSession(slot.sessionId);
+      // Clean up worktree if present
+      if (slot.worktreePath && projectPath) {
+        try {
+          await cleanupSessionWorktree(projectPath, slot.worktreePath);
+        } catch (err) {
+          console.error("Failed to cleanup worktree:", err);
+        }
+      }
+      // Remove MCP config
+      if (projectPath) {
+        await removeSessionMcpConfig(projectPath, slot.sessionId).catch(console.error);
+      }
+      // Update slot state
+      setSlots((prev) => prev.filter((s) => s.id !== focusedSlotId));
+      if (tabId) {
+        removeSessionFromProject(tabId, slot.sessionId);
+      }
+      setFocusedSlotId(null);
+    }
+  }, [focusedSlotId, projectPath, tabId, removeSessionFromProject]);
+
+  const restartSession = useCallback(async () => {
+    if (!focusedSlotId) return;
+    const slot = slotsRef.current.find((s) => s.id === focusedSlotId);
+    if (!slot?.sessionId) return;
+
+    // Store the slot config before killing
+    const slotConfig = { ...slot };
+    const slotId = slot.id;
+
+    // Kill the current session
+    await killSession(slot.sessionId);
+    if (slot.worktreePath && projectPath) {
+      try {
+        await cleanupSessionWorktree(projectPath, slot.worktreePath);
+      } catch (err) {
+        console.error("Failed to cleanup worktree:", err);
+      }
+    }
+    if (projectPath && slot.sessionId) {
+      await removeSessionMcpConfig(projectPath, slot.sessionId).catch(console.error);
+    }
+    if (tabId && slot.sessionId) {
+      removeSessionFromProject(tabId, slot.sessionId);
+    }
+
+    // Reset the slot to pre-launch state
+    setSlots((prev) =>
+      prev.map((s) =>
+        s.id === slotId
+          ? { ...slotConfig, sessionId: null, worktreePath: null }
+          : s
+      )
+    );
+
+    // Relaunch the slot
+    await launchSlot(slotId);
+  }, [focusedSlotId, projectPath, tabId, removeSessionFromProject, launchSlot]);
+
+  useImperativeHandle(ref, () => ({
+    addSession,
+    launchAll,
+    focusTerminal,
+    cycleNextTerminal,
+    cyclePrevTerminal,
+    unfocusTerminal,
+    getFocusedIndex,
+    clearTerminal,
+    closeSession,
+    restartSession,
+  }), [
+    addSession,
+    launchAll,
+    focusTerminal,
+    cycleNextTerminal,
+    cyclePrevTerminal,
+    unfocusTerminal,
+    getFocusedIndex,
+    clearTerminal,
+    closeSession,
+    restartSession,
+  ]);
 
   if (error) {
     return (

@@ -27,6 +27,8 @@ interface TerminalHeaderProps {
   showLaunch?: boolean;
   isWorktree?: boolean;
   fontSize?: number;
+  /** Auto-generated title from first user message. */
+  sessionTitle?: string;
   onKill: (sessionId: number) => void;
   onLaunch?: () => void;
   onZoomIn?: () => void;
@@ -72,6 +74,7 @@ export function TerminalHeader({
   showLaunch = false,
   isWorktree = false,
   fontSize,
+  sessionTitle,
   onKill,
   onLaunch,
   onZoomIn,
@@ -79,6 +82,7 @@ export function TerminalHeader({
   onZoomReset,
 }: TerminalHeaderProps) {
   const { icon: ProviderIcon, label: providerLabel } = providerConfig[provider];
+  const displayTitle = sessionTitle || `${providerLabel} #${sessionId}`;
 
   return (
     <div className="no-select flex h-7 shrink-0 items-center gap-1.5 border-b border-maestro-border bg-maestro-surface px-2">
@@ -100,9 +104,12 @@ export function TerminalHeader({
           <ChevronDown size={9} className="text-maestro-muted/60" />
         </button>
 
-        {/* Session label */}
-        <span className="shrink-0 text-[11px] font-medium text-maestro-text">
-          {providerLabel} #{sessionId}
+        {/* Session label (auto-generated title or fallback) */}
+        <span
+          className="shrink-0 max-w-[200px] truncate text-[11px] font-medium text-maestro-text"
+          title={displayTitle}
+        >
+          {displayTitle}
         </span>
 
         {/* MCP badge */}

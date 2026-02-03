@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chorus Logo Concepts — Set 3</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: #0a0a0a;
+      color: #fafafa;
+      min-height: 100vh;
+      padding: 60px;
+    }
+
+    h1 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 60px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 60px;
+    }
+
+    .concept {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .concept h2 {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    .icon-container {
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+      border-radius: 40px;
+      box-shadow:
+        0 25px 50px -12px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .icon-container svg {
+      width: 100px;
+      height: 100px;
+    }
+
+    .sizes {
+      display: flex;
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    .size {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .size span {
+      font-size: 10px;
+      color: #444;
+    }
+
+    .size-box {
+      background: #1a1a1a;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .description {
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .recommended {
+      position: relative;
+    }
+
+    .recommended::after {
+      content: 'FAVORITE';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: #ff9f0a;
+      background: rgba(255, 159, 10, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chorus — Logo Concepts — Set 3</h1>
+
+  <div class="grid">
+
+    <!-- Concept 12: Infinity Harmony -->
+    <div class="concept">
+      <h2>Infinity</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad12" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#888888;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Infinity symbol - endless harmony -->
+          <path d="M50 50 C50 35, 30 25, 20 35 C10 45, 10 55, 20 65 C30 75, 50 65, 50 50 C50 35, 70 25, 80 35 C90 45, 90 55, 80 65 C70 75, 50 65, 50 50"
+                stroke="url(#grad12)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M50 50 C50 35, 30 25, 20 35 C10 45, 10 55, 20 65 C30 75, 50 65, 50 50 C50 35, 70 25, 80 35 C90 45, 90 55, 80 65 C70 75, 50 65, 50 50"
+                    stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M50 50 C50 35, 30 25, 20 35 C10 45, 10 55, 20 65 C30 75, 50 65, 50 50 C50 35, 70 25, 80 35 C90 45, 90 55, 80 65 C70 75, 50 65, 50 50"
+                    stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Boucle infinie — harmonie sans fin entre les sessions.</p>
+    </div>
+
+    <!-- Concept 13: Tuning Fork -->
+    <div class="concept recommended">
+      <h2>Tuning Fork</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad13" x1="50%" y1="0%" x2="50%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Elegant tuning fork -->
+          <path d="M38 20 L38 50 Q38 58, 50 58 Q62 58, 62 50 L62 20"
+                stroke="url(#grad13)" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <line x1="50" y1="58" x2="50" y2="80" stroke="url(#grad13)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M38 20 L38 50 Q38 58, 50 58 Q62 58, 62 50 L62 20"
+                    stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"/>
+              <line x1="50" y1="58" x2="50" y2="80" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M38 20 L38 50 Q38 58, 50 58 Q62 58, 62 50 L62 20"
+                    stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none"/>
+              <line x1="50" y1="58" x2="50" y2="80" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 24px; height: 24px;">
+            <svg viewBox="0 0 100 100" width="16" height="16" fill="none">
+              <path d="M38 20 L38 50 Q38 58, 50 58 Q62 58, 62 50 L62 20"
+                    stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none"/>
+              <line x1="50" y1="58" x2="50" y2="80" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>16px</span>
+        </div>
+      </div>
+      <p class="description">Diapason — l'instrument qui donne le ton parfait, symbolisant la synchronisation.</p>
+    </div>
+
+    <!-- Concept 14: Stacked Bars -->
+    <div class="concept">
+      <h2>Equalizer</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad14" x1="50%" y1="100%" x2="50%" y2="0%">
+              <stop offset="0%" style="stop-color:#666666;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Audio equalizer bars -->
+          <rect x="20" y="45" width="8" height="30" rx="4" fill="url(#grad14)" opacity="0.5"/>
+          <rect x="34" y="30" width="8" height="45" rx="4" fill="url(#grad14)" opacity="0.7"/>
+          <rect x="48" y="20" width="8" height="55" rx="4" fill="url(#grad14)"/>
+          <rect x="62" y="35" width="8" height="40" rx="4" fill="url(#grad14)" opacity="0.8"/>
+          <rect x="76" y="50" width="8" height="25" rx="4" fill="url(#grad14)" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <rect x="20" y="45" width="8" height="30" rx="4" fill="#fff" opacity="0.5"/>
+              <rect x="34" y="30" width="8" height="45" rx="4" fill="#fff" opacity="0.7"/>
+              <rect x="48" y="20" width="8" height="55" rx="4" fill="#fff"/>
+              <rect x="62" y="35" width="8" height="40" rx="4" fill="#fff" opacity="0.8"/>
+              <rect x="76" y="50" width="8" height="25" rx="4" fill="#fff" opacity="0.4"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <rect x="22" y="45" width="10" height="30" rx="5" fill="#fff" opacity="0.5"/>
+              <rect x="38" y="30" width="10" height="45" rx="5" fill="#fff" opacity="0.7"/>
+              <rect x="54" y="22" width="10" height="53" rx="5" fill="#fff"/>
+              <rect x="70" y="40" width="10" height="35" rx="5" fill="#fff" opacity="0.6"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Égaliseur audio — visualisation des voix multiples en action.</p>
+    </div>
+
+    <!-- Concept 15: Ripple -->
+    <div class="concept">
+      <h2>Ripple</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad15" x1="50%" y1="50%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#666666;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Ripple effect from center -->
+          <circle cx="50" cy="50" r="8" fill="url(#grad15)"/>
+          <circle cx="50" cy="50" r="20" stroke="url(#grad15)" stroke-width="3" fill="none" opacity="0.7"/>
+          <circle cx="50" cy="50" r="32" stroke="url(#grad15)" stroke-width="2.5" fill="none" opacity="0.4"/>
+          <circle cx="50" cy="50" r="44" stroke="url(#grad15)" stroke-width="2" fill="none" opacity="0.2"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <circle cx="50" cy="50" r="8" fill="#fff"/>
+              <circle cx="50" cy="50" r="20" stroke="#fff" stroke-width="3" fill="none" opacity="0.7"/>
+              <circle cx="50" cy="50" r="32" stroke="#fff" stroke-width="2.5" fill="none" opacity="0.4"/>
+              <circle cx="50" cy="50" r="44" stroke="#fff" stroke-width="2" fill="none" opacity="0.2"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <circle cx="50" cy="50" r="10" fill="#fff"/>
+              <circle cx="50" cy="50" r="24" stroke="#fff" stroke-width="4" fill="none" opacity="0.6"/>
+              <circle cx="50" cy="50" r="40" stroke="#fff" stroke-width="3" fill="none" opacity="0.3"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Ondulation — une voix qui se propage et influence les autres.</p>
+    </div>
+
+    <!-- Concept 16: Braid -->
+    <div class="concept">
+      <h2>Braid</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad16" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#777777;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Three braided strands -->
+          <path d="M30 18 Q50 30, 30 42 Q10 54, 30 66 Q50 78, 30 90"
+                stroke="url(#grad16)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.4"/>
+          <path d="M50 18 Q70 30, 50 42 Q30 54, 50 66 Q70 78, 50 90"
+                stroke="url(#grad16)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <path d="M70 18 Q50 30, 70 42 Q90 54, 70 66 Q50 78, 70 90"
+                stroke="url(#grad16)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M30 18 Q50 30, 30 42 Q10 54, 30 66 Q50 78, 30 90"
+                    stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.4"/>
+              <path d="M50 18 Q70 30, 50 42 Q30 54, 50 66 Q70 78, 50 90"
+                    stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <path d="M70 18 Q50 30, 70 42 Q90 54, 70 66 Q50 78, 70 90"
+                    stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M30 18 Q50 30, 30 42 Q10 54, 30 66 Q50 78, 30 90"
+                    stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4"/>
+              <path d="M50 18 Q70 30, 50 42 Q30 54, 50 66 Q70 78, 50 90"
+                    stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <path d="M70 18 Q50 30, 70 42 Q90 54, 70 66 Q50 78, 70 90"
+                    stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Trois fils tressés — voix entrelacées formant un tout cohérent.</p>
+    </div>
+
+  </div>
+</body>
+</html>

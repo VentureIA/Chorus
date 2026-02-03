@@ -48,6 +48,17 @@ pub async fn update_session_status(
     Ok(state.update_status(session_id, status))
 }
 
+/// Updates a session's title (auto-generated from first user message).
+/// Returns `false` if the session does not exist (no error raised).
+#[tauri::command]
+pub async fn update_session_title(
+    state: State<'_, SessionManager>,
+    session_id: u32,
+    title: String,
+) -> Result<bool, String> {
+    Ok(state.update_title(session_id, title))
+}
+
 /// Exposes `SessionManager::assign_branch` to the frontend.
 /// Links a session to a branch and optional worktree path. Returns an error
 /// string if the session does not exist.

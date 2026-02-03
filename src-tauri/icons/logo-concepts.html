@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chorus Logo Concepts</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;500&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: #0a0a0a;
+      color: #fafafa;
+      min-height: 100vh;
+      padding: 60px;
+    }
+
+    h1 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 60px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 60px;
+    }
+
+    .concept {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .concept h2 {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    .icon-container {
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+      border-radius: 40px;
+      box-shadow:
+        0 25px 50px -12px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .icon-container svg {
+      width: 100px;
+      height: 100px;
+    }
+
+    .sizes {
+      display: flex;
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    .size {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .size span {
+      font-size: 10px;
+      color: #444;
+    }
+
+    .size-box {
+      background: #1a1a1a;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .description {
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #333, transparent);
+      margin: 40px 0;
+    }
+
+    .recommended {
+      position: relative;
+    }
+
+    .recommended::after {
+      content: 'RECOMMENDED';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: #0a84ff;
+      background: rgba(10, 132, 255, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chorus — Logo Concepts</h1>
+
+  <div class="grid">
+
+    <!-- Concept 1: Harmonic Waves -->
+    <div class="concept recommended">
+      <h2>Harmonic Waves</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#a0a0a0;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Three harmonizing waves converging -->
+          <path d="M20 35 Q35 25, 50 35 T80 35" stroke="url(#grad1)" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.4"/>
+          <path d="M20 50 Q35 38, 50 50 T80 50" stroke="url(#grad1)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <path d="M20 65 Q35 53, 50 65 T80 65" stroke="url(#grad1)" stroke-width="6" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <defs><linearGradient id="g1s" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ffffff"/><stop offset="100%" style="stop-color:#a0a0a0"/></linearGradient></defs>
+              <path d="M20 35 Q35 25, 50 35 T80 35" stroke="url(#g1s)" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.4"/>
+              <path d="M20 50 Q35 38, 50 50 T80 50" stroke="url(#g1s)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <path d="M20 65 Q35 53, 50 65 T80 65" stroke="url(#g1s)" stroke-width="6" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M20 35 Q35 25, 50 35 T80 35" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.4"/>
+              <path d="M20 50 Q35 38, 50 50 T80 50" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <path d="M20 65 Q35 53, 50 65 T80 65" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 24px; height: 24px;">
+            <svg viewBox="0 0 100 100" width="16" height="16" fill="none">
+              <path d="M20 35 Q35 25, 50 35 T80 35" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.4"/>
+              <path d="M20 50 Q35 38, 50 50 T80 50" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <path d="M20 65 Q35 53, 50 65 T80 65" stroke="#fff" stroke-width="9" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>16px</span>
+        </div>
+      </div>
+      <p class="description">Three sound waves in harmony — representing multiple sessions working together in sync.</p>
+    </div>
+
+    <!-- Concept 2: Orbital Sessions -->
+    <div class="concept">
+      <h2>Orbital Sessions</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Central core -->
+          <circle cx="50" cy="50" r="8" fill="url(#grad2)"/>
+          <!-- Orbiting elements -->
+          <circle cx="50" cy="50" r="22" stroke="url(#grad2)" stroke-width="2" fill="none" opacity="0.3"/>
+          <circle cx="50" cy="50" r="34" stroke="url(#grad2)" stroke-width="2" fill="none" opacity="0.5"/>
+          <circle cx="50" cy="50" r="46" stroke="url(#grad2)" stroke-width="2" fill="none" opacity="0.2"/>
+          <!-- Session nodes -->
+          <circle cx="72" cy="50" r="5" fill="url(#grad2)" opacity="0.9"/>
+          <circle cx="50" cy="16" r="4" fill="url(#grad2)" opacity="0.7"/>
+          <circle cx="26" cy="62" r="4" fill="url(#grad2)" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <circle cx="50" cy="50" r="8" fill="#fff"/>
+              <circle cx="50" cy="50" r="22" stroke="#fff" stroke-width="2" fill="none" opacity="0.3"/>
+              <circle cx="50" cy="50" r="34" stroke="#fff" stroke-width="2" fill="none" opacity="0.5"/>
+              <circle cx="72" cy="50" r="5" fill="#fff" opacity="0.9"/>
+              <circle cx="50" cy="16" r="4" fill="#fff" opacity="0.7"/>
+              <circle cx="26" cy="62" r="4" fill="#fff" opacity="0.5"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <circle cx="50" cy="50" r="10" fill="#fff"/>
+              <circle cx="50" cy="50" r="30" stroke="#fff" stroke-width="3" fill="none" opacity="0.4"/>
+              <circle cx="72" cy="50" r="6" fill="#fff" opacity="0.9"/>
+              <circle cx="35" cy="25" r="5" fill="#fff" opacity="0.6"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Sessions orbiting a central orchestrator — showing coordination and unity.</p>
+    </div>
+
+    <!-- Concept 3: Unified Voices -->
+    <div class="concept">
+      <h2>Unified Voices</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#909090;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Overlapping rounded rectangles representing unified sessions -->
+          <rect x="22" y="30" width="28" height="40" rx="8" fill="url(#grad3)" opacity="0.35"/>
+          <rect x="36" y="30" width="28" height="40" rx="8" fill="url(#grad3)" opacity="0.55"/>
+          <rect x="50" y="30" width="28" height="40" rx="8" fill="url(#grad3)" opacity="0.85"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <rect x="22" y="30" width="28" height="40" rx="8" fill="#fff" opacity="0.35"/>
+              <rect x="36" y="30" width="28" height="40" rx="8" fill="#fff" opacity="0.55"/>
+              <rect x="50" y="30" width="28" height="40" rx="8" fill="#fff" opacity="0.85"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <rect x="22" y="30" width="28" height="40" rx="8" fill="#fff" opacity="0.35"/>
+              <rect x="36" y="30" width="28" height="40" rx="8" fill="#fff" opacity="0.55"/>
+              <rect x="50" y="30" width="28" height="40" rx="8" fill="#fff" opacity="0.85"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Layered windows merging — multiple sessions becoming one unified experience.</p>
+    </div>
+
+    <!-- Concept 4: Conductor's Mark -->
+    <div class="concept">
+      <h2>Conductor's Arc</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad4" x1="20%" y1="0%" x2="80%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Elegant conductor's gesture -->
+          <path d="M25 70 Q50 20, 75 70" stroke="url(#grad4)" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <!-- Accent dot -->
+          <circle cx="75" cy="70" r="6" fill="url(#grad4)"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M25 70 Q50 20, 75 70" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"/>
+              <circle cx="75" cy="70" r="6" fill="#fff"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M25 70 Q50 20, 75 70" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none"/>
+              <circle cx="75" cy="70" r="7" fill="#fff"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">A conductor's sweeping gesture — representing orchestration and direction.</p>
+    </div>
+
+    <!-- Concept 5: Resonance -->
+    <div class="concept">
+      <h2>Resonance</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad5" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#999999;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Concentric arcs emanating from center -->
+          <path d="M50 65 L50 35" stroke="url(#grad5)" stroke-width="6" stroke-linecap="round"/>
+          <path d="M35 58 Q35 42, 50 35 Q65 42, 65 58" stroke="url(#grad5)" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <path d="M23 65 Q23 38, 50 28 Q77 38, 77 65" stroke="url(#grad5)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M50 65 L50 35" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+              <path d="M35 58 Q35 42, 50 35 Q65 42, 65 58" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <path d="M23 65 Q23 38, 50 28 Q77 38, 77 65" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M50 65 L50 35" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+              <path d="M32 60 Q32 40, 50 32 Q68 40, 68 60" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.6"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Sound resonating outward — a voice creating harmonics.</p>
+    </div>
+
+    <!-- Concept 6: Convergence -->
+    <div class="concept">
+      <h2>Convergence</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad6" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Three lines converging to a point -->
+          <path d="M20 25 L50 50" stroke="url(#grad6)" stroke-width="5" stroke-linecap="round" opacity="0.5"/>
+          <path d="M20 50 L50 50" stroke="url(#grad6)" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+          <path d="M20 75 L50 50" stroke="url(#grad6)" stroke-width="5" stroke-linecap="round" opacity="0.9"/>
+          <!-- Unified output -->
+          <path d="M50 50 L80 50" stroke="url(#grad6)" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="6" fill="url(#grad6)"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M20 25 L50 50" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.5"/>
+              <path d="M20 50 L50 50" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+              <path d="M20 75 L50 50" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.9"/>
+              <path d="M50 50 L80 50" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="50" cy="50" r="6" fill="#fff"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M18 25 L50 50" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+              <path d="M18 50 L50 50" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+              <path d="M18 75 L50 50" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+              <path d="M50 50 L82 50" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="50" cy="50" r="7" fill="#fff"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Multiple inputs converging into one output — the essence of orchestration.</p>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chorus Logo Concepts — Set 5 (Final)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: #0a0a0a;
+      color: #fafafa;
+      min-height: 100vh;
+      padding: 60px;
+    }
+
+    h1 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 60px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 60px;
+    }
+
+    .concept {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .concept h2 {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    .icon-container {
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+      border-radius: 40px;
+      box-shadow:
+        0 25px 50px -12px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .icon-container svg {
+      width: 100px;
+      height: 100px;
+    }
+
+    .sizes {
+      display: flex;
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    .size {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .size span {
+      font-size: 10px;
+      color: #444;
+    }
+
+    .size-box {
+      background: #1a1a1a;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .description {
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .recommended {
+      position: relative;
+    }
+
+    .recommended::after {
+      content: 'TOP PICK';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: #30d158;
+      background: rgba(48, 209, 88, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chorus — Logo Concepts — Set 5 (Final Refinements)</h1>
+
+  <div class="grid">
+
+    <!-- Concept 22: Fluid Stack -->
+    <div class="concept recommended">
+      <h2>Fluid Stack</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad22" x1="50%" y1="0%" x2="50%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#666666;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Stacked bars with subtle wave curve -->
+          <path d="M20 60 Q50 64, 80 60" stroke="url(#grad22)" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.35"/>
+          <path d="M20 45 Q50 49, 80 45" stroke="url(#grad22)" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.6"/>
+          <path d="M20 30 Q50 34, 80 30" stroke="url(#grad22)" stroke-width="8" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M20 60 Q50 64, 80 60" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.35"/>
+              <path d="M20 45 Q50 49, 80 45" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.6"/>
+              <path d="M20 30 Q50 34, 80 30" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M18 62 Q50 67, 82 62" stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.35"/>
+              <path d="M18 45 Q50 50, 82 45" stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.6"/>
+              <path d="M18 28 Q50 33, 82 28" stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 24px; height: 24px;">
+            <svg viewBox="0 0 100 100" width="16" height="16" fill="none">
+              <path d="M15 65 Q50 70, 85 65" stroke="#fff" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.35"/>
+              <path d="M15 45 Q50 50, 85 45" stroke="#fff" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.6"/>
+              <path d="M15 25 Q50 30, 85 25" stroke="#fff" stroke-width="12" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>16px</span>
+        </div>
+      </div>
+      <p class="description">Stack + Wave — barres empilées avec légère courbure fluide.</p>
+    </div>
+
+    <!-- Concept 23: Windows Cascade -->
+    <div class="concept">
+      <h2>Cascade</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad23" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Three cascading rounded squares -->
+          <rect x="42" y="18" width="38" height="30" rx="6" stroke="url(#grad23)" stroke-width="3" fill="none" opacity="0.3"/>
+          <rect x="30" y="30" width="38" height="30" rx="6" stroke="url(#grad23)" stroke-width="3" fill="none" opacity="0.55"/>
+          <rect x="18" y="42" width="38" height="30" rx="6" stroke="url(#grad23)" stroke-width="3.5" fill="none"/>
+          <!-- Minimal cursor/prompt in front window -->
+          <line x1="26" y1="57" x2="42" y2="57" stroke="url(#grad23)" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <rect x="42" y="18" width="38" height="30" rx="6" stroke="#fff" stroke-width="3" fill="none" opacity="0.3"/>
+              <rect x="30" y="30" width="38" height="30" rx="6" stroke="#fff" stroke-width="3" fill="none" opacity="0.55"/>
+              <rect x="18" y="42" width="38" height="30" rx="6" stroke="#fff" stroke-width="3.5" fill="none"/>
+              <line x1="26" y1="57" x2="42" y2="57" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <rect x="40" y="18" width="40" height="32" rx="7" stroke="#fff" stroke-width="4" fill="none" opacity="0.35"/>
+              <rect x="18" y="40" width="40" height="32" rx="7" stroke="#fff" stroke-width="4" fill="none"/>
+              <line x1="26" y1="56" x2="44" y2="56" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Fenêtres en cascade — version épurée du multi-terminal.</p>
+    </div>
+
+    <!-- Concept 24: Wave Bars -->
+    <div class="concept">
+      <h2>Wave Bars</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad24" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#666666;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#666666;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Sinusoidal wave made of rounded bars -->
+          <rect x="18" y="50" width="8" height="20" rx="4" fill="url(#grad24)" opacity="0.4"/>
+          <rect x="30" y="38" width="8" height="32" rx="4" fill="url(#grad24)" opacity="0.6"/>
+          <rect x="42" y="30" width="8" height="40" rx="4" fill="url(#grad24)" opacity="0.85"/>
+          <rect x="54" y="35" width="8" height="35" rx="4" fill="url(#grad24)" opacity="0.7"/>
+          <rect x="66" y="45" width="8" height="25" rx="4" fill="url(#grad24)" opacity="0.5"/>
+          <rect x="78" y="52" width="8" height="18" rx="4" fill="url(#grad24)" opacity="0.35"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <rect x="18" y="50" width="8" height="20" rx="4" fill="#fff" opacity="0.4"/>
+              <rect x="30" y="38" width="8" height="32" rx="4" fill="#fff" opacity="0.6"/>
+              <rect x="42" y="30" width="8" height="40" rx="4" fill="#fff" opacity="0.85"/>
+              <rect x="54" y="35" width="8" height="35" rx="4" fill="#fff" opacity="0.7"/>
+              <rect x="66" y="45" width="8" height="25" rx="4" fill="#fff" opacity="0.5"/>
+              <rect x="78" y="52" width="8" height="18" rx="4" fill="#fff" opacity="0.35"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <rect x="20" y="50" width="10" height="22" rx="5" fill="#fff" opacity="0.4"/>
+              <rect x="36" y="35" width="10" height="37" rx="5" fill="#fff" opacity="0.7"/>
+              <rect x="52" y="28" width="10" height="44" rx="5" fill="#fff"/>
+              <rect x="68" y="42" width="10" height="30" rx="5" fill="#fff" opacity="0.5"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Onde en barres — fusion de l'equalizer et des vagues.</p>
+    </div>
+
+    <!-- Concept 25: Layers Pure -->
+    <div class="concept">
+      <h2>Layers Pure</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad25" x1="50%" y1="0%" x2="50%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#555555;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Ultra clean stacked rectangles with rounded ends -->
+          <rect x="20" y="58" width="60" height="10" rx="5" fill="url(#grad25)" opacity="0.3"/>
+          <rect x="20" y="44" width="60" height="10" rx="5" fill="url(#grad25)" opacity="0.55"/>
+          <rect x="20" y="30" width="60" height="10" rx="5" fill="url(#grad25)" opacity="0.85"/>
+          <!-- Connection element -->
+          <circle cx="50" cy="75" r="3" fill="url(#grad25)" opacity="0.25"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <rect x="20" y="58" width="60" height="10" rx="5" fill="#fff" opacity="0.3"/>
+              <rect x="20" y="44" width="60" height="10" rx="5" fill="#fff" opacity="0.55"/>
+              <rect x="20" y="30" width="60" height="10" rx="5" fill="#fff" opacity="0.85"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <rect x="18" y="58" width="64" height="12" rx="6" fill="#fff" opacity="0.3"/>
+              <rect x="18" y="43" width="64" height="12" rx="6" fill="#fff" opacity="0.55"/>
+              <rect x="18" y="28" width="64" height="12" rx="6" fill="#fff" opacity="0.85"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 24px; height: 24px;">
+            <svg viewBox="0 0 100 100" width="16" height="16" fill="none">
+              <rect x="15" y="60" width="70" height="14" rx="7" fill="#fff" opacity="0.3"/>
+              <rect x="15" y="42" width="70" height="14" rx="7" fill="#fff" opacity="0.55"/>
+              <rect x="15" y="24" width="70" height="14" rx="7" fill="#fff" opacity="0.85"/>
+            </svg>
+          </div>
+          <span>16px</span>
+        </div>
+      </div>
+      <p class="description">Version ultra-épurée du stack — minimalisme Apple.</p>
+    </div>
+
+    <!-- Concept 26: Signal Waves -->
+    <div class="concept">
+      <h2>Signal</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad26" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" style="stop-color:#555555;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#555555;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Three smooth signal waves -->
+          <path d="M15 35 Q32 28, 50 35 Q68 42, 85 35" stroke="url(#grad26)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.4"/>
+          <path d="M15 50 Q32 43, 50 50 Q68 57, 85 50" stroke="url(#grad26)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <path d="M15 65 Q32 58, 50 65 Q68 72, 85 65" stroke="url(#grad26)" stroke-width="7" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M15 35 Q32 28, 50 35 Q68 42, 85 35" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.4"/>
+              <path d="M15 50 Q32 43, 50 50 Q68 57, 85 50" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <path d="M15 65 Q32 58, 50 65 Q68 72, 85 65" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M12 35 Q32 26, 50 35 Q68 44, 88 35" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.4"/>
+              <path d="M12 50 Q32 41, 50 50 Q68 59, 88 50" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <path d="M12 65 Q32 56, 50 65 Q68 74, 88 65" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 24px; height: 24px;">
+            <svg viewBox="0 0 100 100" width="16" height="16" fill="none">
+              <path d="M10 35 Q30 24, 50 35 Q70 46, 90 35" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.4"/>
+              <path d="M10 50 Q30 39, 50 50 Q70 61, 90 50" stroke="#fff" stroke-width="9" stroke-linecap="round" fill="none" opacity="0.7"/>
+              <path d="M10 65 Q30 54, 50 65 Q70 76, 90 65" stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>16px</span>
+        </div>
+      </div>
+      <p class="description">Vagues signal — version plus dynamique des harmonic waves.</p>
+    </div>
+
+  </div>
+</body>
+</html>

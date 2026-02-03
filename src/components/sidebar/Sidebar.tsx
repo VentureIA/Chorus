@@ -12,6 +12,7 @@ import {
   GitBranch,
   Globe,
   Home,
+  Keyboard,
   Loader2,
   Moon,
   Package,
@@ -45,6 +46,7 @@ import { MarketplaceBrowser } from "@/components/marketplace";
 import { McpServerEditorModal } from "@/components/mcp";
 import { ClaudeMdEditorModal } from "@/components/claudemd";
 import { TerminalSettingsModal } from "@/components/terminal/TerminalSettingsModal";
+import { KeyboardShortcutsModal } from "@/components/shortcuts/KeyboardShortcutsModal";
 import type { McpCustomServer } from "@/lib/mcp";
 import { checkClaudeMd, type ClaudeMdStatus } from "@/lib/claudemd";
 
@@ -1346,6 +1348,7 @@ function AppearanceSection({
 }) {
   const isDark = theme !== "light";
   const [showTerminalSettings, setShowTerminalSettings] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   return (
     <>
@@ -1374,10 +1377,21 @@ function AppearanceSection({
           <Wrench size={14} className="text-maestro-muted" />
           <span>Terminal Settings</span>
         </button>
+        <button
+          type="button"
+          onClick={() => setShowShortcuts(true)}
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-maestro-text transition-colors hover:bg-maestro-border/40"
+        >
+          <Keyboard size={14} className="text-maestro-accent" />
+          <span>Keyboard Shortcuts</span>
+        </button>
       </div>
 
       {showTerminalSettings && (
         <TerminalSettingsModal onClose={() => setShowTerminalSettings(false)} />
+      )}
+      {showShortcuts && (
+        <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
       )}
     </>
   );

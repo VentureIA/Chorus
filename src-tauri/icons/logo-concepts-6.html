@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chorus Logo Concepts — Set 6</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: #0a0a0a;
+      color: #fafafa;
+      min-height: 100vh;
+      padding: 60px;
+    }
+
+    h1 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 60px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 60px;
+    }
+
+    .concept {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .concept h2 {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    .icon-container {
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+      border-radius: 40px;
+      box-shadow:
+        0 25px 50px -12px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .icon-container svg {
+      width: 100px;
+      height: 100px;
+    }
+
+    .sizes {
+      display: flex;
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    .size {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .size span {
+      font-size: 10px;
+      color: #444;
+    }
+
+    .size-box {
+      background: #1a1a1a;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .description {
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .recommended {
+      position: relative;
+    }
+
+    .recommended::after {
+      content: 'TOP';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: #bf5af2;
+      background: rgba(191, 90, 242, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chorus — Logo Concepts — Set 6</h1>
+
+  <div class="grid">
+
+    <!-- Concept 27: Tabs -->
+    <div class="concept">
+      <h2>Tabs</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad27" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#777777;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Browser-like tabs -->
+          <path d="M15 70 L15 40 Q15 35, 20 35 L35 35 Q40 35, 40 40 L40 70" stroke="url(#grad27)" stroke-width="3.5" fill="none" opacity="0.4"/>
+          <path d="M35 70 L35 32 Q35 27, 40 27 L55 27 Q60 27, 60 32 L60 70" stroke="url(#grad27)" stroke-width="3.5" fill="none" opacity="0.65"/>
+          <path d="M55 70 L55 24 Q55 19, 60 19 L80 19 Q85 19, 85 24 L85 70" stroke="url(#grad27)" stroke-width="4" fill="none"/>
+          <!-- Base line -->
+          <line x1="12" y1="70" x2="88" y2="70" stroke="url(#grad27)" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M15 70 L15 40 Q15 35, 20 35 L35 35 Q40 35, 40 40 L40 70" stroke="#fff" stroke-width="3.5" fill="none" opacity="0.4"/>
+              <path d="M35 70 L35 32 Q35 27, 40 27 L55 27 Q60 27, 60 32 L60 70" stroke="#fff" stroke-width="3.5" fill="none" opacity="0.65"/>
+              <path d="M55 70 L55 24 Q55 19, 60 19 L80 19 Q85 19, 85 24 L85 70" stroke="#fff" stroke-width="4" fill="none"/>
+              <line x1="12" y1="70" x2="88" y2="70" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M18 70 L18 38 Q18 32, 24 32 L40 32 Q46 32, 46 38 L46 70" stroke="#fff" stroke-width="5" fill="none" opacity="0.5"/>
+              <path d="M46 70 L46 22 Q46 16, 52 16 L78 16 Q84 16, 84 22 L84 70" stroke="#fff" stroke-width="5" fill="none"/>
+              <line x1="14" y1="70" x2="88" y2="70" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Onglets de session — comme des tabs de navigateur.</p>
+    </div>
+
+    <!-- Concept 28: Slashes -->
+    <div class="concept recommended">
+      <h2>Parallel</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad28" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#666666;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Parallel diagonal lines -->
+          <line x1="25" y1="75" x2="45" y2="25" stroke="url(#grad28)" stroke-width="8" stroke-linecap="round" opacity="0.35"/>
+          <line x1="40" y1="75" x2="60" y2="25" stroke="url(#grad28)" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+          <line x1="55" y1="75" x2="75" y2="25" stroke="url(#grad28)" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <line x1="25" y1="75" x2="45" y2="25" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity="0.35"/>
+              <line x1="40" y1="75" x2="60" y2="25" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+              <line x1="55" y1="75" x2="75" y2="25" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <line x1="23" y1="78" x2="45" y2="22" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity="0.35"/>
+              <line x1="40" y1="78" x2="62" y2="22" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+              <line x1="57" y1="78" x2="79" y2="22" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 24px; height: 24px;">
+            <svg viewBox="0 0 100 100" width="16" height="16" fill="none">
+              <line x1="20" y1="80" x2="45" y2="20" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity="0.35"/>
+              <line x1="40" y1="80" x2="65" y2="20" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity="0.6"/>
+              <line x1="60" y1="80" x2="85" y2="20" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span>16px</span>
+        </div>
+      </div>
+      <p class="description">Lignes parallèles /// — processus simultanés, dynamique.</p>
+    </div>
+
+    <!-- Concept 29: Chat Stack -->
+    <div class="concept">
+      <h2>Dialogue</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad29" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Stacked chat bubbles -->
+          <rect x="20" y="55" width="45" height="22" rx="11" stroke="url(#grad29)" stroke-width="3" fill="none" opacity="0.35"/>
+          <rect x="35" y="38" width="45" height="22" rx="11" stroke="url(#grad29)" stroke-width="3" fill="none" opacity="0.6"/>
+          <rect x="20" y="21" width="45" height="22" rx="11" stroke="url(#grad29)" stroke-width="3.5" fill="none"/>
+          <!-- Dots in front bubble -->
+          <circle cx="32" cy="32" r="3" fill="url(#grad29)"/>
+          <circle cx="43" cy="32" r="3" fill="url(#grad29)" opacity="0.7"/>
+          <circle cx="54" cy="32" r="3" fill="url(#grad29)" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <rect x="20" y="55" width="45" height="22" rx="11" stroke="#fff" stroke-width="3" fill="none" opacity="0.35"/>
+              <rect x="35" y="38" width="45" height="22" rx="11" stroke="#fff" stroke-width="3" fill="none" opacity="0.6"/>
+              <rect x="20" y="21" width="45" height="22" rx="11" stroke="#fff" stroke-width="3.5" fill="none"/>
+              <circle cx="32" cy="32" r="3" fill="#fff"/>
+              <circle cx="43" cy="32" r="3" fill="#fff" opacity="0.7"/>
+              <circle cx="54" cy="32" r="3" fill="#fff" opacity="0.4"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <rect x="30" y="50" width="50" height="26" rx="13" stroke="#fff" stroke-width="4" fill="none" opacity="0.45"/>
+              <rect x="18" y="22" width="50" height="26" rx="13" stroke="#fff" stroke-width="4" fill="none"/>
+              <circle cx="32" cy="35" r="4" fill="#fff"/>
+              <circle cx="45" cy="35" r="4" fill="#fff" opacity="0.6"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Bulles de conversation — dialogues AI multiples.</p>
+    </div>
+
+    <!-- Concept 30: Minimal C -->
+    <div class="concept">
+      <h2>Chorus C</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad30" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#666666;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Stylized C made of three arcs -->
+          <path d="M70 28 Q30 28, 30 50 Q30 72, 70 72" stroke="url(#grad30)" stroke-width="8" stroke-linecap="round" fill="none"/>
+          <path d="M62 38 Q38 38, 38 50 Q38 62, 62 62" stroke="url(#grad30)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.55"/>
+          <path d="M54 46 Q46 46, 46 50 Q46 54, 54 54" stroke="url(#grad30)" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M70 28 Q30 28, 30 50 Q30 72, 70 72" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none"/>
+              <path d="M62 38 Q38 38, 38 50 Q38 62, 62 62" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.55"/>
+              <path d="M54 46 Q46 46, 46 50 Q46 54, 54 54" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.3"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M72 25 Q25 25, 25 50 Q25 75, 72 75" stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none"/>
+              <path d="M60 40 Q40 40, 40 50 Q40 60, 60 60" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.5"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">C stylisé en couches — identité Chorus directe.</p>
+    </div>
+
+    <!-- Concept 31: Grid Dots -->
+    <div class="concept">
+      <h2>Matrix</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad31" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#777777;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- 3x3 grid of circles with varying opacity -->
+          <circle cx="30" cy="30" r="7" fill="url(#grad31)" opacity="0.3"/>
+          <circle cx="50" cy="30" r="7" fill="url(#grad31)" opacity="0.5"/>
+          <circle cx="70" cy="30" r="7" fill="url(#grad31)" opacity="0.7"/>
+          <circle cx="30" cy="50" r="7" fill="url(#grad31)" opacity="0.5"/>
+          <circle cx="50" cy="50" r="9" fill="url(#grad31)"/>
+          <circle cx="70" cy="50" r="7" fill="url(#grad31)" opacity="0.6"/>
+          <circle cx="30" cy="70" r="7" fill="url(#grad31)" opacity="0.4"/>
+          <circle cx="50" cy="70" r="7" fill="url(#grad31)" opacity="0.6"/>
+          <circle cx="70" cy="70" r="7" fill="url(#grad31)" opacity="0.35"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <circle cx="30" cy="30" r="7" fill="#fff" opacity="0.3"/>
+              <circle cx="50" cy="30" r="7" fill="#fff" opacity="0.5"/>
+              <circle cx="70" cy="30" r="7" fill="#fff" opacity="0.7"/>
+              <circle cx="30" cy="50" r="7" fill="#fff" opacity="0.5"/>
+              <circle cx="50" cy="50" r="9" fill="#fff"/>
+              <circle cx="70" cy="50" r="7" fill="#fff" opacity="0.6"/>
+              <circle cx="30" cy="70" r="7" fill="#fff" opacity="0.4"/>
+              <circle cx="50" cy="70" r="7" fill="#fff" opacity="0.6"/>
+              <circle cx="70" cy="70" r="7" fill="#fff" opacity="0.35"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <circle cx="28" cy="28" r="9" fill="#fff" opacity="0.4"/>
+              <circle cx="50" cy="28" r="9" fill="#fff" opacity="0.6"/>
+              <circle cx="72" cy="28" r="9" fill="#fff" opacity="0.8"/>
+              <circle cx="28" cy="50" r="9" fill="#fff" opacity="0.5"/>
+              <circle cx="50" cy="50" r="11" fill="#fff"/>
+              <circle cx="72" cy="50" r="9" fill="#fff" opacity="0.6"/>
+              <circle cx="28" cy="72" r="9" fill="#fff" opacity="0.35"/>
+              <circle cx="50" cy="72" r="9" fill="#fff" opacity="0.55"/>
+              <circle cx="72" cy="72" r="9" fill="#fff" opacity="0.4"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Grille de points — sessions distribuées, matrix d'agents.</p>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -92,6 +92,14 @@ export async function assignSessionBranch(
   return invoke("assign_session_branch", { sessionId, branch, worktreePath });
 }
 
+/** Updates a session's auto-generated title. */
+export async function updateSessionTitle(
+  sessionId: number,
+  title: string
+): Promise<boolean> {
+  return invoke<boolean>("update_session_title", { sessionId, title });
+}
+
 /**
  * Subscribes to the per-session `pty-output-{sessionId}` Tauri event.
  * Returns a promise that resolves to an unlisten function. The caller must

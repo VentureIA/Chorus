@@ -416,6 +416,7 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
         branchName={effectiveBranch}
         isWorktree={isWorktree}
         fontSize={effectiveFontSize}
+        sessionTitle={sessionConfig?.title}
         onKill={handleKill}
         onZoomIn={() => setLocalFontSize((prev) => Math.min(32, (prev ?? terminalSettings.fontSize) + 1))}
         onZoomOut={() => setLocalFontSize((prev) => Math.max(8, (prev ?? terminalSettings.fontSize) - 1))}

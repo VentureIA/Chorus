@@ -43,6 +43,8 @@ pub struct SessionConfig {
     /// The project directory this session belongs to.
     /// Canonicalized absolute path for reliable comparison.
     pub project_path: String,
+    /// Auto-generated title from first user message.
+    pub title: Option<String>,
 }
 
 /// Thread-safe session registry backed by `DashMap` for lock-free concurrent reads.
@@ -78,6 +80,7 @@ impl SessionManager {
             status: SessionStatus::Idle,
             worktree_path: None,
             project_path,
+            title: None,
         };
         match self.sessions.entry(id) {
             Entry::Occupied(e) => Err(e.get().clone()),
@@ -98,6 +101,16 @@ impl SessionManager {
     pub fn update_status(&self, id: u32, status: SessionStatus) -> bool {
         if let Some(mut session) = self.sessions.get_mut(&id) {
             session.status = status;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Updates the session's title. Returns `false` if the session does not exist.
+    pub fn update_title(&self, id: u32, title: String) -> bool {
+        if let Some(mut session) = self.sessions.get_mut(&id) {
+            session.title = Some(title);
             true
         } else {
             false

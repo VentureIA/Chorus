@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chorus Logo Concepts — Set 2</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: #0a0a0a;
+      color: #fafafa;
+      min-height: 100vh;
+      padding: 60px;
+    }
+
+    h1 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 60px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 60px;
+    }
+
+    .concept {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .concept h2 {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    .icon-container {
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+      border-radius: 40px;
+      box-shadow:
+        0 25px 50px -12px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .icon-container svg {
+      width: 100px;
+      height: 100px;
+    }
+
+    .sizes {
+      display: flex;
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    .size {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .size span {
+      font-size: 10px;
+      color: #444;
+    }
+
+    .size-box {
+      background: #1a1a1a;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .description {
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .recommended {
+      position: relative;
+    }
+
+    .recommended::after {
+      content: 'FAVORITE';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: #34c759;
+      background: rgba(52, 199, 89, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chorus — Logo Concepts — Set 2</h1>
+
+  <div class="grid">
+
+    <!-- Concept 7: Helix -->
+    <div class="concept recommended">
+      <h2>Helix</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad7" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Intertwined helix representing voices weaving together -->
+          <path d="M30 20 Q50 35, 30 50 Q10 65, 30 80" stroke="url(#grad7)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.6"/>
+          <path d="M70 20 Q50 35, 70 50 Q90 65, 70 80" stroke="url(#grad7)" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <!-- Connection points -->
+          <circle cx="50" cy="35" r="4" fill="url(#grad7)" opacity="0.8"/>
+          <circle cx="50" cy="65" r="4" fill="url(#grad7)" opacity="0.8"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M30 20 Q50 35, 30 50 Q10 65, 30 80" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.6"/>
+              <path d="M70 20 Q50 35, 70 50 Q90 65, 70 80" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/>
+              <circle cx="50" cy="35" r="4" fill="#fff" opacity="0.8"/>
+              <circle cx="50" cy="65" r="4" fill="#fff" opacity="0.8"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M30 20 Q50 35, 30 50 Q10 65, 30 80" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+              <path d="M70 20 Q50 35, 70 50 Q90 65, 70 80" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 24px; height: 24px;">
+            <svg viewBox="0 0 100 100" width="16" height="16" fill="none">
+              <path d="M30 20 Q50 35, 30 50 Q10 65, 30 80" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.6"/>
+              <path d="M70 20 Q50 35, 70 50 Q90 65, 70 80" stroke="#fff" stroke-width="8" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>16px</span>
+        </div>
+      </div>
+      <p class="description">Two voices intertwined like DNA — representing deep synchronization and harmony.</p>
+    </div>
+
+    <!-- Concept 8: Bloom -->
+    <div class="concept">
+      <h2>Bloom</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad8" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#909090;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Petals blooming from center - voices emerging -->
+          <ellipse cx="50" cy="32" rx="8" ry="18" fill="url(#grad8)" opacity="0.9"/>
+          <ellipse cx="50" cy="32" rx="8" ry="18" fill="url(#grad8)" opacity="0.7" transform="rotate(72 50 50)"/>
+          <ellipse cx="50" cy="32" rx="8" ry="18" fill="url(#grad8)" opacity="0.5" transform="rotate(144 50 50)"/>
+          <ellipse cx="50" cy="32" rx="8" ry="18" fill="url(#grad8)" opacity="0.6" transform="rotate(216 50 50)"/>
+          <ellipse cx="50" cy="32" rx="8" ry="18" fill="url(#grad8)" opacity="0.8" transform="rotate(288 50 50)"/>
+          <!-- Center -->
+          <circle cx="50" cy="50" r="10" fill="url(#grad8)"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <ellipse cx="50" cy="32" rx="8" ry="18" fill="#fff" opacity="0.9"/>
+              <ellipse cx="50" cy="32" rx="8" ry="18" fill="#fff" opacity="0.7" transform="rotate(72 50 50)"/>
+              <ellipse cx="50" cy="32" rx="8" ry="18" fill="#fff" opacity="0.5" transform="rotate(144 50 50)"/>
+              <ellipse cx="50" cy="32" rx="8" ry="18" fill="#fff" opacity="0.6" transform="rotate(216 50 50)"/>
+              <ellipse cx="50" cy="32" rx="8" ry="18" fill="#fff" opacity="0.8" transform="rotate(288 50 50)"/>
+              <circle cx="50" cy="50" r="10" fill="#fff"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <ellipse cx="50" cy="32" rx="9" ry="18" fill="#fff" opacity="0.9"/>
+              <ellipse cx="50" cy="32" rx="9" ry="18" fill="#fff" opacity="0.7" transform="rotate(72 50 50)"/>
+              <ellipse cx="50" cy="32" rx="9" ry="18" fill="#fff" opacity="0.5" transform="rotate(144 50 50)"/>
+              <ellipse cx="50" cy="32" rx="9" ry="18" fill="#fff" opacity="0.6" transform="rotate(216 50 50)"/>
+              <ellipse cx="50" cy="32" rx="9" ry="18" fill="#fff" opacity="0.8" transform="rotate(288 50 50)"/>
+              <circle cx="50" cy="50" r="12" fill="#fff"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Voices blooming from a central source — organic harmony and growth.</p>
+    </div>
+
+    <!-- Concept 9: Pulse -->
+    <div class="concept">
+      <h2>Pulse</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad9" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" style="stop-color:#666666;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#666666;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- EKG-style pulse representing life/activity -->
+          <path d="M15 50 L30 50 L38 30 L50 70 L62 30 L70 50 L85 50"
+                stroke="url(#grad9)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M15 50 L30 50 L38 30 L50 70 L62 30 L70 50 L85 50"
+                    stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M15 50 L30 50 L38 30 L50 70 L62 30 L70 50 L85 50"
+                    stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Vital pulse — representing the living heartbeat of active sessions.</p>
+    </div>
+
+    <!-- Concept 10: Triad -->
+    <div class="concept">
+      <h2>Triad</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad10" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Three overlapping circles - musical triad chord -->
+          <circle cx="50" cy="35" r="20" stroke="url(#grad10)" stroke-width="4" fill="none" opacity="0.9"/>
+          <circle cx="35" cy="60" r="20" stroke="url(#grad10)" stroke-width="4" fill="none" opacity="0.6"/>
+          <circle cx="65" cy="60" r="20" stroke="url(#grad10)" stroke-width="4" fill="none" opacity="0.75"/>
+          <!-- Center point where all meet -->
+          <circle cx="50" cy="50" r="5" fill="url(#grad10)"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <circle cx="50" cy="35" r="20" stroke="#fff" stroke-width="4" fill="none" opacity="0.9"/>
+              <circle cx="35" cy="60" r="20" stroke="#fff" stroke-width="4" fill="none" opacity="0.6"/>
+              <circle cx="65" cy="60" r="20" stroke="#fff" stroke-width="4" fill="none" opacity="0.75"/>
+              <circle cx="50" cy="50" r="5" fill="#fff"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <circle cx="50" cy="35" r="20" stroke="#fff" stroke-width="5" fill="none" opacity="0.9"/>
+              <circle cx="35" cy="60" r="20" stroke="#fff" stroke-width="5" fill="none" opacity="0.6"/>
+              <circle cx="65" cy="60" r="20" stroke="#fff" stroke-width="5" fill="none" opacity="0.75"/>
+              <circle cx="50" cy="50" r="6" fill="#fff"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+      </div>
+      <p class="description">Three notes forming a chord — the essence of musical harmony.</p>
+    </div>
+
+    <!-- Concept 11: Echo -->
+    <div class="concept">
+      <h2>Echo</h2>
+      <div class="icon-container">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad11" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#999999;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Staggered "C" shapes echoing - like sound bouncing -->
+          <path d="M65 30 Q35 30, 35 50 Q35 70, 65 70" stroke="url(#grad11)" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <path d="M72 38 Q52 38, 52 50 Q52 62, 72 62" stroke="url(#grad11)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.6"/>
+          <path d="M78 44 Q64 44, 64 50 Q64 56, 78 56" stroke="url(#grad11)" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="sizes">
+        <div class="size">
+          <div class="size-box" style="width: 64px; height: 64px;">
+            <svg viewBox="0 0 100 100" width="48" height="48" fill="none">
+              <path d="M65 30 Q35 30, 35 50 Q35 70, 65 70" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"/>
+              <path d="M72 38 Q52 38, 52 50 Q52 62, 72 62" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.6"/>
+              <path d="M78 44 Q64 44, 64 50 Q64 56, 78 56" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.3"/>
+            </svg>
+          </div>
+          <span>64px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 40px; height: 40px;">
+            <svg viewBox="0 0 100 100" width="28" height="28" fill="none">
+              <path d="M65 30 Q35 30, 35 50 Q35 70, 65 70" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/>
+              <path d="M72 38 Q52 38, 52 50 Q52 62, 72 62" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.5"/>
+            </svg>
+          </div>
+          <span>32px</span>
+        </div>
+        <div class="size">
+          <div class="size-box" style="width: 24px; height: 24px;">
+            <svg viewBox="0 0 100 100" width="16" height="16" fill="none">
+              <path d="M65 28 Q32 28, 32 50 Q32 72, 65 72" stroke="#fff" stroke-width="10" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>16px</span>
+        </div>
+      </div>
+      <p class="description">Sound echoing — also forms a "C" for Chorus. Layered depth.</p>
+    </div>
+
+  </div>
+</body>
+</html>

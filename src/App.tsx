@@ -1,18 +1,21 @@
 import { invoke } from "@tauri-apps/api/core";
 import { GitFork, RefreshCw, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { killSession } from "@/lib/terminal";
+import { killSession, writeStdin } from "@/lib/terminal";
 import { useOpenProject } from "@/lib/useOpenProject";
 import { useSessionStore } from "@/stores/useSessionStore";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { useQuickActionStore } from "@/stores/useQuickActionStore";
 import { useGitStore } from "./stores/useGitStore";
 import { useTerminalSettingsStore } from "./stores/useTerminalSettingsStore";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { GitGraphPanel } from "./components/git/GitGraphPanel";
 import { BottomBar } from "./components/shared/BottomBar";
 import { MultiProjectView, type MultiProjectViewHandle } from "./components/shared/MultiProjectView";
 import { ProjectTabs } from "./components/shared/ProjectTabs";
 import { TopBar } from "./components/shared/TopBar";
 import { Sidebar } from "./components/sidebar/Sidebar";
+import { KeyboardShortcutsModal } from "./components/shortcuts/KeyboardShortcutsModal";
 
 const DEFAULT_SESSION_COUNT = 6;
 const ZOOM_STEP = 0.1;
@@ -48,6 +51,7 @@ function App() {
     const stored = localStorage.getItem("maestro-zoom");
     return stored ? Number.parseFloat(stored) : ZOOM_DEFAULT;
   });
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -60,27 +64,108 @@ function App() {
     localStorage.setItem("maestro-zoom", zoom.toString());
   }, [zoom]);
 
-  // Keyboard shortcuts for zoom (Cmd/Ctrl + Plus/Minus/0)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isMod = e.metaKey || e.ctrlKey;
-      if (!isMod) return;
+  // Quick actions for keyboard shortcuts
+  const quickActions = useQuickActionStore((s) => s.actions);
 
-      if (e.key === "=" || e.key === "+") {
-        e.preventDefault();
-        setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP));
-      } else if (e.key === "-") {
-        e.preventDefault();
-        setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP));
-      } else if (e.key === "0") {
-        e.preventDefault();
-        setZoom(ZOOM_DEFAULT);
+  // Execute a quick action by sending its prompt to the focused terminal
+  const executeQuickAction = useCallback(async (index: number) => {
+    const sortedActions = [...quickActions].sort((a, b) => a.sortOrder - b.sortOrder);
+    const action = sortedActions[index];
+    if (!action) return;
+
+    // Get the focused terminal's session ID
+    const activeTab = useWorkspaceStore.getState().tabs.find((t) => t.active);
+    if (!activeTab) return;
+
+    const sessionStore = useSessionStore.getState();
+    const projectSessions = sessionStore.getSessionsByProject(activeTab.projectPath);
+
+    const focusedIndex = multiProjectRef.current?.getFocusedIndex();
+    if (focusedIndex !== null && focusedIndex !== undefined && focusedIndex >= 0) {
+      const session = projectSessions[focusedIndex];
+      if (session) {
+        await writeStdin(session.id, action.prompt + "\r");
       }
-    };
+    }
+  }, [quickActions]);
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  // Global keyboard shortcuts
+  useKeyboardShortcuts({
+    enabled: !showShortcutsModal,
+    // Zoom
+    onZoomIn: () => setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP)),
+    onZoomOut: () => setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP)),
+    onZoomReset: () => setZoom(ZOOM_DEFAULT),
+    // Panels
+    onToggleSidebar: () => setSidebarOpen((prev) => !prev),
+    onToggleGitPanel: () => setGitPanelOpen((prev) => !prev),
+    onToggleFullscreen: () => {
+      setSidebarOpen(false);
+      setGitPanelOpen(false);
+    },
+    onOpenSettings: () => setShowShortcutsModal(true),
+    // Session management
+    onLaunchAll: () => {
+      if (!activeTabSessionsLaunched && activeTab) {
+        handleEnterGridView();
+      }
+      multiProjectRef.current?.launchAllInActiveProject();
+    },
+    onAddSession: () => multiProjectRef.current?.addSessionToActiveProject(),
+    onStopAll: async () => {
+      if (!activeTab || isStoppingAll) return;
+      setIsStoppingAll(true);
+      try {
+        const sessionStore = useSessionStore.getState();
+        const projectSessions = sessionStore.getSessionsByProject(activeTab.projectPath);
+        const results = await Promise.allSettled(projectSessions.map((s) => killSession(s.id)));
+        for (const result of results) {
+          if (result.status === "rejected") {
+            console.error("Failed to stop session:", result.reason);
+          }
+        }
+        await sessionStore.removeSessionsForProject(activeTab.projectPath);
+        setSessionsLaunched(activeTab.id, false);
+        setSessionCounts((prev) => {
+          const next = new Map(prev);
+          next.set(activeTab.id, { slotCount: 0, launchedCount: 0 });
+          return next;
+        });
+      } finally {
+        setIsStoppingAll(false);
+      }
+    },
+    onCloseSession: () => multiProjectRef.current?.closeSession(),
+    onRestartSession: () => multiProjectRef.current?.restartSession(),
+    // Terminal navigation
+    onFocusTerminal: (index) => {
+      console.log("[App] onFocusTerminal called, index:", index, "ref exists:", !!multiProjectRef.current);
+      multiProjectRef.current?.focusTerminal(index);
+    },
+    onCycleNextTerminal: () => multiProjectRef.current?.cycleNextTerminal(),
+    onCyclePrevTerminal: () => multiProjectRef.current?.cyclePrevTerminal(),
+    onUnfocusTerminal: () => multiProjectRef.current?.unfocusTerminal(),
+    onClearTerminal: () => multiProjectRef.current?.clearTerminal(),
+    // Quick actions
+    onQuickAction: executeQuickAction,
+    onRunApp: () => executeQuickAction(0), // First quick action
+    onCommitPush: () => executeQuickAction(1), // Second quick action
+    // Project navigation
+    onNextProject: () => {
+      const currentIndex = tabs.findIndex((t) => t.active);
+      if (currentIndex >= 0 && tabs.length > 1) {
+        const nextIndex = (currentIndex + 1) % tabs.length;
+        selectTab(tabs[nextIndex].id);
+      }
+    },
+    onPrevProject: () => {
+      const currentIndex = tabs.findIndex((t) => t.active);
+      if (currentIndex >= 0 && tabs.length > 1) {
+        const prevIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        selectTab(tabs[prevIndex].id);
+      }
+    },
+  });
 
   // Clean up orphaned PTY sessions on mount (e.g., after page reload)
   // This ensures no stale processes remain from the previous frontend state
@@ -319,6 +404,10 @@ function App() {
         </div>
       </div>
 
+      {/* Keyboard shortcuts modal */}
+      {showShortcutsModal && (
+        <KeyboardShortcutsModal onClose={() => setShowShortcutsModal(false)} />
+      )}
     </div>
   );
 }

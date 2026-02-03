@@ -10,6 +10,16 @@ interface MultiProjectViewProps {
 export interface MultiProjectViewHandle {
   addSessionToActiveProject: () => void;
   launchAllInActiveProject: () => Promise<void>;
+  // Terminal navigation
+  focusTerminal: (index: number) => void;
+  cycleNextTerminal: () => void;
+  cyclePrevTerminal: () => void;
+  unfocusTerminal: () => void;
+  getFocusedIndex: () => number | null;
+  // Terminal actions
+  clearTerminal: () => Promise<void>;
+  closeSession: () => Promise<void>;
+  restartSession: () => Promise<void>;
 }
 
 /**
@@ -26,21 +36,47 @@ export const MultiProjectView = forwardRef<MultiProjectViewHandle, MultiProjectV
   const setSessionsLaunched = useWorkspaceStore((s) => s.setSessionsLaunched);
   const gridRefs = useRef<Map<string, TerminalGridHandle>>(new Map());
 
+  // Helper to get active grid ref
+  const getActiveGridRef = () => {
+    const activeTab = tabs.find((t) => t.active);
+    return activeTab ? gridRefs.current.get(activeTab.id) : undefined;
+  };
+
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
     addSessionToActiveProject: () => {
-      const activeTab = tabs.find((t) => t.active);
-      if (activeTab) {
-        const gridRef = gridRefs.current.get(activeTab.id);
-        gridRef?.addSession();
-      }
+      getActiveGridRef()?.addSession();
     },
     launchAllInActiveProject: async () => {
-      const activeTab = tabs.find((t) => t.active);
-      if (activeTab) {
-        const gridRef = gridRefs.current.get(activeTab.id);
-        await gridRef?.launchAll();
-      }
+      await getActiveGridRef()?.launchAll();
+    },
+    // Terminal navigation
+    focusTerminal: (index: number) => {
+      const gridRef = getActiveGridRef();
+      console.log("[MultiProjectView] focusTerminal called, index:", index, "gridRef exists:", !!gridRef);
+      gridRef?.focusTerminal(index);
+    },
+    cycleNextTerminal: () => {
+      getActiveGridRef()?.cycleNextTerminal();
+    },
+    cyclePrevTerminal: () => {
+      getActiveGridRef()?.cyclePrevTerminal();
+    },
+    unfocusTerminal: () => {
+      getActiveGridRef()?.unfocusTerminal();
+    },
+    getFocusedIndex: () => {
+      return getActiveGridRef()?.getFocusedIndex() ?? null;
+    },
+    // Terminal actions
+    clearTerminal: async () => {
+      await getActiveGridRef()?.clearTerminal();
+    },
+    closeSession: async () => {
+      await getActiveGridRef()?.closeSession();
+    },
+    restartSession: async () => {
+      await getActiveGridRef()?.restartSession();
     },
   }), [tabs]);
 

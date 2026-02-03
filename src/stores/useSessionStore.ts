@@ -41,6 +41,8 @@ export interface SessionConfig {
   project_path: string;
   statusMessage?: string;
   needsInputPrompt?: string;
+  /** Auto-generated title from first user message. */
+  title?: string;
 }
 
 /** Shape of the Tauri `session-status-changed` event payload. */
@@ -71,6 +73,7 @@ interface SessionState {
   removeSession: (sessionId: number) => void;
   removeSessionsForProject: (projectPath: string) => Promise<SessionConfig[]>;
   getSessionsByProject: (projectPath: string) => SessionConfig[];
+  updateSessionTitle: (sessionId: number, title: string) => void;
   initListeners: () => Promise<UnlistenFn>;
 }
 
@@ -250,6 +253,18 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     return get().sessions.filter((s) => s.project_path === projectPath);
   },
 
+  updateSessionTitle: (sessionId: number, title: string) => {
+    set((state) => ({
+      sessions: state.sessions.map((s) =>
+        s.id === sessionId ? { ...s, title } : s
+      ),
+    }));
+    // Persist to backend (fire-and-forget)
+    invoke("update_session_title", { sessionId, title }).catch((err) => {
+      console.warn(`Failed to persist session title: ${err}`);
+    });
+  },
+
   initListeners: async () => {
     listenerCount += 1;
     try {
@@ -274,6 +289,31 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
             // Clear startup timeout when session transitions out of Starting state (Bug #74)
             if (status !== "Starting") {
               clearStartupTimeout(session_id);
+            }
+
+            // Auto-generate title from first "Working" status message
+            const existingSession = get().sessions.find(
+              (s) => s.id === session_id && s.project_path === project_path
+            );
+            if (
+              status === "Working" &&
+              message &&
+              existingSession &&
+              !existingSession.title
+            ) {
+              // Extract short title from message (max 40 chars, first sentence or phrase)
+              const extractTitle = (msg: string): string => {
+                // Clean up and truncate
+                const cleaned = msg.trim();
+                // Try to find first sentence or phrase
+                const sentenceEnd = cleaned.search(/[.!?]/);
+                const shortMsg = sentenceEnd > 0 && sentenceEnd < 50
+                  ? cleaned.slice(0, sentenceEnd)
+                  : cleaned.slice(0, 40);
+                return shortMsg.length < cleaned.length ? `${shortMsg}…` : shortMsg;
+              };
+              const title = extractTitle(message);
+              get().updateSessionTitle(session_id, title);
             }
 
             set((state) => ({
