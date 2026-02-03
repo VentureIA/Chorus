@@ -8,6 +8,7 @@ import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { useQuickActionStore } from "@/stores/useQuickActionStore";
 import { useGitStore } from "./stores/useGitStore";
 import { useTerminalSettingsStore } from "./stores/useTerminalSettingsStore";
+import { useThemeSettingsStore } from "./stores/useThemeSettingsStore";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { GitGraphPanel } from "./components/git/GitGraphPanel";
 import { BottomBar } from "./components/shared/BottomBar";
@@ -56,6 +57,20 @@ function App() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("chorus-theme", theme);
+  }, [theme]);
+
+  // Initialize and apply custom theme settings
+  useEffect(() => {
+    const themeSettingsStore = useThemeSettingsStore.getState();
+    themeSettingsStore.initialize(theme);
+  }, []);
+
+  // Apply custom theme when theme changes
+  useEffect(() => {
+    const themeSettingsStore = useThemeSettingsStore.getState();
+    if (themeSettingsStore.settings.isCustomThemeEnabled) {
+      themeSettingsStore.applyTheme(theme);
+    }
   }, [theme]);
 
   // Apply zoom level to document

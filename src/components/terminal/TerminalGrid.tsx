@@ -425,10 +425,15 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
       // Generate project hash for MCP status identification
       // This is passed as CHORUS_PROJECT_HASH env var to enable process-isolated
       // session identification (avoiding .mcp.json race conditions)
-      let envVars: Record<string, string> | undefined;
+      let envVars: Record<string, string> = {
+        // Terminal color support - required for Claude Code to output colors
+        TERM: "xterm-256color",
+        COLORTERM: "truecolor",
+        FORCE_COLOR: "3", // 3 = 24-bit truecolor support
+      };
       if (projectPath) {
         const projectHash = await invoke<string>("generate_project_hash", { projectPath });
-        envVars = { CHORUS_PROJECT_HASH: projectHash };
+        envVars.CHORUS_PROJECT_HASH = projectHash;
       }
 
       // Spawn the shell in the correct directory (worktree or project path)

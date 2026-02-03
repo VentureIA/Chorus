@@ -16,6 +16,7 @@ import {
   Loader2,
   Moon,
   Package,
+  Palette,
   Play,
   Plus,
   PlusCircle,
@@ -47,6 +48,7 @@ import { McpServerEditorModal } from "@/components/mcp";
 import { ClaudeMdEditorModal } from "@/components/claudemd";
 import { TerminalSettingsModal } from "@/components/terminal/TerminalSettingsModal";
 import { KeyboardShortcutsModal } from "@/components/shortcuts/KeyboardShortcutsModal";
+import { ThemeSettingsModal } from "@/components/settings/ThemeSettingsModal";
 import type { McpCustomServer } from "@/lib/mcp";
 import { checkClaudeMd, type ClaudeMdStatus } from "@/lib/claudemd";
 
@@ -1349,6 +1351,7 @@ function AppearanceSection({
   const isDark = theme !== "light";
   const [showTerminalSettings, setShowTerminalSettings] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showThemeSettings, setShowThemeSettings] = useState(false);
 
   return (
     <>
@@ -1371,6 +1374,14 @@ function AppearanceSection({
         </button>
         <button
           type="button"
+          onClick={() => setShowThemeSettings(true)}
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
+        >
+          <Palette size={14} className="text-chorus-purple" />
+          <span>Theme Settings</span>
+        </button>
+        <button
+          type="button"
           onClick={() => setShowTerminalSettings(true)}
           className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
         >
@@ -1387,6 +1398,12 @@ function AppearanceSection({
         </button>
       </div>
 
+      {showThemeSettings && (
+        <ThemeSettingsModal
+          onClose={() => setShowThemeSettings(false)}
+          currentTheme={theme ?? "dark"}
+        />
+      )}
       {showTerminalSettings && (
         <TerminalSettingsModal onClose={() => setShowTerminalSettings(false)} />
       )}
