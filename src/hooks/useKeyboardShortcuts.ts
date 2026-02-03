@@ -264,11 +264,23 @@ export function useKeyboardShortcuts({
     function handleKeyDown(event: KeyboardEvent) {
       // Check if focus is on an ignored element
       const activeElement = document.activeElement;
+      const isMac = navigator.platform.toLowerCase().includes("mac");
+      const modPressed = isMac ? event.metaKey : event.ctrlKey;
+
       if (activeElement) {
         const tagName = activeElement.tagName.toLowerCase();
         if (ignoreWhenFocused.includes(tagName)) {
-          // Allow Escape to work even in inputs
-          if (event.key !== "Escape") {
+          // Allow certain shortcuts to work even in inputs/textareas:
+          // - Escape (unfocus terminal)
+          // - Cmd/Ctrl+digit (focus terminal by number)
+          // - Cmd/Ctrl+[ or ] (cycle terminals)
+          // - Cmd/Ctrl+K (clear terminal)
+          const isEscape = event.key === "Escape";
+          const isDigitWithMod = modPressed && event.code.startsWith("Digit");
+          const isBracketWithMod = modPressed && (event.code === "BracketLeft" || event.code === "BracketRight");
+          const isClearWithMod = modPressed && event.key.toLowerCase() === "k";
+
+          if (!isEscape && !isDigitWithMod && !isBracketWithMod && !isClearWithMod) {
             return;
           }
         }

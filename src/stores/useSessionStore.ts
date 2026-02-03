@@ -291,31 +291,6 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
               clearStartupTimeout(session_id);
             }
 
-            // Auto-generate title from first "Working" status message
-            const existingSession = get().sessions.find(
-              (s) => s.id === session_id && s.project_path === project_path
-            );
-            if (
-              status === "Working" &&
-              message &&
-              existingSession &&
-              !existingSession.title
-            ) {
-              // Extract short title from message (max 40 chars, first sentence or phrase)
-              const extractTitle = (msg: string): string => {
-                // Clean up and truncate
-                const cleaned = msg.trim();
-                // Try to find first sentence or phrase
-                const sentenceEnd = cleaned.search(/[.!?]/);
-                const shortMsg = sentenceEnd > 0 && sentenceEnd < 50
-                  ? cleaned.slice(0, sentenceEnd)
-                  : cleaned.slice(0, 40);
-                return shortMsg.length < cleaned.length ? `${shortMsg}…` : shortMsg;
-              };
-              const title = extractTitle(message);
-              get().updateSessionTitle(session_id, title);
-            }
-
             set((state) => ({
               sessions: state.sessions.map((s) =>
                 s.id === session_id && s.project_path === project_path

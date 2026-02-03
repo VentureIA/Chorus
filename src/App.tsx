@@ -146,6 +146,7 @@ function App() {
     onCyclePrevTerminal: () => multiProjectRef.current?.cyclePrevTerminal(),
     onUnfocusTerminal: () => multiProjectRef.current?.unfocusTerminal(),
     onClearTerminal: () => multiProjectRef.current?.clearTerminal(),
+    onMaximizeTerminal: () => multiProjectRef.current?.maximizeTerminal(),
     // Quick actions
     onQuickAction: executeQuickAction,
     onRunApp: () => executeQuickAction(0), // First quick action

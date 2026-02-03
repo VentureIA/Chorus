@@ -267,7 +267,6 @@ pub async fn get_status_server_info(
 /// and connect to the configured MCP servers, including the Maestro status server.
 ///
 /// The written config includes:
-/// - The `maestro` MCP server with HTTP-based status reporting
 /// - All enabled servers from the project's `.mcp.json`
 /// - All enabled custom servers (user-defined, global)
 ///
@@ -288,14 +287,10 @@ pub async fn write_session_mcp_config(
         .to_string_lossy()
         .into_owned();
 
-    // Register this session with the status server
+    // Register this session with the status server (for cleanup tracking)
     status_server
         .register_session(session_id, &canonical)
         .await;
-
-    // Get the status URL and instance ID from the status server
-    let status_url = status_server.status_url();
-    let instance_id = status_server.instance_id();
 
     // Get full server configs for enabled discovered servers
     let all_discovered = mcp_state.get_project_servers(&canonical);
@@ -312,19 +307,16 @@ pub async fn write_session_mcp_config(
         .collect();
 
     log::info!(
-        "Writing MCP config for session {} to {} ({} discovered + {} custom servers), status_url={}",
+        "Writing MCP config for session {} to {} ({} discovered + {} custom servers)",
         session_id,
         working_dir,
         enabled_discovered.len(),
         enabled_custom.len(),
-        status_url
     );
 
     mcp_config_writer::write_session_mcp_config(
         Path::new(&working_dir),
         session_id,
-        &status_url,
-        instance_id,
         &enabled_discovered,
         &enabled_custom,
     )

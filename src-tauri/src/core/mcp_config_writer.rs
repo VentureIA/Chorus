@@ -12,87 +12,6 @@ use serde_json::{json, Value};
 use super::mcp_manager::{McpServerConfig, McpServerType};
 use crate::commands::mcp::McpCustomServer;
 
-/// Finds the maestro-mcp-server binary in common installation locations.
-///
-/// Searches in order:
-/// 1. Next to the current executable (development and installed)
-/// 2. Inside Resources for macOS app bundle
-/// 3. Development: relative to src-tauri/target/debug or release
-/// 4. macOS Application Support (~Library/Application Support/Claude Maestro/)
-/// 5. Linux local share (~/.local/share/maestro/)
-fn find_maestro_mcp_path() -> Option<PathBuf> {
-    // Determine the binary name based on platform
-    #[cfg(target_os = "windows")]
-    let binary_name = "maestro-mcp-server.exe";
-    #[cfg(not(target_os = "windows"))]
-    let binary_name = "maestro-mcp-server";
-
-    let current_exe = std::env::current_exe().ok();
-    log::debug!(
-        "find_maestro_mcp_path: current_exe = {:?}",
-        current_exe
-    );
-
-    let candidates: Vec<Option<PathBuf>> = vec![
-        // Next to the executable (most common for development and installed)
-        current_exe
-            .as_ref()
-            .and_then(|p| p.parent().map(|d| d.join(binary_name))),
-        // Inside Resources for macOS app bundle
-        current_exe.as_ref().and_then(|p| {
-            p.parent()
-                .and_then(|d| d.parent())
-                .map(|d| d.join("Resources").join(binary_name))
-        }),
-        // Development: relative to src-tauri/target/debug or release
-        // e.g., src-tauri/target/debug/../../../maestro-mcp-server/target/release/
-        current_exe.as_ref().and_then(|p| {
-            p.parent() // target/debug or target/release
-                .and_then(|d| d.parent()) // target
-                .and_then(|d| d.parent()) // src-tauri
-                .and_then(|d| d.parent()) // project root
-                .map(|d| d.join("maestro-mcp-server/target/release").join(binary_name))
-        }),
-        // Development: also check debug build of MCP server
-        current_exe.as_ref().and_then(|p| {
-            p.parent() // target/debug or target/release
-                .and_then(|d| d.parent()) // target
-                .and_then(|d| d.parent()) // src-tauri
-                .and_then(|d| d.parent()) // project root
-                .map(|d| d.join("maestro-mcp-server/target/debug").join(binary_name))
-        }),
-        // macOS Application Support
-        directories::BaseDirs::new()
-            .map(|d| d.data_dir().join("Claude Maestro").join(binary_name)),
-        // Linux local share
-        directories::BaseDirs::new()
-            .map(|d| d.data_local_dir().join("maestro").join(binary_name)),
-        // Windows AppData
-        #[cfg(target_os = "windows")]
-        directories::BaseDirs::new()
-            .map(|d| d.data_local_dir().join("Maestro").join(binary_name)),
-    ];
-
-    for (i, candidate) in candidates.iter().enumerate() {
-        if let Some(path) = candidate {
-            let exists = path.exists();
-            log::debug!(
-                "find_maestro_mcp_path: candidate[{}] = {:?}, exists = {}",
-                i,
-                path,
-                exists
-            );
-            if exists {
-                log::info!("find_maestro_mcp_path: found at {:?}", path);
-                return Some(path.clone());
-            }
-        }
-    }
-
-    log::warn!("find_maestro_mcp_path: no binary found in any candidate location");
-    None
-}
-
 /// Converts an McpServerConfig to the JSON format expected by `.mcp.json`.
 fn server_config_to_json(config: &McpServerConfig) -> Value {
     match &config.server_type {
@@ -231,61 +150,24 @@ fn merge_with_existing(
 /// Writes a session-specific `.mcp.json` to the working directory.
 ///
 /// This function:
-/// 1. Creates the Maestro MCP server entry with HTTP-based status reporting
-/// 2. Adds enabled discovered servers from the project's .mcp.json
-/// 3. Adds enabled custom servers (user-defined, global)
-/// 4. Merges with any existing `.mcp.json` (preserving user servers)
-/// 5. Writes the final config to the working directory
+/// 1. Adds enabled discovered servers from the project's .mcp.json
+/// 2. Adds enabled custom servers (user-defined, global)
+/// 3. Merges with any existing `.mcp.json` (preserving user servers)
+/// 4. Writes the final config to the working directory
 ///
 /// # Arguments
 ///
 /// * `working_dir` - Directory where `.mcp.json` will be written
-/// * `session_id` - Session identifier for the Maestro MCP server
-/// * `status_url` - HTTP URL for the status server endpoint
-/// * `instance_id` - UUID for this Maestro instance (prevents cross-instance pollution)
+/// * `session_id` - Session identifier used for merging
 /// * `enabled_servers` - List of discovered MCP server configs enabled for this session
 /// * `custom_servers` - List of custom MCP servers that are enabled
 pub async fn write_session_mcp_config(
     working_dir: &Path,
     session_id: u32,
-    status_url: &str,
-    instance_id: &str,
     enabled_servers: &[McpServerConfig],
     custom_servers: &[McpCustomServer],
 ) -> Result<(), String> {
     let mut mcp_servers: HashMap<String, Value> = HashMap::new();
-
-    // Add Maestro MCP server with HTTP-based status reporting.
-    // Uses a SINGLE "maestro-status" entry with session ID in env vars (Swift pattern).
-    // Each Claude instance spawns its own MCP server process with the env vars from when
-    // it read the config. This avoids memory bloat from loading N servers per project.
-    if let Some(mcp_path) = find_maestro_mcp_path() {
-        log::info!(
-            "Found maestro-mcp-server at {:?}, adding single maestro-status entry for session {} with status_url={}",
-            mcp_path,
-            session_id,
-            status_url
-        );
-
-        // Use fixed name "maestro-status" - session ID is in env vars
-        mcp_servers.insert(
-            "maestro-status".to_string(),
-            json!({
-                "type": "stdio",
-                "command": mcp_path.to_string_lossy(),
-                "args": [],
-                "env": {
-                    "MAESTRO_SESSION_ID": session_id.to_string(),
-                    "MAESTRO_STATUS_URL": status_url,
-                    "MAESTRO_INSTANCE_ID": instance_id
-                }
-            }),
-        );
-    } else {
-        log::warn!(
-            "maestro-mcp-server binary not found, maestro_status tool will not be available"
-        );
-    }
 
     // Add enabled discovered servers from project .mcp.json
     for server in enabled_servers {
@@ -422,8 +304,6 @@ mod tests {
         let result = write_session_mcp_config(
             dir.path(),
             1,
-            "http://127.0.0.1:9900/status",
-            "test-instance-id",
             &[],
             &[],
         )

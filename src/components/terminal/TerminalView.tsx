@@ -117,6 +117,16 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
   const termRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
 
+  // Track user input for auto-title generation
+  const inputBufferRef = useRef<string>("");
+  const titleSetRef = useRef<boolean>(!!sessionConfig?.title);
+  const updateSessionTitle = useSessionStore((s) => s.updateSessionTitle);
+
+  // Sync titleSetRef if session already has a title
+  if (sessionConfig?.title && !titleSetRef.current) {
+    titleSetRef.current = true;
+  }
+
   // Quick actions manager modal state
   const [showQuickActionsManager, setShowQuickActionsManager] = useState(false);
 
@@ -316,6 +326,29 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
 
       dataDisposable = term.onData((data) => {
         writeStdin(sessionId, data).catch(console.error);
+
+        // Auto-title: capture first user message
+        if (!titleSetRef.current) {
+          // Check if Enter was pressed (submit)
+          if (data === "\r" || data === "\n") {
+            const input = inputBufferRef.current.trim();
+            // Only set title if there's meaningful input (not empty, not just commands)
+            if (input.length >= 5 && !input.startsWith("/") && !input.startsWith("!")) {
+              // Extract short title (max 40 chars, first line)
+              const firstLine = input.split("\n")[0];
+              const title = firstLine.length > 40 ? `${firstLine.slice(0, 37)}…` : firstLine;
+              updateSessionTitle(sessionId, title);
+              titleSetRef.current = true;
+            }
+            inputBufferRef.current = "";
+          } else if (data.length === 1 && data.charCodeAt(0) >= 32) {
+            // Accumulate printable characters
+            inputBufferRef.current += data;
+          } else if (data === "\x7f" || data === "\b") {
+            // Handle backspace
+            inputBufferRef.current = inputBufferRef.current.slice(0, -1);
+          }
+        }
       });
 
       resizeDisposable = term.onResize(({ rows, cols }) => {

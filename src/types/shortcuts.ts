@@ -136,6 +136,32 @@ export function formatKeyCombo(combo: string): string {
 }
 
 /**
+ * Get the normalized key from a KeyboardEvent.
+ * Uses event.code for digits to handle non-US keyboards (AZERTY, etc.)
+ */
+function getNormalizedKey(event: KeyboardEvent): string {
+  // Use event.code for digit keys to handle AZERTY and other layouts
+  // On AZERTY, pressing "1" key produces "&" in event.key, but "Digit1" in event.code
+  if (event.code.startsWith("Digit")) {
+    return event.code.replace("Digit", "");
+  }
+
+  // Use event.code for bracket keys too (can vary by layout)
+  if (event.code === "BracketLeft") return "[";
+  if (event.code === "BracketRight") return "]";
+  if (event.code === "Backslash") return "\\";
+  if (event.code === "Minus") return "-";
+  if (event.code === "Equal") return "=";
+  if (event.code === "Comma") return ",";
+  if (event.code === "Period") return ".";
+  if (event.code === "Slash") return "/";
+  if (event.code === "Backquote") return "`";
+
+  // For letter keys, use event.key (lowercase)
+  return event.key.toLowerCase();
+}
+
+/**
  * Check if a KeyboardEvent matches a shortcut combo
  */
 export function matchesKeyCombo(event: KeyboardEvent, combo: string): boolean {
@@ -144,19 +170,55 @@ export function matchesKeyCombo(event: KeyboardEvent, combo: string): boolean {
 
   const modKey = mac ? event.metaKey : event.ctrlKey;
 
-  // Check modifier keys
-  if (mod !== modKey) return false;
-  if (shift !== event.shiftKey) return false;
-  if (alt !== event.altKey) return false;
+  // Debug logging
+  const eventKey = getNormalizedKey(event);
+  console.log(`[matchesKeyCombo] Checking "${combo}" against event:`, {
+    expectedMod: mod, actualMod: modKey,
+    expectedShift: shift, actualShift: event.shiftKey,
+    expectedAlt: alt, actualAlt: event.altKey,
+    expectedKey: key, actualKey: eventKey,
+    eventCode: event.code,
+    eventKeyRaw: event.key
+  });
 
-  // Check the actual key
-  const eventKey = event.key.toLowerCase();
+  // Check modifier keys
+  if (mod !== modKey) {
+    console.log(`[matchesKeyCombo] FAIL: mod mismatch`);
+    return false;
+  }
+  if (shift !== event.shiftKey) {
+    console.log(`[matchesKeyCombo] FAIL: shift mismatch`);
+    return false;
+  }
+
+  // For digit keys on Mac with AZERTY and other non-US layouts,
+  // the altKey can incorrectly return true. Be more lenient for digit keys
+  // when the shortcut doesn't expect alt.
+  const isDigitKey = event.code.startsWith("Digit");
+  const altKeyMismatch = alt !== event.altKey;
+
+  console.log(`[matchesKeyCombo] event.code="${event.code}", isDigitKey=${isDigitKey}, altKeyMismatch=${altKeyMismatch}, event.altKey=${event.altKey}`);
+
+  if (altKeyMismatch) {
+    // Allow the mismatch only if:
+    // 1. We're on Mac
+    // 2. It's a digit key (by code) OR the expected key is a digit
+    // 3. The shortcut doesn't require alt (alt === false)
+    // 4. event.altKey is incorrectly true
+    const expectedKeyIsDigit = /^[0-9]$/.test(key);
+    const isAzertyDigitQuirk = mac && (isDigitKey || expectedKeyIsDigit) && !alt && event.altKey;
+    console.log(`[matchesKeyCombo] altKey mismatch, expectedKeyIsDigit=${expectedKeyIsDigit}, isAzertyDigitQuirk:`, isAzertyDigitQuirk);
+    if (!isAzertyDigitQuirk) {
+      console.log(`[matchesKeyCombo] FAIL: alt mismatch (not AZERTY quirk)`);
+      return false;
+    }
+  }
 
   // Handle special cases
-  if (key === "enter" && eventKey === "enter") return true;
-  if (key === "escape" && (eventKey === "escape" || eventKey === "esc")) return true;
-  if (key === "tab" && eventKey === "tab") return true;
-  if (key === "=" && (eventKey === "=" || eventKey === "+")) return true;
+  if (key === "enter" && event.key.toLowerCase() === "enter") return true;
+  if (key === "escape" && (event.key.toLowerCase() === "escape" || event.key.toLowerCase() === "esc")) return true;
+  if (key === "tab" && event.key.toLowerCase() === "tab") return true;
+  if (key === "=" && (eventKey === "=" || event.key === "+")) return true;
 
   return eventKey === key;
 }
@@ -171,22 +233,28 @@ export function buildComboFromEvent(event: KeyboardEvent): string {
   const modKey = mac ? event.metaKey : event.ctrlKey;
   if (modKey) parts.push("mod");
   if (event.shiftKey) parts.push("shift");
-  if (event.altKey) parts.push("alt");
 
-  // Get the key, handling special cases
-  let key = event.key.toLowerCase();
+  // For digit keys on Mac, altKey can incorrectly return true on AZERTY keyboards
+  // Only include "alt" if it's not a false positive
+  const isDigitKey = event.code.startsWith("Digit");
+  const isAzertyAltQuirk = mac && isDigitKey && event.altKey && modKey;
+  if (event.altKey && !isAzertyAltQuirk) parts.push("alt");
 
   // Ignore pure modifier keys
-  if (["control", "meta", "shift", "alt"].includes(key)) {
+  const rawKey = event.key.toLowerCase();
+  if (["control", "meta", "shift", "alt"].includes(rawKey)) {
     return "";
   }
 
-  // Normalize some keys
+  // Get the normalized key (handles AZERTY and other layouts)
+  let key = getNormalizedKey(event);
+
+  // Normalize some special keys
   if (key === " ") key = "space";
-  if (key === "arrowup") key = "up";
-  if (key === "arrowdown") key = "down";
-  if (key === "arrowleft") key = "left";
-  if (key === "arrowright") key = "right";
+  if (rawKey === "arrowup") key = "up";
+  if (rawKey === "arrowdown") key = "down";
+  if (rawKey === "arrowleft") key = "left";
+  if (rawKey === "arrowright") key = "right";
 
   parts.push(key);
 

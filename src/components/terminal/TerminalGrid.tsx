@@ -126,6 +126,7 @@ export interface TerminalGridHandle {
   clearTerminal: () => Promise<void>;
   closeSession: () => Promise<void>;
   restartSession: () => Promise<void>;
+  maximizeTerminal: () => void;
 }
 
 /**
@@ -184,6 +185,9 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
 
   // Track which terminal slot is focused (by slot ID)
   const [focusedSlotId, setFocusedSlotId] = useState<string | null>(null);
+
+  // Track which terminal is maximized (only one can be maximized at a time)
+  const [maximizedSlotId, setMaximizedSlotId] = useState<string | null>(null);
 
   // Git branch data
   const [branches, setBranches] = useState<BranchWithWorktreeStatus[]>([]);
@@ -789,8 +793,10 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     console.log("[TerminalGrid] focusTerminal called, index:", index, "launchedSlots:", launchedSlots.length);
     const slot = launchedSlots[index];
     if (slot) {
-      console.log("[TerminalGrid] Focusing slot:", slot.id);
+      console.log("[TerminalGrid] Focusing and maximizing slot:", slot.id);
       setFocusedSlotId(slot.id);
+      // Also maximize the terminal when using Cmd+1-6
+      setMaximizedSlotId(slot.id);
     } else {
       console.log("[TerminalGrid] No slot at index", index);
     }
@@ -811,8 +817,23 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
   }, [launchedSlots, focusedIndex]);
 
   const unfocusTerminal = useCallback(() => {
+    // When unfocusing, also exit maximized mode
     setFocusedSlotId(null);
+    setMaximizedSlotId(null);
   }, []);
+
+  const maximizeTerminal = useCallback(() => {
+    // Toggle maximize for the currently focused terminal
+    if (focusedSlotId) {
+      if (maximizedSlotId === focusedSlotId) {
+        // Already maximized, restore to grid view
+        setMaximizedSlotId(null);
+      } else {
+        // Maximize the focused terminal
+        setMaximizedSlotId(focusedSlotId);
+      }
+    }
+  }, [focusedSlotId, maximizedSlotId]);
 
   const getFocusedIndex = useCallback(() => {
     return focusedIndex;
@@ -902,6 +923,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     clearTerminal,
     closeSession,
     restartSession,
+    maximizeTerminal,
   }), [
     addSession,
     launchAll,
@@ -913,6 +935,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     clearTerminal,
     closeSession,
     restartSession,
+    maximizeTerminal,
   ]);
 
   if (error) {
@@ -941,42 +964,88 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     );
   }
 
+  // Render all terminals in a single container, using CSS to handle maximized state
+  // Each terminal is rendered once to preserve xterm.js state
+  const isMaximizedMode = maximizedSlotId !== null;
+
   return (
-    <div className={`grid h-full ${gridClass(slots.length)} gap-2 bg-maestro-bg p-2`}>
-      {slots.map((slot) =>
-        slot.sessionId !== null ? (
-          <TerminalView
-            key={slot.id}
-            sessionId={slot.sessionId}
-            isFocused={focusedSlotId === slot.id}
-            onFocus={() => setFocusedSlotId(slot.id)}
-            onKill={handleKill}
-          />
-        ) : (
-          <PreLaunchCard
-            key={slot.id}
-            slot={slot}
-            projectPath={projectPath ?? ""}
-            branches={branches}
-            isLoadingBranches={isLoadingBranches}
-            isGitRepo={isGitRepo}
-            mcpServers={mcpServers}
-            skills={skills}
-            plugins={plugins}
-            onModeChange={(mode) => updateSlotMode(slot.id, mode)}
-            onBranchChange={(branch) => updateSlotBranch(slot.id, branch)}
-            onMcpToggle={(serverName) => toggleSlotMcp(slot.id, serverName)}
-            onSkillToggle={(skillId) => toggleSlotSkill(slot.id, skillId)}
-            onPluginToggle={(pluginId) => toggleSlotPlugin(slot.id, pluginId)}
-            onMcpSelectAll={() => selectAllMcp(slot.id)}
-            onMcpUnselectAll={() => unselectAllMcp(slot.id)}
-            onPluginsSelectAll={() => selectAllPlugins(slot.id)}
-            onPluginsUnselectAll={() => unselectAllPlugins(slot.id)}
-            onLaunch={() => launchSlot(slot.id)}
-            onRemove={() => removeSlot(slot.id)}
-          />
-        )
-      )}
+    <div className="relative h-full w-full bg-maestro-bg p-2 overflow-hidden">
+      {/* Container that switches between grid and stacked layout */}
+      <div
+        className={`h-full w-full ${
+          isMaximizedMode ? "relative" : `grid ${gridClass(slots.length)} gap-2`
+        }`}
+      >
+        {slots.map((slot) => {
+          const isThisMaximized = maximizedSlotId === slot.id;
+          const isHiddenByOtherMaximized = isMaximizedMode && !isThisMaximized;
+
+          if (slot.sessionId !== null) {
+            return (
+              <div
+                key={slot.id}
+                className={`${
+                  isThisMaximized
+                    ? "absolute inset-0 z-10"
+                    : isHiddenByOtherMaximized
+                    ? "absolute opacity-0 pointer-events-none"
+                    : ""
+                }`}
+                style={
+                  isHiddenByOtherMaximized
+                    ? { width: 1, height: 1, overflow: "hidden" }
+                    : isThisMaximized
+                    ? { width: "100%", height: "100%" }
+                    : undefined
+                }
+              >
+                <TerminalView
+                  sessionId={slot.sessionId}
+                  isFocused={focusedSlotId === slot.id}
+                  onFocus={() => setFocusedSlotId(slot.id)}
+                  onKill={handleKill}
+                />
+              </div>
+            );
+          }
+
+          // Hide pre-launch cards when maximized
+          if (isHiddenByOtherMaximized) {
+            return (
+              <div
+                key={slot.id}
+                className="absolute opacity-0 pointer-events-none"
+                style={{ width: 1, height: 1 }}
+              />
+            );
+          }
+
+          return (
+            <PreLaunchCard
+              key={slot.id}
+              slot={slot}
+              projectPath={projectPath ?? ""}
+              branches={branches}
+              isLoadingBranches={isLoadingBranches}
+              isGitRepo={isGitRepo}
+              mcpServers={mcpServers}
+              skills={skills}
+              plugins={plugins}
+              onModeChange={(mode) => updateSlotMode(slot.id, mode)}
+              onBranchChange={(branch) => updateSlotBranch(slot.id, branch)}
+              onMcpToggle={(serverName) => toggleSlotMcp(slot.id, serverName)}
+              onSkillToggle={(skillId) => toggleSlotSkill(slot.id, skillId)}
+              onPluginToggle={(pluginId) => toggleSlotPlugin(slot.id, pluginId)}
+              onMcpSelectAll={() => selectAllMcp(slot.id)}
+              onMcpUnselectAll={() => unselectAllMcp(slot.id)}
+              onPluginsSelectAll={() => selectAllPlugins(slot.id)}
+              onPluginsUnselectAll={() => unselectAllPlugins(slot.id)}
+              onLaunch={() => launchSlot(slot.id)}
+              onRemove={() => removeSlot(slot.id)}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 });

@@ -20,6 +20,7 @@ export interface MultiProjectViewHandle {
   clearTerminal: () => Promise<void>;
   closeSession: () => Promise<void>;
   restartSession: () => Promise<void>;
+  maximizeTerminal: () => void;
 }
 
 /**
@@ -77,6 +78,9 @@ export const MultiProjectView = forwardRef<MultiProjectViewHandle, MultiProjectV
     },
     restartSession: async () => {
       await getActiveGridRef()?.restartSession();
+    },
+    maximizeTerminal: () => {
+      getActiveGridRef()?.maximizeTerminal();
     },
   }), [tabs]);
 
