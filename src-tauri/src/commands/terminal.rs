@@ -82,8 +82,8 @@ pub fn get_backend_info() -> BackendInfo {
 /// # Environment Variables
 /// The `env` parameter allows passing environment variables to the shell process.
 /// These are inherited by all child processes (including Claude CLI → MCP server).
-/// Common usage: `{ "MAESTRO_PROJECT_HASH": "<hash>" }` for MCP status identification.
-/// Note: `MAESTRO_SESSION_ID` is automatically set by the process manager.
+/// Common usage: `{ "CHORUS_PROJECT_HASH": "<hash>" }` for MCP status identification.
+/// Note: `CHORUS_SESSION_ID` is automatically set by the process manager.
 #[tauri::command]
 pub async fn spawn_shell(
     app_handle: AppHandle,

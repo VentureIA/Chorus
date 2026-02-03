@@ -8,7 +8,7 @@ dist/
 # Rust build artifacts
 target/
 src-tauri/target/
-maestro-mcp-server/target/
+chorus-mcp-server/target/
 
 # Generated schemas (rebuilt by tauri build)
 src-tauri/gen/

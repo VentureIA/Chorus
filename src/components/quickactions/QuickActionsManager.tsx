@@ -100,24 +100,24 @@ export function QuickActionsManager({ onClose }: QuickActionsManagerProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="w-full max-w-md rounded-lg border border-maestro-border bg-maestro-bg shadow-2xl"
+        className="w-full max-w-md rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-maestro-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-maestro-text">Manage Quick Actions</h2>
+        <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
+          <h2 className="text-sm font-semibold text-chorus-text">Manage Quick Actions</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 hover:bg-maestro-border/40"
+            className="rounded p-1 hover:bg-chorus-border/40"
           >
-            <X size={16} className="text-maestro-muted" />
+            <X size={16} className="text-chorus-muted" />
           </button>
         </div>
 
         {/* Content */}
         <div className="max-h-[60vh] overflow-y-auto p-4">
           {sortedActions.length === 0 ? (
-            <p className="py-8 text-center text-xs text-maestro-muted">
+            <p className="py-8 text-center text-xs text-chorus-muted">
               No quick actions configured.
             </p>
           ) : (
@@ -125,7 +125,7 @@ export function QuickActionsManager({ onClose }: QuickActionsManagerProps) {
               {sortedActions.map((action) => (
                 <div
                   key={action.id}
-                  className="group flex items-start gap-3 rounded-lg border border-maestro-border bg-maestro-card p-3"
+                  className="group flex items-start gap-3 rounded-lg border border-chorus-border bg-chorus-card p-3"
                 >
                   {/* Icon */}
                   <div
@@ -142,16 +142,16 @@ export function QuickActionsManager({ onClose }: QuickActionsManagerProps) {
                   {/* Info */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-maestro-text">
+                      <span className="text-sm font-medium text-chorus-text">
                         {action.name}
                       </span>
                       {!action.isEnabled && (
-                        <span className="rounded bg-maestro-border/40 px-1.5 py-0.5 text-[9px] text-maestro-muted">
+                        <span className="rounded bg-chorus-border/40 px-1.5 py-0.5 text-[9px] text-chorus-muted">
                           Disabled
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 line-clamp-2 text-[11px] text-maestro-muted">
+                    <p className="mt-0.5 line-clamp-2 text-[11px] text-chorus-muted">
                       {action.prompt}
                     </p>
                   </div>
@@ -161,24 +161,24 @@ export function QuickActionsManager({ onClose }: QuickActionsManagerProps) {
                     <button
                       type="button"
                       onClick={() => setEditingAction(action)}
-                      className="rounded p-1.5 hover:bg-maestro-border/40"
+                      className="rounded p-1.5 hover:bg-chorus-border/40"
                       title="Edit"
                     >
-                      <Pencil size={12} className="text-maestro-muted" />
+                      <Pencil size={12} className="text-chorus-muted" />
                     </button>
                     {deleteConfirmId === action.id ? (
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => handleDelete(action.id)}
-                          className="rounded bg-maestro-red/20 px-2 py-1 text-[10px] font-medium text-maestro-red hover:bg-maestro-red/30"
+                          className="rounded bg-chorus-red/20 px-2 py-1 text-[10px] font-medium text-chorus-red hover:bg-chorus-red/30"
                         >
                           Delete
                         </button>
                         <button
                           type="button"
                           onClick={() => setDeleteConfirmId(null)}
-                          className="rounded px-2 py-1 text-[10px] text-maestro-muted hover:bg-maestro-border/40"
+                          className="rounded px-2 py-1 text-[10px] text-chorus-muted hover:bg-chorus-border/40"
                         >
                           Cancel
                         </button>
@@ -187,10 +187,10 @@ export function QuickActionsManager({ onClose }: QuickActionsManagerProps) {
                       <button
                         type="button"
                         onClick={() => setDeleteConfirmId(action.id)}
-                        className="rounded p-1.5 hover:bg-maestro-border/40"
+                        className="rounded p-1.5 hover:bg-chorus-border/40"
                         title="Delete"
                       >
-                        <Trash2 size={12} className="text-maestro-red" />
+                        <Trash2 size={12} className="text-chorus-red" />
                       </button>
                     )}
                   </div>
@@ -201,21 +201,21 @@ export function QuickActionsManager({ onClose }: QuickActionsManagerProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-maestro-border px-4 py-3">
+        <div className="flex items-center justify-between border-t border-chorus-border px-4 py-3">
           {showResetConfirm ? (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-maestro-muted">Reset all actions?</span>
+              <span className="text-xs text-chorus-muted">Reset all actions?</span>
               <button
                 type="button"
                 onClick={handleReset}
-                className="rounded bg-maestro-red/20 px-2 py-1 text-[10px] font-medium text-maestro-red hover:bg-maestro-red/30"
+                className="rounded bg-chorus-red/20 px-2 py-1 text-[10px] font-medium text-chorus-red hover:bg-chorus-red/30"
               >
                 Yes, Reset
               </button>
               <button
                 type="button"
                 onClick={() => setShowResetConfirm(false)}
-                className="rounded px-2 py-1 text-[10px] text-maestro-muted hover:bg-maestro-border/40"
+                className="rounded px-2 py-1 text-[10px] text-chorus-muted hover:bg-chorus-border/40"
               >
                 Cancel
               </button>
@@ -224,7 +224,7 @@ export function QuickActionsManager({ onClose }: QuickActionsManagerProps) {
             <button
               type="button"
               onClick={() => setShowResetConfirm(true)}
-              className="flex items-center gap-1 rounded px-2 py-1 text-xs text-maestro-muted hover:bg-maestro-border/40"
+              className="flex items-center gap-1 rounded px-2 py-1 text-xs text-chorus-muted hover:bg-chorus-border/40"
             >
               <RotateCcw size={12} />
               Reset to Defaults
@@ -234,7 +234,7 @@ export function QuickActionsManager({ onClose }: QuickActionsManagerProps) {
           <button
             type="button"
             onClick={() => setIsCreating(true)}
-            className="flex items-center gap-1 rounded bg-maestro-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-maestro-accent/90"
+            className="flex items-center gap-1 rounded bg-chorus-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-chorus-accent/90"
           >
             <Plus size={12} />
             Add Quick Action

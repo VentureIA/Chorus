@@ -1,6 +1,6 @@
 {
   "identifier": "default",
-  "description": "Default capabilities for Maestro",
+  "description": "Default capabilities for Chorus",
   "windows": ["main"],
   "permissions": [
     "core:default",

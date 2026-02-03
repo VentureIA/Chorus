@@ -6,31 +6,31 @@
   /* ── Theme: CSS Variables (RGB triplets for Tailwind alpha support) ── */
 
   :root {
-    /* Dark theme — warm gunmetal, matching macOS Maestro */
-    --maestro-bg: 26 26 30; /* #1a1a1e — warm charcoal */
-    --maestro-surface: 30 31 35; /* #1e1f23 — sidebar/topbar */
-    --maestro-card: 37 37 41; /* #252529 — card/section bg */
-    --maestro-border: 51 51 56; /* #333338 — borders */
-    --maestro-text: 229 229 233; /* #e5e5e9 — primary text */
-    --maestro-muted: 140 140 150; /* #8c8c96 — secondary text */
+    /* Dark theme — warm gunmetal, matching macOS Chorus */
+    --chorus-bg: 26 26 30; /* #1a1a1e — warm charcoal */
+    --chorus-surface: 30 31 35; /* #1e1f23 — sidebar/topbar */
+    --chorus-card: 37 37 41; /* #252529 — card/section bg */
+    --chorus-border: 51 51 56; /* #333338 — borders */
+    --chorus-text: 229 229 233; /* #e5e5e9 — primary text */
+    --chorus-muted: 140 140 150; /* #8c8c96 — secondary text */
 
     /* Accent & status — constant across themes */
-    --maestro-accent: 88 166 255; /* #58a6ff */
-    --maestro-green: 63 185 80; /* #3fb950 */
-    --maestro-red: 248 81 73; /* #f85149 */
-    --maestro-orange: 245 158 11; /* #f59e0b — matches design spec */
-    --maestro-yellow: 234 179 8; /* #eab308 — needs input */
-    --maestro-purple: 188 140 255; /* #bc8cff */
+    --chorus-accent: 88 166 255; /* #58a6ff */
+    --chorus-green: 63 185 80; /* #3fb950 */
+    --chorus-red: 248 81 73; /* #f85149 */
+    --chorus-orange: 245 158 11; /* #f59e0b — matches design spec */
+    --chorus-yellow: 234 179 8; /* #eab308 — needs input */
+    --chorus-purple: 188 140 255; /* #bc8cff */
   }
 
   /* Light theme — clean neutral with strong contrast */
   [data-theme="light"] {
-    --maestro-bg: 241 241 243; /* #f1f1f3 */
-    --maestro-surface: 252 252 253; /* #fcfcfd */
-    --maestro-card: 245 245 247; /* #f5f5f7 */
-    --maestro-border: 210 210 216; /* #d2d2d8 */
-    --maestro-text: 20 20 24; /* #141418 */
-    --maestro-muted: 100 100 112; /* #646470 */
+    --chorus-bg: 241 241 243; /* #f1f1f3 */
+    --chorus-surface: 252 252 253; /* #fcfcfd */
+    --chorus-card: 245 245 247; /* #f5f5f7 */
+    --chorus-border: 210 210 216; /* #d2d2d8 */
+    --chorus-text: 20 20 24; /* #141418 */
+    --chorus-muted: 100 100 112; /* #646470 */
   }
 
   /* ── Theme transition on chrome (scoped to direct children) ── */
@@ -61,8 +61,8 @@
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: rgb(var(--maestro-bg));
-    color: rgb(var(--maestro-text));
+    background-color: rgb(var(--chorus-bg));
+    color: rgb(var(--chorus-text));
   }
 
   /* ── Scrollbar ── */
@@ -76,17 +76,17 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgb(var(--maestro-border));
+    background: rgb(var(--chorus-border));
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgb(var(--maestro-muted) / 0.5);
+    background: rgb(var(--chorus-muted) / 0.5);
   }
 
   html {
     scrollbar-width: thin;
-    scrollbar-color: rgb(var(--maestro-border)) transparent;
+    scrollbar-color: rgb(var(--chorus-border)) transparent;
   }
 }
 
@@ -247,7 +247,7 @@
 .terminal-cell {
   border-radius: 12px;
   overflow: hidden;
-  border: 3px solid rgb(var(--maestro-border));
+  border: 3px solid rgb(var(--chorus-border));
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.3),
     0 1px 3px rgba(0, 0, 0, 0.2);
@@ -257,11 +257,11 @@
 }
 
 .terminal-cell-idle {
-  border-color: rgb(var(--maestro-muted) / 0.4);
+  border-color: rgb(var(--chorus-muted) / 0.4);
 }
 
 .terminal-cell-starting {
-  border-color: rgb(var(--maestro-orange));
+  border-color: rgb(var(--chorus-orange));
   box-shadow:
     0 0 12px rgba(245, 158, 11, 0.4),
     0 0 24px rgba(245, 158, 11, 0.2);
@@ -269,28 +269,28 @@
 }
 
 .terminal-cell-working {
-  border-color: rgb(var(--maestro-accent));
+  border-color: rgb(var(--chorus-accent));
   box-shadow:
     0 0 12px rgba(88, 166, 255, 0.4),
     0 0 24px rgba(88, 166, 255, 0.2);
 }
 
 .terminal-cell-needs-input {
-  border-color: rgb(var(--maestro-yellow));
+  border-color: rgb(var(--chorus-yellow));
   box-shadow:
     0 0 12px rgba(234, 179, 8, 0.5),
     0 0 24px rgba(234, 179, 8, 0.25);
 }
 
 .terminal-cell-done {
-  border-color: rgb(var(--maestro-green));
+  border-color: rgb(var(--chorus-green));
   box-shadow:
     0 0 10px rgba(63, 185, 80, 0.3),
     0 0 20px rgba(63, 185, 80, 0.15);
 }
 
 .terminal-cell-error {
-  border-color: rgb(var(--maestro-red));
+  border-color: rgb(var(--chorus-red));
   box-shadow:
     0 0 12px rgba(248, 81, 73, 0.5),
     0 0 24px rgba(248, 81, 73, 0.25);
@@ -311,10 +311,10 @@
 @keyframes glow-pulse {
   0%,
   100% {
-    box-shadow: 0 0 8px rgb(var(--maestro-orange) / 0.2);
+    box-shadow: 0 0 8px rgb(var(--chorus-orange) / 0.2);
   }
   50% {
-    box-shadow: 0 0 18px rgb(var(--maestro-orange) / 0.4);
+    box-shadow: 0 0 18px rgb(var(--chorus-orange) / 0.4);
   }
 }
 
@@ -353,7 +353,7 @@
 
 .animate-glow {
   animation: glow-pulse 2s ease-in-out infinite;
-  border-color: rgb(var(--maestro-orange));
+  border-color: rgb(var(--chorus-orange));
 }
 
 .animate-pod-wake {

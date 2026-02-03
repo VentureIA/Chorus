@@ -12,5 +12,5 @@ fn main() {
         }
     }
 
-    maestro_lib::run()
+    chorus_lib::run()
 }

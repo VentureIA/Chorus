@@ -28,8 +28,9 @@ import { usePluginStore } from "@/stores/usePluginStore";
 import { useSessionStore } from "@/stores/useSessionStore";
 import type { AiMode } from "@/stores/useSessionStore";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
+import { HandoffDialog } from "./HandoffDialog";
 import { PreLaunchCard, type SessionSlot } from "./PreLaunchCard";
-import { TerminalView } from "./TerminalView";
+import { TerminalView, type TerminalViewHandle } from "./TerminalView";
 
 /** Stable empty arrays to avoid infinite re-render loops in Zustand selectors. */
 const EMPTY_MCP_SERVERS: McpServerConfig[] = [];
@@ -127,6 +128,7 @@ export interface TerminalGridHandle {
   closeSession: () => Promise<void>;
   restartSession: () => Promise<void>;
   maximizeTerminal: () => void;
+  handoffSession: () => void;
 }
 
 /**
@@ -188,6 +190,18 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
 
   // Track which terminal is maximized (only one can be maximized at a time)
   const [maximizedSlotId, setMaximizedSlotId] = useState<string | null>(null);
+
+  // Handoff dialog state
+  const [handoffDialogState, setHandoffDialogState] = useState<{
+    slotId: string;
+    sessionId: number;
+    context: string;
+    mode: AiMode;
+    title?: string;
+  } | null>(null);
+
+  // Refs for terminal views to access their buffer content
+  const terminalRefs = useRef<Map<string, TerminalViewHandle>>(new Map());
 
   // Git branch data
   const [branches, setBranches] = useState<BranchWithWorktreeStatus[]>([]);
@@ -409,16 +423,16 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
       }
 
       // Generate project hash for MCP status identification
-      // This is passed as MAESTRO_PROJECT_HASH env var to enable process-isolated
+      // This is passed as CHORUS_PROJECT_HASH env var to enable process-isolated
       // session identification (avoiding .mcp.json race conditions)
       let envVars: Record<string, string> | undefined;
       if (projectPath) {
         const projectHash = await invoke<string>("generate_project_hash", { projectPath });
-        envVars = { MAESTRO_PROJECT_HASH: projectHash };
+        envVars = { CHORUS_PROJECT_HASH: projectHash };
       }
 
       // Spawn the shell in the correct directory (worktree or project path)
-      // MAESTRO_SESSION_ID is automatically injected by the backend
+      // CHORUS_SESSION_ID is automatically injected by the backend
       const sessionId = await spawnShell(workingDirectory, envVars);
 
       // Register the session in SessionManager (required before assigning branch)
@@ -463,7 +477,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
 
           if (isAvailable) {
             // Write MCP config IMMEDIATELY before launching CLI
-            // This allows the CLI to discover MCP servers including the Maestro status server
+            // This allows the CLI to discover MCP servers including the Chorus status server
             if (workingDirectory && slot.mode === "Claude") {
               try {
                 await writeSessionMcpConfig(
@@ -489,7 +503,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
             await writeStdin(sessionId, `${cliConfig.command}\r`);
 
             // Brief delay for CLI initialization.
-            // With session-specific MCP server names (maestro-1, maestro-2, etc.),
+            // With session-specific MCP server names (chorus-1, chorus-2, etc.),
             // we no longer have race conditions on .mcp.json, so we only need
             // a minimal delay for general CLI startup.
             await new Promise((resolve) => setTimeout(resolve, 500));
@@ -912,6 +926,95 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     await launchSlot(slotId);
   }, [focusedSlotId, projectPath, tabId, removeSessionFromProject, launchSlot]);
 
+  /**
+   * Opens the handoff dialog for a session.
+   * Extracts terminal buffer content and shows the dialog.
+   */
+  const handleHandoffRequest = useCallback((sessionId: number) => {
+    const slot = slotsRef.current.find((s) => s.sessionId === sessionId);
+    if (!slot) return;
+
+    // Get terminal buffer content
+    const termRef = terminalRefs.current.get(slot.id);
+    const context = termRef?.getBufferContent() ?? "";
+
+    // Get session title from store
+    const sessionConfig = useSessionStore.getState().sessions.find((s) => s.id === sessionId);
+
+    setHandoffDialogState({
+      slotId: slot.id,
+      sessionId,
+      context,
+      mode: slot.mode,
+      title: sessionConfig?.title,
+    });
+  }, []);
+
+  /**
+   * Handles the handoff confirmation.
+   * Creates a new session with the provided context and optionally closes the old one.
+   */
+  const handleHandoffConfirm = useCallback(async (context: string, mode: AiMode, archiveOld: boolean) => {
+    if (!handoffDialogState) return;
+
+    const { slotId, sessionId } = handoffDialogState;
+
+    // Close the dialog first
+    setHandoffDialogState(null);
+
+    // Create a new pre-launch slot with the selected mode
+    const newSlot = createEmptySlot(mcpServers, skills, plugins);
+    newSlot.mode = mode;
+
+    // Add the new slot
+    setSlots((prev) => [...prev, newSlot]);
+
+    // Wait for slot to be added and then launch it
+    await new Promise((r) => setTimeout(r, 50));
+
+    // Launch the new slot
+    await launchSlot(newSlot.id);
+
+    // Wait for CLI to initialize
+    await new Promise((r) => setTimeout(r, 1000));
+
+    // Get the new session ID
+    const newSlotState = slotsRef.current.find((s) => s.id === newSlot.id);
+    if (newSlotState?.sessionId) {
+      // Send the context as the first message
+      await writeStdin(newSlotState.sessionId, context + "\n");
+    }
+
+    // Archive/close the old session if requested
+    if (archiveOld) {
+      const oldSlot = slotsRef.current.find((s) => s.id === slotId);
+      if (oldSlot?.sessionId) {
+        await killSession(sessionId);
+        if (oldSlot.worktreePath && projectPath) {
+          await cleanupSessionWorktree(projectPath, oldSlot.worktreePath).catch(console.error);
+        }
+        if (projectPath) {
+          await removeSessionMcpConfig(projectPath, sessionId).catch(console.error);
+        }
+        setSlots((prev) => prev.filter((s) => s.id !== slotId));
+        if (tabId) {
+          removeSessionFromProject(tabId, sessionId);
+        }
+      }
+    }
+
+    // Focus the new terminal
+    setFocusedSlotId(newSlot.id);
+  }, [handoffDialogState, mcpServers, skills, plugins, launchSlot, projectPath, tabId, removeSessionFromProject]);
+
+  const handoffSession = useCallback(() => {
+    if (!focusedSlotId) return;
+    const slot = slotsRef.current.find((s) => s.id === focusedSlotId);
+    if (slot?.sessionId) {
+      handleHandoffRequest(slot.sessionId);
+    }
+  }, [focusedSlotId, handleHandoffRequest]);
+
   useImperativeHandle(ref, () => ({
     addSession,
     launchAll,
@@ -924,6 +1027,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     closeSession,
     restartSession,
     maximizeTerminal,
+    handoffSession,
   }), [
     addSession,
     launchAll,
@@ -936,19 +1040,20 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     closeSession,
     restartSession,
     maximizeTerminal,
+    handoffSession,
   ]);
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 text-maestro-muted">
-        <span className="text-sm text-maestro-red">{error}</span>
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-chorus-muted">
+        <span className="text-sm text-chorus-red">{error}</span>
         <button
           type="button"
           onClick={() => {
             setError(null);
             setSlots([createEmptySlot()]);
           }}
-          className="rounded bg-maestro-border px-3 py-1.5 text-xs text-maestro-text hover:bg-maestro-muted/20"
+          className="rounded bg-chorus-border px-3 py-1.5 text-xs text-chorus-text hover:bg-chorus-muted/20"
         >
           Retry
         </button>
@@ -958,7 +1063,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
 
   if (slots.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center text-maestro-muted text-sm">
+      <div className="flex h-full items-center justify-center text-chorus-muted text-sm">
         Initializing...
       </div>
     );
@@ -969,7 +1074,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
   const isMaximizedMode = maximizedSlotId !== null;
 
   return (
-    <div className="relative h-full w-full bg-maestro-bg p-2 overflow-hidden">
+    <div className="relative h-full w-full bg-chorus-bg p-2 overflow-hidden">
       {/* Container that switches between grid and stacked layout */}
       <div
         className={`h-full w-full ${
@@ -1000,10 +1105,18 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
                 }
               >
                 <TerminalView
+                  ref={(handle) => {
+                    if (handle) {
+                      terminalRefs.current.set(slot.id, handle);
+                    } else {
+                      terminalRefs.current.delete(slot.id);
+                    }
+                  }}
                   sessionId={slot.sessionId}
                   isFocused={focusedSlotId === slot.id}
                   onFocus={() => setFocusedSlotId(slot.id)}
                   onKill={handleKill}
+                  onHandoff={handleHandoffRequest}
                 />
               </div>
             );
@@ -1046,6 +1159,17 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
           );
         })}
       </div>
+
+      {/* Handoff dialog */}
+      {handoffDialogState && (
+        <HandoffDialog
+          initialContext={handoffDialogState.context}
+          currentMode={handoffDialogState.mode}
+          currentTitle={handoffDialogState.title}
+          onClose={() => setHandoffDialogState(null)}
+          onConfirm={handleHandoffConfirm}
+        />
+      )}
     </div>
   );
 });

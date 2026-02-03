@@ -151,7 +151,7 @@ pub async fn save_project_mcp_defaults(
         .to_string_lossy()
         .into_owned();
 
-    let store_name = format!("maestro-{}.json", hash_project_path(&canonical));
+    let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
 
     store.set("enabled_mcp_servers", serde_json::json!(enabled_servers));
@@ -174,7 +174,7 @@ pub async fn load_project_mcp_defaults(
         .to_string_lossy()
         .into_owned();
 
-    let store_name = format!("maestro-{}.json", hash_project_path(&canonical));
+    let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
 
     let result = store
@@ -264,14 +264,14 @@ pub async fn get_status_server_info(
 /// Writes a session-specific `.mcp.json` file to the working directory.
 ///
 /// This must be called BEFORE launching the Claude CLI so it can discover
-/// and connect to the configured MCP servers, including the Maestro status server.
+/// and connect to the configured MCP servers, including the Chorus status server.
 ///
 /// The written config includes:
 /// - All enabled servers from the project's `.mcp.json`
 /// - All enabled custom servers (user-defined, global)
 ///
 /// Existing user-defined servers in the working directory's `.mcp.json` are
-/// preserved (only Maestro-managed servers are replaced).
+/// preserved (only Chorus-managed servers are replaced).
 #[tauri::command]
 pub async fn write_session_mcp_config(
     app: AppHandle,
@@ -337,7 +337,7 @@ fn get_custom_mcp_servers_internal(app: &AppHandle) -> Result<Vec<McpCustomServe
     Ok(servers)
 }
 
-/// Removes a session-specific Maestro server from `.mcp.json`.
+/// Removes a session-specific Chorus server from `.mcp.json`.
 ///
 /// This should be called when a session is killed to clean up the config file.
 /// The function is idempotent - it does nothing if the session entry doesn't exist.

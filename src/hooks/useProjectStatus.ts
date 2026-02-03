@@ -18,11 +18,11 @@ export type ProjectStatus =
  * Maps backend session status to CSS color class names.
  */
 export const STATUS_COLORS: Record<ProjectStatus, string> = {
-  idle: "bg-maestro-muted",
+  idle: "bg-chorus-muted",
   starting: "bg-orange-500",
-  working: "bg-maestro-accent",
+  working: "bg-chorus-accent",
   "needs-input": "bg-yellow-500",
-  done: "bg-maestro-green",
+  done: "bg-chorus-green",
   error: "bg-red-500",
 };
 

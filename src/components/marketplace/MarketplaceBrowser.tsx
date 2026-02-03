@@ -93,13 +93,13 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div
           ref={modalRef}
-          className="flex h-[700px] w-[900px] max-w-[95vw] max-h-[90vh] flex-col rounded-lg border border-maestro-border bg-maestro-bg shadow-2xl"
+          className="flex h-[700px] w-[900px] max-w-[95vw] max-h-[90vh] flex-col rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-maestro-border px-4 py-3">
+          <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
             <div className="flex items-center gap-3">
-              <Layers size={18} className="text-maestro-accent" />
-              <h2 className="text-sm font-semibold text-maestro-text">Plugin Marketplace</h2>
+              <Layers size={18} className="text-chorus-accent" />
+              <h2 className="text-sm font-semibold text-chorus-text">Plugin Marketplace</h2>
             </div>
 
             <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
               <div className="relative">
                 <Search
                   size={14}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-maestro-muted"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-chorus-muted"
                 />
                 <input
                   ref={searchInputRef}
@@ -115,19 +115,19 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
                   placeholder="Search plugins..."
-                  className="w-64 rounded border border-maestro-border bg-maestro-surface py-1.5 pl-8 pr-3 text-xs text-maestro-text placeholder:text-maestro-muted focus:border-maestro-accent focus:outline-none"
+                  className="w-64 rounded border border-chorus-border bg-chorus-surface py-1.5 pl-8 pr-3 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
                 />
               </div>
 
               {/* View toggle */}
-              <div className="flex items-center rounded border border-maestro-border">
+              <div className="flex items-center rounded border border-chorus-border">
                 <button
                   type="button"
                   onClick={() => setViewMode("grid")}
                   className={`rounded-l p-1.5 ${
                     viewMode === "grid"
-                      ? "bg-maestro-accent text-white"
-                      : "text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+                      ? "bg-chorus-accent text-white"
+                      : "text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
                   }`}
                   title="Grid view"
                 >
@@ -138,8 +138,8 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
                   onClick={() => setViewMode("list")}
                   className={`rounded-r p-1.5 ${
                     viewMode === "list"
-                      ? "bg-maestro-accent text-white"
-                      : "text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+                      ? "bg-chorus-accent text-white"
+                      : "text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
                   }`}
                   title="List view"
                 >
@@ -152,7 +152,7 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
                 type="button"
                 onClick={() => refreshMarketplaces()}
                 disabled={isRefreshing}
-                className="rounded p-1.5 text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text disabled:opacity-50"
+                className="rounded p-1.5 text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text disabled:opacity-50"
                 title="Refresh marketplaces"
               >
                 <RefreshCw
@@ -167,8 +167,8 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
                 onClick={toggleSourcesSidebar}
                 className={`rounded p-1.5 ${
                   showSourcesSidebar
-                    ? "bg-maestro-accent/10 text-maestro-accent"
-                    : "text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+                    ? "bg-chorus-accent/10 text-chorus-accent"
+                    : "text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
                 }`}
                 title="Manage sources"
               >
@@ -179,7 +179,7 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded p-1.5 text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+                className="rounded p-1.5 text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
               >
                 <X size={14} />
               </button>
@@ -196,8 +196,8 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
               {isLoading ? (
                 <div className="flex h-full items-center justify-center">
                   <div className="flex flex-col items-center gap-3">
-                    <Loader2 size={24} className="animate-spin text-maestro-accent" />
-                    <p className="text-xs text-maestro-muted">Loading plugins...</p>
+                    <Loader2 size={24} className="animate-spin text-chorus-accent" />
+                    <p className="text-xs text-chorus-muted">Loading plugins...</p>
                   </div>
                 </div>
               ) : error ? (
@@ -207,7 +207,7 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
                     <button
                       type="button"
                       onClick={() => refreshMarketplaces()}
-                      className="rounded bg-maestro-accent px-4 py-2 text-xs text-white hover:bg-maestro-accent/80"
+                      className="rounded bg-chorus-accent px-4 py-2 text-xs text-white hover:bg-chorus-accent/80"
                     >
                       Try Again
                     </button>
@@ -216,9 +216,9 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
               ) : filteredPlugins.length === 0 ? (
                 <div className="flex h-full items-center justify-center">
                   <div className="flex flex-col items-center gap-3 p-6 text-center">
-                    <Layers size={32} className="text-maestro-muted" />
-                    <p className="text-sm text-maestro-muted">No plugins found</p>
-                    <p className="text-xs text-maestro-muted">
+                    <Layers size={32} className="text-chorus-muted" />
+                    <p className="text-sm text-chorus-muted">No plugins found</p>
+                    <p className="text-xs text-chorus-muted">
                       {searchText
                         ? "Try adjusting your search or filters"
                         : "Add a marketplace source to browse plugins"}
@@ -254,11 +254,11 @@ export function MarketplaceBrowser({ onClose, currentProjectPath }: MarketplaceB
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between border-t border-maestro-border px-4 py-2">
-            <span className="text-[10px] text-maestro-muted">
+          <div className="flex items-center justify-between border-t border-chorus-border px-4 py-2">
+            <span className="text-[10px] text-chorus-muted">
               {filteredPlugins.length} plugin{filteredPlugins.length !== 1 ? "s" : ""} available
             </span>
-            <span className="text-[10px] text-maestro-muted">
+            <span className="text-[10px] text-chorus-muted">
               Plugins are installed from their GitHub repositories
             </span>
           </div>

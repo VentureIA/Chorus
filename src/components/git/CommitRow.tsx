@@ -69,10 +69,10 @@ export function CommitRow({ node, isSelected, isHead, refs, onClick }: CommitRow
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-2 border-b border-maestro-border/30 pr-2 text-left transition-colors h-7 ${
+      className={`flex w-full items-center gap-2 border-b border-chorus-border/30 pr-2 text-left transition-colors h-7 ${
         isSelected
-          ? "bg-maestro-accent/20 hover:bg-maestro-accent/25"
-          : "hover:bg-maestro-card/50"
+          ? "bg-chorus-accent/20 hover:bg-chorus-accent/25"
+          : "hover:bg-chorus-card/50"
       }`}
     >
       {/* Graph dot area */}
@@ -111,7 +111,7 @@ export function CommitRow({ node, isSelected, isHead, refs, onClick }: CommitRow
         {branches.map((branch) => (
           <span
             key={branch}
-            className="flex items-center gap-1 rounded bg-maestro-accent/20 px-1.5 py-0.5 text-[10px] font-medium text-maestro-accent"
+            className="flex items-center gap-1 rounded bg-chorus-accent/20 px-1.5 py-0.5 text-[10px] font-medium text-chorus-accent"
           >
             <GitBranch size={10} />
             {branch}
@@ -120,21 +120,21 @@ export function CommitRow({ node, isSelected, isHead, refs, onClick }: CommitRow
         {remoteBranches.slice(0, 1).map((branch) => (
           <span
             key={branch}
-            className="flex items-center gap-1 rounded bg-maestro-muted/20 px-1.5 py-0.5 text-[10px] font-medium text-maestro-muted"
+            className="flex items-center gap-1 rounded bg-chorus-muted/20 px-1.5 py-0.5 text-[10px] font-medium text-chorus-muted"
           >
             <GitBranch size={10} />
             {branch.split("/").pop()}
           </span>
         ))}
         {remoteBranches.length > 1 && (
-          <span className="text-[10px] text-maestro-muted">
+          <span className="text-[10px] text-chorus-muted">
             +{remoteBranches.length - 1}
           </span>
         )}
         {tags.map((tag) => (
           <span
             key={tag}
-            className="flex items-center gap-1 rounded bg-maestro-yellow/20 px-1.5 py-0.5 text-[10px] font-medium text-maestro-yellow"
+            className="flex items-center gap-1 rounded bg-chorus-yellow/20 px-1.5 py-0.5 text-[10px] font-medium text-chorus-yellow"
           >
             <Tag size={10} />
             {tag}
@@ -145,20 +145,20 @@ export function CommitRow({ node, isSelected, isHead, refs, onClick }: CommitRow
       {/* Commit message */}
       <div className="flex min-w-0 flex-1 items-center gap-2">
         {isMerge && (
-          <GitMerge size={12} className="shrink-0 text-maestro-muted" />
+          <GitMerge size={12} className="shrink-0 text-chorus-muted" />
         )}
-        <span className="truncate text-xs text-maestro-text">
+        <span className="truncate text-xs text-chorus-text">
           {commit.summary}
         </span>
       </div>
 
       {/* Short hash */}
-      <span className="shrink-0 font-mono text-[10px] text-maestro-muted">
+      <span className="shrink-0 font-mono text-[10px] text-chorus-muted">
         {commit.short_hash}
       </span>
 
       {/* Relative time */}
-      <span className="w-8 shrink-0 text-right text-[10px] text-maestro-muted/60">
+      <span className="w-8 shrink-0 text-right text-[10px] text-chorus-muted/60">
         {relativeTime}
       </span>
     </button>

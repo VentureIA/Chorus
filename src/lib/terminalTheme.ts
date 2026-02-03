@@ -1,5 +1,5 @@
 /**
- * Unified terminal theme system for Maestro.
+ * Unified terminal theme system for Chorus.
  *
  * Provides a single source of truth for terminal colors that can be
  * converted to different backend formats (xterm.js, Ghostty, etc.).
@@ -47,7 +47,7 @@ export interface TerminalTheme {
 }
 
 /**
- * Maestro's default terminal theme (GitHub Dark inspired).
+ * Chorus's default terminal theme (GitHub Dark inspired).
  */
 export const DEFAULT_THEME: TerminalTheme = {
   background: "#0d1117",

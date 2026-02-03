@@ -211,7 +211,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
       },
     }),
     {
-      name: "maestro-workspace",
+      name: "chorus-workspace",
       storage: createJSONStorage(() => tauriStorage),
       partialize: (state) => ({ tabs: state.tabs }),
       version: 2,

@@ -1,9 +1,9 @@
-Here is a comprehensive breakdown of the systems within `maestro-macos`, analyzed for the purpose of a Linux Debian Tauri rewrite.
+Here is a comprehensive breakdown of the systems within `chorus-macos`, analyzed for the purpose of a Linux Debian Tauri rewrite.
 
-# Maestro System Architecture Report
+# Chorus System Architecture Report
 
 ## 1. MCP Server Architecture (Native Swift)
-The `MaestroMCPServer` is a native Swift executable that implements the Model Context Protocol (MCP) over `stdio`. It serves as a bridge between the AI Agent (Claude Code) and the local system, specifically for managing development processes.
+The `ChorusMCPServer` is a native Swift executable that implements the Model Context Protocol (MCP) over `stdio`. It serves as a bridge between the AI Agent (Claude Code) and the local system, specifically for managing development processes.
 
 *   **Transport Protocol:** JSON-RPC 2.0 over Standard Input/Output (`stdio`).
     *   **Input:** Reads newline-delimited JSON-RPC requests from `stdin`.
@@ -27,10 +27,10 @@ The `MaestroMCPServer` is a native Swift executable that implements the Model Co
 This system allows the UI to visualize what the AI agent is doing without direct socket communication, relying instead on a shared filesystem contract.
 
 *   **Mechanism:** File-based Polling.
-*   **Location:** `/tmp/maestro/agents/` (Linux/macOS temp directory).
+*   **Location:** `/tmp/chorus/agents/` (Linux/macOS temp directory).
 *   **Data Flow:**
-    1.  The Agent (via a `maestro_status` tool/MCP) writes state to `<temp_dir>/agent-<sessionId>.json`.
-    2.  `MaestroStateMonitor` polls this directory every **0.5 seconds**.
+    1.  The Agent (via a `chorus_status` tool/MCP) writes state to `<temp_dir>/agent-<sessionId>.json`.
+    2.  `ChorusStateMonitor` polls this directory every **0.5 seconds**.
 *   **State Model (`AgentState`):**
     *   `state`: Enum (`idle`, `working`, `needs_input`, `finished`, `error`).
     *   `message`: Human-readable status description.
@@ -126,7 +126,7 @@ Allows plugins to intercept Agent lifecycle events.
     *   Use `std::fs` and `std::os::unix::fs::symlink` for the "Sync" logic (creating symlinks in worktrees).
     *   **Critical:** Replicate the `${CLAUDE_PLUGIN_ROOT}` substitution logic in Rust for Commands and Hooks.
 3.  **State Monitor:**
-    *   Spawn a background `tokio::task` that polls `/tmp/maestro/agents/`.
+    *   Spawn a background `tokio::task` that polls `/tmp/chorus/agents/`.
     *   Use `app_handle.emit()` to push state changes to the React frontend in real-time.
 
 ### Frontend (React + TypeScript)
@@ -137,7 +137,7 @@ Allows plugins to intercept Agent lifecycle events.
     *   Use `TanStack Query` (React Query) to fetch lists of Skills/Plugins/Commands from Rust.
     *   Use `Tauri Events` (`listen()`) to update the Agent Status indicator live.
 3.  **Persistence:**
-    *   Instead of `UserDefaults`, use `tauri-plugin-store` (persists to `.dat` or `.json` in `~/.config/maestro/`).
+    *   Instead of `UserDefaults`, use `tauri-plugin-store` (persists to `.dat` or `.json` in `~/.config/chorus/`).
 
 ### Specific Linux Considerations
 *   **Process Management:** Swift uses `ProcessInfo` and specific macOS APIs. Rust will need to rely on standard Linux process signaling (`kill`, `SIGTERM`).

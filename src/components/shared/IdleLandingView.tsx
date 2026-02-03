@@ -16,15 +16,15 @@ export function IdleLandingView({ onAdd }: IdleLandingViewProps) {
 
       {/* Prompt text */}
       <div className="flex flex-col items-center gap-1.5">
-        <p className="text-sm text-maestro-muted">Select branch and click Launch</p>
-        <p className="text-xs text-maestro-muted/50">Using current branch</p>
+        <p className="text-sm text-chorus-muted">Select branch and click Launch</p>
+        <p className="text-xs text-chorus-muted/50">Using current branch</p>
       </div>
 
       {/* Centered blue + button */}
       <button
         type="button"
         onClick={onAdd}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-maestro-accent text-white shadow-lg shadow-maestro-accent/25 transition-all duration-200 hover:bg-maestro-accent/90 hover:shadow-maestro-accent/35 hover:scale-105 active:scale-95"
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-chorus-accent text-white shadow-lg shadow-chorus-accent/25 transition-all duration-200 hover:bg-chorus-accent/90 hover:shadow-chorus-accent/35 hover:scale-105 active:scale-95"
         aria-label="Launch new session"
         title="Launch new session"
       >

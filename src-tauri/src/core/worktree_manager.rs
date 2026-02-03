@@ -6,7 +6,7 @@ use sha2::{Digest, Sha256};
 use crate::git::{Git, GitError, WorktreeInfo};
 
 fn worktree_base_dir() -> PathBuf {
-    directories::ProjectDirs::from("com", "maestro", "maestro")
+    directories::ProjectDirs::from("com", "chorus", "chorus")
         .map(|p| p.data_dir().to_path_buf())
         .unwrap_or_else(|| {
             dirs_fallback()
@@ -20,7 +20,7 @@ fn worktree_base_dir() -> PathBuf {
 fn dirs_fallback() -> PathBuf {
     std::env::var("HOME")
         .map(PathBuf::from)
-        .map(|p| p.join(".local").join("share").join("maestro"))
+        .map(|p| p.join(".local").join("share").join("chorus"))
         .expect("HOME environment variable must be set for worktree management")
 }
 
@@ -53,7 +53,7 @@ fn sanitize_branch(branch: &str) -> String {
     sanitized
 }
 
-/// Manages Maestro-owned git worktrees under a deterministic, repo-specific
+/// Manages Chorus-owned git worktrees under a deterministic, repo-specific
 /// directory inside XDG data dirs.
 ///
 /// Worktree paths are derived from a SHA-256 hash of the canonical repo path
@@ -137,7 +137,7 @@ impl WorktreeManager {
         Ok(())
     }
 
-    /// Lists only worktrees that live under Maestro's managed base directory,
+    /// Lists only worktrees that live under Chorus's managed base directory,
     /// filtering out the main worktree and any manually created worktrees.
     pub async fn list_managed(&self, repo_path: &Path) -> Result<Vec<WorktreeInfo>, GitError> {
         let git = Git::new(repo_path);

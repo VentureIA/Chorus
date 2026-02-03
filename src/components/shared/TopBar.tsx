@@ -80,7 +80,7 @@ export function TopBar({
   );
 
   return (
-    <div data-tauri-drag-region className="no-select flex h-10 flex-1 items-center bg-maestro-bg">
+    <div data-tauri-drag-region className="no-select flex h-10 flex-1 items-center bg-chorus-bg">
       {/* Left: collapse toggle (3D button) + branch area */}
       <div className="flex items-center gap-2 px-2">
         {/* Sidebar toggle - only shown when ProjectTabs isn't providing it */}
@@ -90,8 +90,8 @@ export function TopBar({
             onClick={onToggleSidebar}
             className={`rounded-md border px-1.5 py-1 shadow-sm transition-all active:translate-y-px active:shadow-none ${
               sidebarOpen
-                ? "border-maestro-accent/30 bg-maestro-accent/10 text-maestro-accent hover:bg-maestro-accent/15"
-                : "border-maestro-border bg-maestro-card text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text hover:shadow"
+                ? "border-chorus-accent/30 bg-chorus-accent/10 text-chorus-accent hover:bg-chorus-accent/15"
+                : "border-chorus-border bg-chorus-card text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text hover:shadow"
             }`}
             aria-label="Toggle sidebar"
           >
@@ -109,17 +109,17 @@ export function TopBar({
               aria-haspopup="listbox"
               aria-expanded={branchDropdownOpen}
               aria-label="Select branch"
-              className="flex items-center gap-1.5 rounded px-2 py-1 transition-colors hover:bg-maestro-card/50 disabled:opacity-70"
+              className="flex items-center gap-1.5 rounded px-2 py-1 transition-colors hover:bg-chorus-card/50 disabled:opacity-70"
             >
               {isSwitching ? (
-                <Loader2 size={13} className="animate-spin text-maestro-accent" />
+                <Loader2 size={13} className="animate-spin text-chorus-accent" />
               ) : (
-                <GitBranch size={13} className="text-maestro-muted" />
+                <GitBranch size={13} className="text-chorus-muted" />
               )}
-              <span className="max-w-[200px] truncate text-xs font-medium text-maestro-text">
+              <span className="max-w-[200px] truncate text-xs font-medium text-chorus-text">
                 {branchName}
               </span>
-              <ChevronDown size={11} className="text-maestro-muted" />
+              <ChevronDown size={11} className="text-chorus-muted" />
             </button>
 
             {branchDropdownOpen && (
@@ -150,8 +150,8 @@ export function TopBar({
           onClick={onToggleGitPanel}
           className={`rounded p-1.5 transition-colors ${
             gitPanelOpen
-              ? "text-maestro-accent hover:bg-maestro-accent/10"
-              : "text-maestro-muted hover:bg-maestro-card hover:text-maestro-text"
+              ? "text-chorus-accent hover:bg-chorus-accent/10"
+              : "text-chorus-muted hover:bg-chorus-card hover:text-chorus-text"
           }`}
           aria-label="Git graph"
           title="Git Graph"
@@ -162,11 +162,11 @@ export function TopBar({
 
       {/* Window controls (scaled down ~15%) - only shown when not hidden */}
       {!hideWindowControls && (
-        <div className="flex items-center border-l border-maestro-border">
+        <div className="flex items-center border-l border-chorus-border">
           <button
             type="button"
             onClick={() => appWindow.minimize()}
-            className="flex h-8 w-9 items-center justify-center text-maestro-muted transition-colors hover:bg-maestro-muted/10 hover:text-maestro-text"
+            className="flex h-8 w-9 items-center justify-center text-chorus-muted transition-colors hover:bg-chorus-muted/10 hover:text-chorus-text"
             aria-label="Minimize"
           >
             <Minus size={12} />
@@ -174,7 +174,7 @@ export function TopBar({
           <button
             type="button"
             onClick={() => appWindow.toggleMaximize()}
-            className="flex h-8 w-9 items-center justify-center text-maestro-muted transition-colors hover:bg-maestro-muted/10 hover:text-maestro-text"
+            className="flex h-8 w-9 items-center justify-center text-chorus-muted transition-colors hover:bg-chorus-muted/10 hover:text-chorus-text"
             aria-label="Maximize"
           >
             <Square size={10} />
@@ -182,7 +182,7 @@ export function TopBar({
           <button
             type="button"
             onClick={() => appWindow.close()}
-            className="flex h-8 w-9 items-center justify-center text-maestro-muted transition-colors hover:bg-maestro-red/80 hover:text-white"
+            className="flex h-8 w-9 items-center justify-center text-chorus-muted transition-colors hover:bg-chorus-red/80 hover:text-white"
             aria-label="Close"
           >
             <X size={12} />

@@ -87,7 +87,7 @@ pub struct SkillConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "plugin_source", rename_all = "lowercase")]
 pub enum PluginSource {
-    /// Built into Maestro.
+    /// Built into Chorus.
     Builtin,
     /// Defined in the project's .plugins.json (legacy).
     Project,

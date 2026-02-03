@@ -191,7 +191,7 @@ export const useTerminalSettingsStore = create<
       },
     }),
     {
-      name: "maestro-terminal-settings",
+      name: "chorus-terminal-settings",
       storage: createJSONStorage(() => tauriStorage),
       partialize: (state) => ({ settings: state.settings }),
       version: 1,

@@ -94,25 +94,25 @@ export function ClaudeMdEditorModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="w-full max-w-2xl rounded-lg border border-maestro-border bg-maestro-bg shadow-2xl"
+        className="w-full max-w-2xl rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-maestro-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-maestro-text">
+        <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
+          <h2 className="text-sm font-semibold text-chorus-text">
             {exists ? "Edit CLAUDE.md" : "Create CLAUDE.md"}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 hover:bg-maestro-border/40"
+            className="rounded p-1 hover:bg-chorus-border/40"
           >
-            <X size={16} className="text-maestro-muted" />
+            <X size={16} className="text-chorus-muted" />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-4">
-          <p className="mb-3 text-xs text-maestro-muted">
+          <p className="mb-3 text-xs text-chorus-muted">
             {exists
               ? "Edit the project context file that provides instructions to Claude."
               : "Create a CLAUDE.md file to provide project-specific context and instructions to Claude."}
@@ -123,20 +123,20 @@ export function ClaudeMdEditorModal({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Enter project context..."
-            className="h-80 w-full resize-none rounded border border-maestro-border bg-maestro-surface p-3 font-mono text-xs text-maestro-text placeholder:text-maestro-muted focus:border-maestro-accent focus:outline-none"
+            className="h-80 w-full resize-none rounded border border-chorus-border bg-chorus-surface p-3 font-mono text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
             spellCheck={false}
           />
 
           {/* Error */}
-          {error && <p className="mt-2 text-xs text-maestro-red">{error}</p>}
+          {error && <p className="mt-2 text-xs text-chorus-red">{error}</p>}
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 border-t border-maestro-border px-4 py-3">
+        <div className="flex justify-end gap-2 border-t border-chorus-border px-4 py-3">
           <button
             type="button"
             onClick={onClose}
-            className="rounded px-4 py-2 text-xs text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+            className="rounded px-4 py-2 text-xs text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
           >
             Cancel
           </button>
@@ -144,7 +144,7 @@ export function ClaudeMdEditorModal({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 rounded bg-maestro-accent px-4 py-2 text-xs text-white hover:bg-maestro-accent/80 disabled:opacity-50"
+            className="flex items-center gap-2 rounded bg-chorus-accent px-4 py-2 text-xs text-white hover:bg-chorus-accent/80 disabled:opacity-50"
           >
             {saving ? (
               <>

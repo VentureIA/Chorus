@@ -1,7 +1,7 @@
-# Maestro
+# Chorus
 
 <!-- Add your banner: save as assets/banner.png -->
-![Claude Maestro Banner](assets/banner.png)
+![Chorus Banner](assets/banner.png)
 
 **Orchestrate multiple AI coding assistants in parallel**
 
@@ -22,7 +22,7 @@ A cross-platform desktop application that lets you run 1-6 Claude Code (or other
 
 ## Table of Contents
 
-- [Why Maestro?](#why-maestro)
+- [Why Chorus?](#why-chorus)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Installation](#installation)
@@ -35,7 +35,7 @@ A cross-platform desktop application that lets you run 1-6 Claude Code (or other
 
 ---
 
-## Why Maestro?
+## Why Chorus?
 
 **The Problem:** AI coding assistants work on one task at a time. While Claude works on Feature A, you wait. Then you start Feature B. Then you wait again. Context switching is expensive, and your development velocity is bottlenecked by serial execution.
 
@@ -64,7 +64,7 @@ A cross-platform desktop application that lets you run 1-6 Claude Code (or other
 - Per-session mode selection (Claude Code, Gemini CLI, OpenAI Codex, Plain Terminal)
 
 ### Git Worktree Isolation
-- Automatic worktree creation at `~/.claude-maestro/worktrees/`
+- Automatic worktree creation at `~/.claude-chorus/worktrees/`
 - Each session works on its own branch without conflicts
 - Worktrees are pruned on session close
 - Visual branch assignment in the sidebar
@@ -73,7 +73,7 @@ A cross-platform desktop application that lets you run 1-6 Claude Code (or other
 - Built-in MCP server for agent status reporting
 - AI sessions report their state (idle, working, needs input, finished, error)
 - Real-time status updates displayed in the session grid
-- Uses the `maestro_status` tool for state communication
+- Uses the `chorus_status` tool for state communication
 
 ### Visual Git Graph
 - GitKraken-style commit visualization
@@ -105,7 +105,7 @@ A cross-platform desktop application that lets you run 1-6 Claude Code (or other
 - Plugin types: Skills, Commands, and MCP servers
 - Per-session plugin configuration
 - Automatic symlink management for commands and skills
-- Extend Maestro's capabilities with community plugins
+- Extend Chorus's capabilities with community plugins
 
 ---
 
@@ -113,7 +113,7 @@ A cross-platform desktop application that lets you run 1-6 Claude Code (or other
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Claude Maestro (Tauri)                       │
+│                    Chorus (Tauri)                               │
 │                                                                 │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
 │  │  Session 1   │  │  Session 2   │  │  Session 3   │   ...    │
@@ -123,7 +123,7 @@ A cross-platform desktop application that lets you run 1-6 Claude Code (or other
 │         │                 │                 │                   │
 │  ┌──────▼─────────────────▼─────────────────▼───────┐          │
 │  │              ProcessManager (Rust)               │          │
-│  │     ~/.claude-maestro/worktrees/{repo}/{branch}  │          │
+│  │     ~/.claude-chorus/worktrees/{repo}/{branch}   │          │
 │  └──────────────────────────────────────────────────┘          │
 │                                                                 │
 │  Frontend: React + TypeScript + Tailwind CSS                    │
@@ -137,7 +137,7 @@ A cross-platform desktop application that lets you run 1-6 Claude Code (or other
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────────┐│
 │  │                     StatusManager                           ││
-│  │  maestro_status tool - agents report their current state    ││
+│  │  chorus_status tool - agents report their current state     ││
 │  │  (idle, working, needs_input, finished, error)              ││
 │  └─────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────┘
@@ -200,8 +200,8 @@ sudo pacman -S base-devel pkgconf openssl \
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/its-maestro-baby/maestro.git
-   cd maestro
+   git clone https://github.com/its-chorus-baby/chorus.git
+   cd chorus
    ```
 
 2. **Install npm dependencies:**
@@ -211,7 +211,7 @@ sudo pacman -S base-devel pkgconf openssl \
 
 3. **Build the MCP server:**
    ```bash
-   cargo build --release -p maestro-mcp-server
+   cargo build --release -p chorus-mcp-server
    ```
    This builds the Rust MCP server binary that Tauri bundles with the application.
 
@@ -245,7 +245,7 @@ npm install -g @openai/codex
 
 ### Quick Start
 
-1. **Launch Claude Maestro**
+1. **Launch Chorus**
 2. **Select a project directory** (ideally a git repository)
 3. **Configure sessions** in the sidebar:
    - Set the number of terminals (1-6)
@@ -264,7 +264,7 @@ npm install -g @openai/codex
 ### Git Worktree Isolation
 
 When you assign a branch to a session:
-1. Maestro creates a worktree at `~/.claude-maestro/worktrees/{repo-hash}/{branch}`
+1. Chorus creates a worktree at `~/.claude-chorus/worktrees/{repo-hash}/{branch}`
 2. The session's terminal opens in that worktree
 3. All file changes are isolated to that worktree
 4. Worktrees are cleaned up when sessions close
@@ -321,14 +321,14 @@ If you encounter build issues:
 ```bash
 # Clear all Rust build caches
 rm -rf src-tauri/target
-rm -rf maestro-mcp-server/target
+rm -rf chorus-mcp-server/target
 
 # Clear node modules and reinstall
 rm -rf node_modules
 npm install
 
 # Rebuild MCP server first, then Tauri app
-cargo build --release -p maestro-mcp-server
+cargo build --release -p chorus-mcp-server
 npm run tauri build
 ```
 
@@ -340,7 +340,7 @@ npm run tauri build
 
 1. Fork and clone the repository
 2. Install npm dependencies: `npm install`
-3. Build the MCP server: `cargo build --release -p maestro-mcp-server`
+3. Build the MCP server: `cargo build --release -p chorus-mcp-server`
 4. Run in dev mode: `npm run tauri dev`
 5. Make your changes
 6. Test thoroughly with multiple sessions
@@ -348,7 +348,7 @@ npm run tauri build
 ### Project Structure
 
 ```
-maestro/
+chorus/
 ├── src/                     # React/TypeScript frontend
 │   ├── components/          # UI components
 │   ├── lib/                 # Utility libraries
@@ -360,7 +360,7 @@ maestro/
 │   │   └── lib.rs           # Main Rust entry point
 │   ├── Cargo.toml           # Rust dependencies
 │   └── tauri.conf.json      # Tauri configuration
-├── maestro-mcp-server/      # Rust MCP server (bundled with app)
+├── chorus-mcp-server/       # Rust MCP server (bundled with app)
 │   ├── src/
 │   │   └── main.rs          # MCP server entry point
 │   └── Cargo.toml           # MCP server dependencies

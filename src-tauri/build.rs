@@ -1,6 +1,6 @@
 //! Tauri build script.
 //!
-//! This script copies the maestro-mcp-server binary to the target directory
+//! This script copies the chorus-mcp-server binary to the target directory
 //! so it can be found by the Tauri application during development.
 
 use std::env;
@@ -11,11 +11,11 @@ fn main() {
     // Standard Tauri build
     tauri_build::build();
 
-    // Copy maestro-mcp-server binary to target directory for development
+    // Copy chorus-mcp-server binary to target directory for development
     copy_mcp_server_binary();
 }
 
-/// Copies the maestro-mcp-server binary from its build location to the Tauri target directory.
+/// Copies the chorus-mcp-server binary from its build location to the Tauri target directory.
 /// This ensures the binary can be found at runtime during development.
 fn copy_mcp_server_binary() {
     let out_dir = env::var("OUT_DIR").unwrap_or_default();
@@ -23,15 +23,15 @@ fn copy_mcp_server_binary() {
 
     // Determine binary name based on platform
     #[cfg(target_os = "windows")]
-    let binary_name = "maestro-mcp-server.exe";
+    let binary_name = "chorus-mcp-server.exe";
     #[cfg(not(target_os = "windows"))]
-    let binary_name = "maestro-mcp-server";
+    let binary_name = "chorus-mcp-server";
 
     // Find the project root by traversing up from OUT_DIR
     // OUT_DIR is typically: src-tauri/target/{profile}/build/{crate}/out
     let project_root = PathBuf::from(&out_dir)
         .ancestors()
-        .find(|p| p.join("maestro-mcp-server").is_dir())
+        .find(|p| p.join("chorus-mcp-server").is_dir())
         .map(|p| p.to_path_buf());
 
     let Some(project_root) = project_root else {
@@ -39,7 +39,7 @@ fn copy_mcp_server_binary() {
         return;
     };
 
-    // Source: target/{profile}/maestro-mcp-server (workspace builds to root target dir)
+    // Source: target/{profile}/chorus-mcp-server (workspace builds to root target dir)
     let mcp_source = project_root
         .join("target")
         .join(&profile)
@@ -57,13 +57,13 @@ fn copy_mcp_server_binary() {
 
     if !mcp_source.exists() {
         println!(
-            "cargo:warning=maestro-mcp-server binary not found at {:?}. Build it first with: cargo build --release -p maestro-mcp-server",
+            "cargo:warning=chorus-mcp-server binary not found at {:?}. Build it first with: cargo build --release -p chorus-mcp-server",
             mcp_source
         );
         return;
     }
 
-    // Destination: src-tauri/target/{profile}/maestro-mcp-server
+    // Destination: src-tauri/target/{profile}/chorus-mcp-server
     let target_dir = project_root.join("src-tauri").join("target").join(&profile);
     let mcp_dest = target_dir.join(binary_name);
 
@@ -85,7 +85,7 @@ fn copy_mcp_server_binary() {
     if should_copy {
         if let Err(e) = fs::copy(&mcp_source, &mcp_dest) {
             println!(
-                "cargo:warning=Failed to copy maestro-mcp-server from {:?} to {:?}: {}",
+                "cargo:warning=Failed to copy chorus-mcp-server from {:?} to {:?}: {}",
                 mcp_source, mcp_dest, e
             );
         } else {
@@ -99,7 +99,7 @@ fn copy_mcp_server_binary() {
                 }
             }
             println!(
-                "cargo:warning=Copied maestro-mcp-server from {:?} to {:?}",
+                "cargo:warning=Copied chorus-mcp-server from {:?} to {:?}",
                 mcp_source, mcp_dest
             );
         }

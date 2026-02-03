@@ -1,17 +1,17 @@
-# Maestro Linux (Tauri 2.x) — Master Architectural Plan
+# Chorus Linux (Tauri 2.x) — Master Architectural Plan
 
 **Version:** 3.2.0
 **Date:** 2026-01-30
 **Target OS:** Linux (Debian/Ubuntu)
 **Stack:** Tauri 2.0 (Rust) + React 18 (TypeScript) + TailwindCSS
 **Package Output:** `.deb`
-**Source Analysis:** 18,500 lines Swift across 50+ files (claude-maestro macOS)
+**Source Analysis:** 18,500 lines Swift across 50+ files (claude-chorus macOS)
 
 ---
 
 ## 1. Executive Summary
 
-This document is the **definitive architectural blueprint** for rewriting the Maestro macOS application (Swift/SwiftUI) into a native Linux application using Tauri 2.x. It synthesizes three detailed source analysis reports validated against the actual Swift codebase.
+This document is the **definitive architectural blueprint** for rewriting the Chorus macOS application (Swift/SwiftUI) into a native Linux application using Tauri 2.x. It synthesizes three detailed source analysis reports validated against the actual Swift codebase.
 
 **Core Philosophy:**
 - **Backend (Rust):** Heavy lifting — PTY management, Git CLI orchestration, worktree lifecycle, plugin/skill/hook injection, MCP sidecar, dev server coordination, process group management.
@@ -26,19 +26,19 @@ This document is the **definitive architectural blueprint** for rewriting the Ma
 The following decisions are **final** and form the basis of all implementation phases.
 
 ### 2.1 Paths & Storage (XDG Compliant)
-- **Worktrees:** `~/.local/share/maestro/worktrees/<repo-hash>/<sanitized-branch>`
+- **Worktrees:** `~/.local/share/chorus/worktrees/<repo-hash>/<sanitized-branch>`
   - Hash: Deterministic SHA256 of the canonical repo path (stable across runs, unlike Swift's non-deterministic `Hasher`)
   - Prune on session close AND app launch (mirror macOS orphan cleanup)
-- **App Config:** `~/.config/maestro/store.json` (via `tauri-plugin-store`)
-- **App Data:** `~/.local/share/maestro/` (logs, worktrees)
-- **Logs:** `~/.local/share/maestro/logs/session-<id>.log`
-- **Agent Status:** `/tmp/maestro/agents/agent-<id>.json`
+- **App Config:** `~/.config/chorus/store.json` (via `tauri-plugin-store`)
+- **App Data:** `~/.local/share/chorus/` (logs, worktrees)
+- **Logs:** `~/.local/share/chorus/logs/session-<id>.log`
+- **Agent Status:** `/tmp/chorus/agents/agent-<id>.json`
 - **Plugins:** `~/.claude/plugins/` (symlinks to installed plugins)
 - **Marketplaces:** `~/.claude/plugins/marketplaces/` (cloned source repos)
 
 ### 2.2 MCP Status Interface
 Compatible with macOS implementation:
-- **Path:** `/tmp/maestro/agents/agent-<id>.json`
+- **Path:** `/tmp/chorus/agents/agent-<id>.json`
 - **Schema:**
   ```json
   {
@@ -62,7 +62,7 @@ Direct mapping from UI label to CLI binary:
 Detection: Run `which <binary>` before launch. Disable mode if binary not found.
 
 ### 2.4 Persistence Scope
-`tauri-plugin-store` persists to `~/.config/maestro/store.json`:
+`tauri-plugin-store` persists to `~/.config/chorus/store.json`:
 - Session configurations (modes, branches — NOT PIDs/active state)
 - Template presets
 - Quick actions
@@ -71,7 +71,7 @@ Detection: Run `which <binary>` before launch. Disable mode if binary not found.
 - Last-used project path
 
 ### 2.5 Multi-Project Tabs (Workspace Model)
-- Maestro supports **multiple open projects/repos** in a single window, each in its own tab.
+- Chorus supports **multiple open projects/repos** in a single window, each in its own tab.
 - Each tab owns: `projectPath`, session grid (1–12), git state, worktree map, and per-project plugin configs.
 - Session IDs remain numeric, but all session state is scoped to a specific project tab.
 - Open project tabs persist in store.json (list of projects + last active tab).
@@ -81,7 +81,7 @@ Detection: Run `which <binary>` before launch. Disable mode if binary not found.
 ## 3. Project Structure
 
 ```text
-maestro-linux/
+chorus-linux/
 ├── src-tauri/                      # RUST BACKEND
 │   ├── Cargo.toml
 │   ├── tauri.conf.json
@@ -100,7 +100,7 @@ maestro-linux/
 │   │   │   ├── process_manager.rs  # PTY lifecycle, process groups (setsid), PGID kill
 │   │   │   ├── git_wrapper.rs      # std::process::Command wrappers for git CLI
 │   │   │   ├── worktree_manager.rs # Worktree create/remove/prune, conflict resolution
-│   │   │   ├── mcp_monitor.rs      # Poll /tmp/maestro/agents/ every 500ms
+│   │   │   ├── mcp_monitor.rs      # Poll /tmp/chorus/agents/ every 500ms
 │   │   │   ├── config_pipeline.rs  # CLAUDE.md generation, .mcp.json, .gemini/settings.json
 │   │   │   ├── skill_manager.rs    # Scan, discover, per-worktree symlink injection
 │   │   │   ├── command_manager.rs  # Command discovery, ${CLAUDE_PLUGIN_ROOT} substitution
@@ -120,7 +120,7 @@ maestro-linux/
 │   │       ├── quick_action.rs     # QuickAction, TemplatePreset
 │   │       └── dev_server.rs       # ManagedProcess, ServerStatus
 │   └── bin/                        # Auxiliary Binaries
-│       └── maestro-mcp.rs          # Standalone MCP Server (sidecar, spawned by agents)
+│       └── chorus-mcp.rs          # Standalone MCP Server (sidecar, spawned by agents)
 ├── src/                            # REACT FRONTEND
 │   ├── App.tsx                     # Root layout: Sidebar + Main content area
 │   ├── main.tsx                    # React entry point
@@ -240,7 +240,7 @@ All commands run via `tokio::process::Command` on Tauri's async thread pool.
 **Branch Sanitization:** Replace `/\:*?"<>|` with `-` in branch names for filesystem paths.
 
 **Creation Flow:**
-1. Compute path: `~/.local/share/maestro/worktrees/{sha256(repo_path)}/{sanitized_branch}`
+1. Compute path: `~/.local/share/chorus/worktrees/{sha256(repo_path)}/{sanitized_branch}`
 2. Check if worktree already exists for this branch (reuse if so)
 3. Check if main repo has this branch checked out:
    - **Yes (conflict):** Run `git -C {main_repo} checkout {default_branch}` to release the lock
@@ -255,7 +255,7 @@ All commands run via `tokio::process::Command` on Tauri's async thread pool.
 
 **Replaces:** Swift `ClaudeDocManager` + session setup logic
 
-Before launching the AI in a worktree, Maestro must configure the environment:
+Before launching the AI in a worktree, Chorus must configure the environment:
 
 1. **CLAUDE.md Generation:**
    - Generate a `CLAUDE.md` in the worktree root with session-specific context:
@@ -264,7 +264,7 @@ Before launching the AI in a worktree, Maestro must configure the environment:
      - Session ID
      - Detected run command (see below)
      - Assigned port
-     - Path to maestro-mcp sidecar binary
+     - Path to chorus-mcp sidecar binary
      - List of enabled skills for this session
    - If the main repo has a different `CLAUDE.md`, append its content below (inheritance).
    - **Run-Command Detection:** Heuristic scanning of the worktree root to auto-detect the project's run command:
@@ -277,7 +277,7 @@ Before launching the AI in a worktree, Maestro must configure the environment:
      - `go.mod` -> `go run .`
 
 2. **.mcp.json Configuration:**
-   - Write `.mcp.json` to the worktree root pointing to the maestro-mcp sidecar binary.
+   - Write `.mcp.json` to the worktree root pointing to the chorus-mcp sidecar binary.
    - Include session-specific configuration (session ID, port range).
 
 3. **Gemini/Codex Config:**
@@ -374,27 +374,27 @@ plugin-name/
 6. Discover skills/commands/hooks/MCP servers from source path
 7. Persist installed plugin records in store.json; rescan skills/commands on load
 
-### 4.9 MCP Sidecar (`bin/maestro-mcp.rs`)
+### 4.9 MCP Sidecar (`bin/chorus-mcp.rs`)
 
-**Replaces:** Swift `MaestroMCPServer`
+**Replaces:** Swift `ChorusMCPServer`
 
 **Nature:** Separate binary compiled alongside the main app. Spawned by AI agents as an MCP tool.
 
 **Transport:** JSON-RPC 2.0 over stdio (stdin/stdout). Logs to stderr.
 
 **Exposed Tools:**
-1. `maestro_status` — Report agent status to Maestro (canonical, cross-platform)
+1. `chorus_status` — Report agent status to Chorus (canonical, cross-platform)
 
-**Status Writing:** Each `maestro_status` call writes to `/tmp/maestro/agents/agent-{session_id}.json`.
+**Status Writing:** Each `chorus_status` call writes to `/tmp/chorus/agents/agent-{session_id}.json`.
 
 ### 4.10 MCP Monitor (`core/mcp_monitor.rs`)
 
-**Replaces:** Swift `MaestroStateMonitor`
+**Replaces:** Swift `ChorusStateMonitor`
 
 **Triple-Source Status Detection:**
 The macOS app uses 3 detection methods, prioritized:
 
-1. **MCP File (Primary):** Poll `/tmp/maestro/agents/` every 500ms. Parse JSON for canonical state.
+1. **MCP File (Primary):** Poll `/tmp/chorus/agents/` every 500ms. Parse JSON for canonical state.
 2. **Terminal Output Heuristics (Fallback):** If no MCP file or file is stale:
    - Regex scan PTY output for patterns: `(y/n)`, `Error:`, `✓`, `Compiling...`
    - Map to states: `needs_input`, `error`, `finished`, `working`
@@ -408,7 +408,7 @@ The macOS app uses 3 detection methods, prioritized:
 
 **Per-Session Logging:**
 - In-memory ring buffer per session (max 1000 lines) for fast UI access
-- File-based persistent log at `~/.local/share/maestro/logs/session-{id}.log`
+- File-based persistent log at `~/.local/share/chorus/logs/session-{id}.log`
 - Frontend: auto-scroll, log-level filters, search within session output
 - Logs captured from both PTY output and dev server stdout/stderr
 
@@ -559,10 +559,10 @@ The macOS app uses 3 detection methods, prioritized:
 2. **Frontend:** `invoke('create_session', { projectId, mode: 'claude', branch: 'feature/login' })`
 3. **Rust — Worktree:**
    - Check if branch is checked out in main repo → conflict resolution
-   - `git worktree add ~/.local/share/maestro/worktrees/{hash}/{branch} feature/login`
+   - `git worktree add ~/.local/share/chorus/worktrees/{hash}/{branch} feature/login`
 4. **Rust — Config Pipeline:**
    - Generate `CLAUDE.md` in worktree (inherit from main repo if different)
-   - Write `.mcp.json` pointing to maestro-mcp sidecar binary
+   - Write `.mcp.json` pointing to chorus-mcp sidecar binary
    - If Gemini mode: write `.gemini/settings.json`
    - If Codex mode: update `~/.codex/config.toml` with session MCP section
 5. **Rust — Skill/Command/Hook Injection:**
@@ -579,8 +579,8 @@ The macOS app uses 3 detection methods, prioritized:
 
 ### 6.2 Agent Status Monitoring
 
-1. **Agent (in PTY):** AI tool configured with maestro-mcp as MCP server
-2. **MCP Sidecar:** Writes `{ "state": "working", "message": "Compiling..." }` to `/tmp/maestro/agents/agent-{id}.json`
+1. **Agent (in PTY):** AI tool configured with chorus-mcp as MCP server
+2. **MCP Sidecar:** Writes `{ "state": "working", "message": "Compiling..." }` to `/tmp/chorus/agents/agent-{id}.json`
 3. **Rust Monitor:** Background tokio task polls every 500ms
 4. **Fallback:** If no MCP file, scan terminal output for heuristic patterns
 5. **Activity Check:** If idle, verify via CPU/IO delta (sysinfo crate)
@@ -592,14 +592,14 @@ The macOS app uses 3 detection methods, prioritized:
 2. **Rust:** Send `SIGTERM` to process group (`kill(-pgid, SIGTERM)`)
 3. **Rust:** Wait brief grace period, then `SIGKILL` if still alive
 4. **Rust:** `git worktree remove --force {path}` + `rm -rf {path}`
-5. **Rust:** Remove agent status file from `/tmp/maestro/agents/`
+5. **Rust:** Remove agent status file from `/tmp/chorus/agents/`
 6. **Rust:** Release allocated port
 7. **Frontend:** Remove terminal component, update grid layout
 
 ### 6.4 App Startup (Orphan Cleanup)
 
 1. Run `git worktree prune` on all known repos
-2. Scan `/tmp/maestro/agents/` — remove stale files (> 5 min)
+2. Scan `/tmp/chorus/agents/` — remove stale files (> 5 min)
 3. Scan for orphaned processes (PIDs from previous session that are still running)
 4. Kill orphaned processes
 5. Remove orphaned worktree directories
@@ -771,10 +771,10 @@ pub enum DevServerStatus { Starting, Running, Stopped, Error }
 Verified, gap-free checklist based on macOS source analysis + validation.
 
 ### Paths & Storage
-- [ ] Worktrees at `~/.local/share/maestro/worktrees/<sha256>/<sanitized-branch>`
-- [ ] App persistence at `~/.config/maestro/store.json`
-- [ ] Agent status at `/tmp/maestro/agents/`
-- [ ] Logs at `~/.local/share/maestro/logs/session-<id>.log`
+- [ ] Worktrees at `~/.local/share/chorus/worktrees/<sha256>/<sanitized-branch>`
+- [ ] App persistence at `~/.config/chorus/store.json`
+- [ ] Agent status at `/tmp/chorus/agents/`
+- [ ] Logs at `~/.local/share/chorus/logs/session-<id>.log`
 - [ ] Plugins at `~/.claude/plugins/` (symlinks)
 - [ ] Marketplaces at `~/.claude/plugins/marketplaces/`
 
@@ -799,14 +799,14 @@ Verified, gap-free checklist based on macOS source analysis + validation.
 - [ ] Generate `CLAUDE.md` per worktree with: project path, branch, session ID, run command, port, MCP path, skills list
 - [ ] Auto-detect run command (package.json, Cargo.toml, pyproject.toml, Makefile, go.mod, etc.)
 - [ ] Inherit/append main repo `CLAUDE.md` if different
-- [ ] Write `.mcp.json` with maestro-mcp sidecar config
+- [ ] Write `.mcp.json` with chorus-mcp sidecar config
 - [ ] Write `.gemini/settings.json` for Gemini mode
 - [ ] Write `~/.codex/config.toml` for Codex mode
 - [ ] Configure CLAUDE.md/AGENTS.md context files for Codex/Gemini modes on startup
 - [ ] Clean orphaned Codex MCP sections from previous sessions
 
 ### Agent Status & Activity (Triple-Source)
-- [ ] Primary: MCP file polling (`/tmp/maestro/agents/`, 500ms)
+- [ ] Primary: MCP file polling (`/tmp/chorus/agents/`, 500ms)
 - [ ] Fallback: Terminal output heuristics (regex patterns)
 - [ ] Guard: CPU/IO activity monitor (prevent false idle)
 - [ ] Sound notification on `finished` state transition
@@ -876,7 +876,7 @@ Verified, gap-free checklist based on macOS source analysis + validation.
 
 ### Logging
 - [ ] Per-session in-memory ring buffer (max 1000 lines)
-- [ ] Per-session file log at `~/.local/share/maestro/logs/session-{id}.log`
+- [ ] Per-session file log at `~/.local/share/chorus/logs/session-{id}.log`
 - [ ] UI: auto-scroll, log-level filters, search
 - [ ] Capture from PTY output and dev server stdout/stderr
 
@@ -902,7 +902,7 @@ serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }
 portable-pty = "0.8"
 dashmap = "5.5"
-notify = "6.1"              # Filesystem watching (optional, for /tmp/maestro/agents)
+notify = "6.1"              # Filesystem watching (optional, for /tmp/chorus/agents)
 libc = "0.2"                # setsid(), kill() with negative PID
 regex = "1.10"              # Terminal output heuristics
 uuid = { version = "1.6", features = ["v4"] }
@@ -914,8 +914,8 @@ dirs = "5.0"                # XDG base directory paths
 tauri-build = "2.0"
 
 [[bin]]
-name = "maestro-mcp"
-path = "bin/maestro-mcp.rs"
+name = "chorus-mcp"
+path = "bin/chorus-mcp.rs"
 ```
 
 ### package.json
@@ -964,7 +964,7 @@ path = "bin/maestro-mcp.rs"
 - Result: One working terminal in a Tauri window
 
 #### Phase 1.1 Implementation Status (Complete)
-- Repo: https://github.com/lliWcWill/maestro-linux
+- Repo: https://github.com/lliWcWill/chorus-linux
 - Branch: `phase-1.1-pty-ipc`
 - PTY spawn/kill with PGID capture, bounded output channel, cwd validation, resize bounds
 - xterm.js TerminalView + TerminalGrid with cleanup and error state
@@ -979,7 +979,7 @@ path = "bin/maestro-mcp.rs"
 - Dedup + close-tab behavior fixed and hardened
 
 #### Phase 1.3 (Complete — 2026-01-31)
-- Full UI restructure matching macOS Maestro layout parity
+- Full UI restructure matching macOS Chorus layout parity
 - Sidebar.tsx: 623-line Config tab (9 sections) + Processes tab (4 sections)
 - TopBar.tsx: sidebar toggle, branch selector, StatusLegend, git fork, settings, window controls
 - BottomBar.tsx: Select Directory + Launch/Stop All buttons
@@ -1033,7 +1033,7 @@ path = "bin/maestro-mcp.rs"
 - Implement terminal output heuristics (regex fallback)
 - Implement activity monitor (CPU/IO guard)
 - Build StatusPill component
-- Build MCP Sidecar binary (maestro-mcp.rs)
+- Build MCP Sidecar binary (chorus-mcp.rs)
 - Implement config pipeline (CLAUDE.md, .mcp.json generation)
 - Result: Real-time agent status monitoring
 
@@ -1072,8 +1072,8 @@ path = "bin/maestro-mcp.rs"
 - **MCP Sidecar:** Bundled as a separate binary alongside the main app executable. The absolute path to the sidecar is used when generating `.mcp.json`, `.gemini/settings.json`, and `~/.codex/config.toml` per worktree.
 - **Desktop Entry:** Include `.desktop` file with icon, categories, and exec path
 - **Permissions:** Sidecar binary must have executable permissions in the package
-- **MCP Contract:** Keep JSON-RPC contract identical to macOS (same `maestro_status` tool, same 5 states) for cross-platform compatibility of the sidecar binary
-- **Migration Notes:** Document any path differences from macOS (`~/Library/Application Support/` -> `~/.config/maestro/`, `~/.claude-maestro/worktrees/` -> `~/.local/share/maestro/worktrees/`) for users running both platforms
+- **MCP Contract:** Keep JSON-RPC contract identical to macOS (same `chorus_status` tool, same 5 states) for cross-platform compatibility of the sidecar binary
+- **Migration Notes:** Document any path differences from macOS (`~/Library/Application Support/` -> `~/.config/chorus/`, `~/.claude-chorus/worktrees/` -> `~/.local/share/chorus/worktrees/`) for users running both platforms
 
 ---
 

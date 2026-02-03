@@ -1,4 +1,4 @@
-# Maestro Linux Research Docs
+# Chorus Linux Research Docs
 
 These documents capture the Swift → Tauri/Rust/React migration research and the master implementation plan.
 They are the upstream-facing references referenced in Discussion #50.

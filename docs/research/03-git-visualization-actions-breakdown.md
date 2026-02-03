@@ -1,4 +1,4 @@
-This report breaks down the architecture of the Git visualization, worktree management, and user configuration subsystems within the `claude-maestro` macOS application. It analyzes the Swift implementation to provide a blueprint for a Tauri 2.x Linux port.
+This report breaks down the architecture of the Git visualization, worktree management, and user configuration subsystems within the `claude-chorus` macOS application. It analyzes the Swift implementation to provide a blueprint for a Tauri 2.x Linux port.
 
 ---
 
@@ -84,10 +84,10 @@ A `Branch` struct holds:
 
 **Source:** `WorktreeManager.swift`
 
-This is a critical feature for the "Maestro" concept, allowing multiple agents to work on the same repo simultaneously without index locking conflicts.
+This is a critical feature for the "Chorus" concept, allowing multiple agents to work on the same repo simultaneously without index locking conflicts.
 
 ### Workflow
-1.  **Path Generation:** Worktrees are stored in `~/.claude-maestro/worktrees/<RepoHash>/<SanitizedBranchName>`.
+1.  **Path Generation:** Worktrees are stored in `~/.claude-chorus/worktrees/<RepoHash>/<SanitizedBranchName>`.
 2.  **Creation Logic:**
     *   When a session requests a branch, `WorktreeManager` checks if a worktree already exists.
     *   **Conflict Resolution:** If the *main* repository is currently checked out to the requested branch, `git worktree add` will fail (Git forbids two dirs checking out the same branch). The Manager handles this by forcing the main repo to switch to `defaultBranch` (or another random branch) to "release" the lock before creating the worktree.
@@ -103,7 +103,7 @@ This is a critical feature for the "Maestro" concept, allowing multiple agents t
 
 ### Model & Storage
 *   **Model:** `QuickAction` struct contains `id`, `name`, `icon` (SF Symbol name), `colorHex`, `prompt` (the actual LLM instruction), and `sortOrder`.
-*   **Storage:** Serialized to JSON and stored in `UserDefaults` under key `claude-maestro-quick-actions`.
+*   **Storage:** Serialized to JSON and stored in `UserDefaults` under key `claude-chorus-quick-actions`.
 *   **Defaults:** On first launch, it seeds the storage with 4 hardcoded actions: "Run App", "Commit & Push", "Fix Errors", and "Lint & Format".
 
 ### Execution
@@ -141,13 +141,13 @@ To port this to Linux using Tauri 2.x, the architecture will shift from **Swift/
 *   **Virtualization:** Use `tanstack-virtual` (React Virtual) to handle large commit lists, mimicking the batch loading in Swift.
 
 ### C. Worktree Management (Backend)
-*   **Pathing:** Use `dirs` crate in Rust to find `~/.local/share/maestro/worktrees` (XDG compliance) instead of the hardcoded macOS path.
+*   **Pathing:** Use `dirs` crate in Rust to find `~/.local/share/chorus/worktrees` (XDG compliance) instead of the hardcoded macOS path.
 *   **Logic:** Port `WorktreeManager.swift` logic to Rust. Rust's `std::fs` and `std::path` are robust.
 *   **State:** Keep track of active worktrees in a `Mutex<HashMap<SessionId, PathBuf>>` within the Tauri `State`.
 
 ### D. Data Persistence (Quick Actions / Presets)
 *   **Storage:** Use `tauri-plugin-store`. It provides a simple key-value store (JSON based) compatible with the Swift `UserDefaults` approach.
-*   **Migration:** Since this is a rewrite, you can define the JSON schema in Rust structs (`serde`) and read/write directly to `~/.config/maestro/store.json`.
+*   **Migration:** Since this is a rewrite, you can define the JSON schema in Rust structs (`serde`) and read/write directly to `~/.config/chorus/store.json`.
 
 ### E. UI Components (Frontend)
 *   **Framework:** React (or Svelte/Vue).

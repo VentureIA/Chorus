@@ -175,18 +175,18 @@ export function BranchDropdown({
   return (
     <div
       ref={dropdownRef}
-      className="absolute left-0 top-full z-50 mt-1 w-72 rounded-lg border border-maestro-border bg-maestro-card shadow-xl shadow-black/30"
+      className="absolute left-0 top-full z-50 mt-1 w-72 rounded-lg border border-chorus-border bg-chorus-card shadow-xl shadow-black/30"
     >
       {/* Current branch header */}
-      <div className="border-b border-maestro-border px-4 py-3">
-        <span className="text-sm text-maestro-muted">Current: </span>
-        <span className="text-sm font-medium text-maestro-text">{currentBranch}</span>
+      <div className="border-b border-chorus-border px-4 py-3">
+        <span className="text-sm text-chorus-muted">Current: </span>
+        <span className="text-sm font-medium text-chorus-text">{currentBranch}</span>
       </div>
 
       {/* Create new branch section */}
       {showCreateInput ? (
-        <div className="border-b border-maestro-border p-3">
-          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-maestro-muted/70">
+        <div className="border-b border-chorus-border p-3">
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-chorus-muted/70">
             New Branch Name
           </div>
           <div className="flex gap-2">
@@ -209,14 +209,14 @@ export function BranchDropdown({
                 }
               }}
               placeholder="feature/my-branch"
-              className="flex-1 rounded border border-maestro-border bg-maestro-surface px-2 py-1 text-sm text-maestro-text placeholder:text-maestro-muted/50 focus:border-maestro-accent focus:outline-none"
+              className="flex-1 rounded border border-chorus-border bg-chorus-surface px-2 py-1 text-sm text-chorus-text placeholder:text-chorus-muted/50 focus:border-chorus-accent focus:outline-none"
               disabled={isCreating}
             />
             <button
               type="button"
               onClick={handleCreateBranch}
               disabled={!newBranchName.trim() || isCreating}
-              className="rounded bg-maestro-accent px-3 py-1 text-sm font-medium text-white disabled:opacity-50"
+              className="rounded bg-chorus-accent px-3 py-1 text-sm font-medium text-white disabled:opacity-50"
             >
               {isCreating ? "..." : "Create"}
             </button>
@@ -226,7 +226,7 @@ export function BranchDropdown({
         <button
           type="button"
           onClick={() => setShowCreateInput(true)}
-          className="flex w-full items-center gap-2 border-b border-maestro-border px-4 py-2.5 text-sm text-maestro-accent transition-colors hover:bg-maestro-accent/10"
+          className="flex w-full items-center gap-2 border-b border-chorus-border px-4 py-2.5 text-sm text-chorus-accent transition-colors hover:bg-chorus-accent/10"
         >
           <Plus size={14} />
           <span>Create New Branch</span>
@@ -235,7 +235,7 @@ export function BranchDropdown({
 
       {/* Switch to Branch */}
       <div className="px-4 pb-1 pt-3">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-maestro-muted/70">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-chorus-muted/70">
           Switch to Branch
         </span>
       </div>
@@ -254,34 +254,34 @@ export function BranchDropdown({
               onClick={() => onSelect(branch.name)}
               onMouseEnter={() => setFocusIndex(i)}
               className={`flex w-full items-center gap-2.5 rounded-md px-3 py-1.5 text-left text-sm transition-colors ${
-                isFocused ? "bg-maestro-accent/20" : "hover:bg-maestro-border/30"
+                isFocused ? "bg-chorus-accent/20" : "hover:bg-chorus-border/30"
               }`}
             >
               <span className="w-4 shrink-0">
                 {isCurrent ? (
-                  <Check size={12} className="text-maestro-accent" />
+                  <Check size={12} className="text-chorus-accent" />
                 ) : (
-                  <GitBranch size={12} className="text-maestro-muted/40" />
+                  <GitBranch size={12} className="text-chorus-muted/40" />
                 )}
               </span>
               <span
                 className={`truncate ${
                   isCurrent
-                    ? "font-semibold text-maestro-accent"
-                    : "font-semibold text-maestro-text"
+                    ? "font-semibold text-chorus-accent"
+                    : "font-semibold text-chorus-text"
                 }`}
               >
                 {branch.name}
               </span>
               {branch.is_remote && (
-                <span className="ml-auto text-[9px] text-maestro-muted/60">remote</span>
+                <span className="ml-auto text-[9px] text-chorus-muted/60">remote</span>
               )}
             </button>
           );
         })}
-        {loading && <div className="px-3 py-2 text-sm text-maestro-muted">Loading branches...</div>}
+        {loading && <div className="px-3 py-2 text-sm text-chorus-muted">Loading branches...</div>}
         {!loading && error && (
-          <div className="px-3 py-2 text-sm text-maestro-red">
+          <div className="px-3 py-2 text-sm text-chorus-red">
             <div>{error}</div>
             <div className="mt-2">
               <button
@@ -290,7 +290,7 @@ export function BranchDropdown({
                   setError(null);
                   fetchBranches();
                 }}
-                className="rounded border border-maestro-border px-2 py-1 text-[11px] text-maestro-text hover:bg-maestro-border/40"
+                className="rounded border border-chorus-border px-2 py-1 text-[11px] text-chorus-text hover:bg-chorus-border/40"
               >
                 Retry
               </button>
@@ -298,7 +298,7 @@ export function BranchDropdown({
           </div>
         )}
         {!loading && !error && branches.length === 0 && (
-          <div className="px-3 py-2 text-sm text-maestro-muted">No branches found</div>
+          <div className="px-3 py-2 text-sm text-chorus-muted">No branches found</div>
         )}
       </div>
     </div>

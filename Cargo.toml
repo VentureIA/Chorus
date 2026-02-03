@@ -1,11 +1,11 @@
-# Workspace configuration for Claude Maestro
+# Workspace configuration for Chorus
 # This allows building both the Tauri app and the MCP server together
 
 [workspace]
 resolver = "2"
 members = [
     "src-tauri",
-    "maestro-mcp-server",
+    "chorus-mcp-server",
 ]
 
 [workspace.package]

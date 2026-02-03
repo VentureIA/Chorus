@@ -145,8 +145,8 @@ impl ProcessManager {
     /// log message is emitted to make the loss visible.
     ///
     /// # Environment Variables
-    /// - `MAESTRO_SESSION_ID` is automatically set to the session ID
-    /// - Additional env vars can be passed via the `env` parameter (e.g., `MAESTRO_PROJECT_HASH`)
+    /// - `CHORUS_SESSION_ID` is automatically set to the session ID
+    /// - Additional env vars can be passed via the `env` parameter (e.g., `CHORUS_PROJECT_HASH`)
     ///
     /// # Windows Debouncing
     /// On Windows, rapid consecutive spawn calls (within 500ms) are rejected to prevent
@@ -207,8 +207,8 @@ impl ProcessManager {
         #[cfg(unix)]
         cmd.arg("-l"); // Login shell for proper env on Unix
 
-        // Inject MAESTRO_SESSION_ID automatically (used by MCP status server)
-        cmd.env("MAESTRO_SESSION_ID", id.to_string());
+        // Inject CHORUS_SESSION_ID automatically (used by MCP status server)
+        cmd.env("CHORUS_SESSION_ID", id.to_string());
 
         // Apply any additional environment variables from caller
         if let Some(envs) = env {

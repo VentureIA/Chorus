@@ -171,7 +171,7 @@ pub async fn save_project_skill_defaults(
         .to_string_lossy()
         .into_owned();
 
-    let store_name = format!("maestro-{}.json", hash_project_path(&canonical));
+    let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
 
     store.set("enabled_skills", serde_json::json!(enabled_skills));
@@ -194,7 +194,7 @@ pub async fn load_project_skill_defaults(
         .to_string_lossy()
         .into_owned();
 
-    let store_name = format!("maestro-{}.json", hash_project_path(&canonical));
+    let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
 
     let result = store
@@ -224,7 +224,7 @@ pub async fn save_project_plugin_defaults(
         .to_string_lossy()
         .into_owned();
 
-    let store_name = format!("maestro-{}.json", hash_project_path(&canonical));
+    let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
 
     store.set("enabled_plugins", serde_json::json!(enabled_plugins));
@@ -247,7 +247,7 @@ pub async fn load_project_plugin_defaults(
         .to_string_lossy()
         .into_owned();
 
-    let store_name = format!("maestro-{}.json", hash_project_path(&canonical));
+    let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
 
     let result = store
@@ -416,7 +416,7 @@ pub async fn save_branch_config(
         .to_string_lossy()
         .into_owned();
 
-    let store_name = format!("maestro-{}.json", hash_project_path(&canonical));
+    let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
 
     let config = BranchConfig {
@@ -447,7 +447,7 @@ pub async fn load_branch_config(
         .to_string_lossy()
         .into_owned();
 
-    let store_name = format!("maestro-{}.json", hash_project_path(&canonical));
+    let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
 
     let key = format!("branch_config:{}", branch);

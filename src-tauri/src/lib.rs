@@ -27,7 +27,7 @@ pub fn run() {
         .format_timestamp_millis()
         .init();
 
-    log::info!("Maestro starting up...");
+    log::info!("Chorus starting up...");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
@@ -39,10 +39,10 @@ pub fn run() {
         .manage(SessionManager::new())
         .manage(WorktreeManager::new())
         .setup(|app| {
-            // Generate a unique instance ID for this Maestro run
+            // Generate a unique instance ID for this Chorus run
             // This prevents status pollution between different app instances
             let instance_id = uuid::Uuid::new_v4().to_string();
-            log::info!("Maestro instance ID: {}", instance_id);
+            log::info!("Chorus instance ID: {}", instance_id);
 
             // Verify git is available at startup (non-blocking with timeout)
             tauri::async_runtime::spawn(async {
@@ -191,7 +191,7 @@ pub fn run() {
             commands::fonts::check_font_available,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running Maestro");
+        .expect("error while running Chorus");
 }
 
 async fn verify_git_available() -> Result<String, String> {

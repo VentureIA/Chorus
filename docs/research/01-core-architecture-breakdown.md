@@ -1,11 +1,11 @@
-Here is the comprehensive architectural breakdown of the Maestro application, designed to guide your rewrite to Tauri 2.x (Rust/React).
+Here is the comprehensive architectural breakdown of the Chorus application, designed to guide your rewrite to Tauri 2.x (Rust/React).
 
-# Maestro (MacOS) Architectural Analysis
+# Chorus (MacOS) Architectural Analysis
 
 ## 1. Application Architecture
 
 **Bootstrap & Lifecycle**
-*   **Entry Point:** `claude_maestroApp.swift` initializes the app. It performs one-time setup (`ClaudeDocManager.setupCLIContextFiles()`) to ensure the AI tools (Claude/Gemini) know how to behave.
+*   **Entry Point:** `claude_chorusApp.swift` initializes the app. It performs one-time setup (`ClaudeDocManager.setupCLIContextFiles()`) to ensure the AI tools (Claude/Gemini) know how to behave.
 *   **Delegate:** `AppDelegate` handles application termination, acting as the safety net to kill all managed processes and orphaned agent processes to prevent zombie processes on the host.
 *   **Root View:** `ContentView` uses a `NavigationSplitView`.
     *   **Sidebar:** `SidebarView` handles configuration, process monitoring, and presets.
@@ -32,7 +32,7 @@ Sessions are transient objects representing a coding task.
 This is the most complex part of the app and must be ported carefully to Rust.
 
 **Architecture**
-*   **Terminal Emulation:** The UI uses `SwiftTerm` (`MaestroTerminalView`) for the frontend.
+*   **Terminal Emulation:** The UI uses `SwiftTerm` (`ChorusTerminalView`) for the frontend.
 *   **Execution Strategy:**
     1.  **Shell Spawning:** It spawns a user shell (`/bin/zsh`) with flags `-l -i` (login, interactive). This ensures the user's `PATH`, `nvm`, and `conda` environments are loaded.
     2.  **Injection:** It programmatically sends text commands to the running shell's stdin to setup the environment, `cd` into the specific worktree, and run the AI command (e.g., `claude`).
@@ -47,10 +47,10 @@ This is the most complex part of the app and must be ported carefully to Rust.
 
 ## 4. Git Worktree System
 
-Maestro's unique selling point is running multiple AI agents on the same repo without file lock conflicts.
+Chorus's unique selling point is running multiple AI agents on the same repo without file lock conflicts.
 
 **Workflow (`WorktreeManager.swift`)**
-1.  **Storage:** Worktrees are created in `~/.claude-maestro/worktrees/<repo-hash>/<branch-name>`.
+1.  **Storage:** Worktrees are created in `~/.claude-chorus/worktrees/<repo-hash>/<branch-name>`.
 2.  **Creation Logic:**
     *   Checks if the desired branch is currently checked out in the *main* repo. If so, it forces the main repo to switch to `default` (main/master) to free up the branch.
     *   Runs `git worktree add <path> <branch>`.
@@ -64,12 +64,12 @@ Maestro's unique selling point is running multiple AI agents on the same repo wi
 *   **`GitManager` (Actor-like ObservableObject):** Wraps shell calls to `git`. It does *not* use libgit2; it shells out to the system `git` binary to ensure compatibility with the user's git config/hooks.
 *   **`ProcessRegistry` (Actor):** Thread-safe store for PIDs and mapping processes to sessions.
 
-**Sidecar State Pattern (`MaestroMCPServer`)**
+**Sidecar State Pattern (`ChorusMCPServer`)**
 The app uses a file-system based "sidecar" pattern to get status updates from the CLI tools back to the UI.
 1.  **The Server:** A local MCP (Model Context Protocol) server runs (or is emulated).
-2.  **The Hook:** The AI CLI tools are configured to call an MCP tool `maestro_status`.
-3.  **The IPC:** When the AI calls this tool, the server writes a JSON file to `/tmp/maestro/agents/<agent-id>.json`.
-4.  **The Monitor:** `MaestroStateMonitor` polls this directory every 0.5s to update the UI status pills (Idle -> Working).
+2.  **The Hook:** The AI CLI tools are configured to call an MCP tool `chorus_status`.
+3.  **The IPC:** When the AI calls this tool, the server writes a JSON file to `/tmp/chorus/agents/<agent-id>.json`.
+4.  **The Monitor:** `ChorusStateMonitor` polls this directory every 0.5s to update the UI status pills (Idle -> Working).
 
 ## 6. Key Abstractions for Rewrite
 

@@ -1,7 +1,7 @@
 //! Writes session-specific `.mcp.json` configuration files for Claude CLI.
 //!
 //! This module handles generating and writing MCP configuration files to the
-//! working directory before launching the Claude CLI. It merges Maestro's
+//! working directory before launching the Claude CLI. It merges Chorus's
 //! session-specific server configuration with any existing user-defined servers.
 
 use std::collections::HashMap;
@@ -51,36 +51,36 @@ fn custom_server_to_json(server: &McpCustomServer) -> Value {
 /// Checks if a server entry should be removed when updating the MCP config.
 ///
 /// Removes:
-/// 1. The single "maestro-status" entry (will be replaced with updated config)
-/// 2. Legacy per-session "maestro-status-*" entries (cleanup from old approach)
-/// 3. Legacy "maestro-*" entries (cleanup from old approach)
-/// 4. Legacy "maestro" entry (bare entry without session ID)
+/// 1. The single "chorus-status" entry (will be replaced with updated config)
+/// 2. Legacy per-session "chorus-status-*" entries (cleanup from old approach)
+/// 3. Legacy "chorus-*" entries (cleanup from old approach)
+/// 4. Legacy "chorus" entry (bare entry without session ID)
 ///
 /// This follows the Swift pattern: ONE MCP entry per project, session ID in env vars.
 /// Each Claude instance spawns its own MCP server process with the env vars from when
 /// it read the config.
 fn should_remove_server(name: &str, _config: &Value, _session_id: u32) -> bool {
-    // Remove the single maestro-status entry (we'll add an updated one)
-    if name == "maestro-status" {
-        log::debug!("[MCP] should_remove_server('{}') = true (single maestro-status entry)", name);
+    // Remove the single chorus-status entry (we'll add an updated one)
+    if name == "chorus-status" {
+        log::debug!("[MCP] should_remove_server('{}') = true (single chorus-status entry)", name);
         return true;
     }
 
     // Remove legacy per-session entries (cleanup from old per-session approach)
-    if name.starts_with("maestro-status-") {
+    if name.starts_with("chorus-status-") {
         log::debug!("[MCP] should_remove_server('{}') = true (legacy per-session entry)", name);
         return true;
     }
 
-    // Remove legacy "maestro-{N}" entries
-    if name.starts_with("maestro-") && name != "maestro-status" {
-        log::debug!("[MCP] should_remove_server('{}') = true (legacy maestro-N entry)", name);
+    // Remove legacy "chorus-{N}" entries
+    if name.starts_with("chorus-") && name != "chorus-status" {
+        log::debug!("[MCP] should_remove_server('{}') = true (legacy chorus-N entry)", name);
         return true;
     }
 
-    // Remove the legacy bare "maestro" entry
-    if name == "maestro" {
-        log::debug!("[MCP] should_remove_server('{}') = true (legacy bare maestro entry)", name);
+    // Remove the legacy bare "chorus" entry
+    if name == "chorus" {
+        log::debug!("[MCP] should_remove_server('{}') = true (legacy bare chorus entry)", name);
         return true;
     }
 
@@ -90,8 +90,8 @@ fn should_remove_server(name: &str, _config: &Value, _session_id: u32) -> bool {
 
 /// Merges new MCP servers with an existing `.mcp.json` file.
 ///
-/// This function preserves user-defined servers while removing all Maestro-related
-/// entries (they'll be replaced with the new single "maestro-status" entry).
+/// This function preserves user-defined servers while removing all Chorus-related
+/// entries (they'll be replaced with the new single "chorus-status" entry).
 /// This follows the Swift pattern: ONE MCP entry per project with session ID in env.
 fn merge_with_existing(
     mcp_path: &Path,
@@ -107,7 +107,7 @@ fn merge_with_existing(
         let existing: Value = serde_json::from_str(&content)
             .map_err(|e| format!("Failed to parse existing .mcp.json: {}", e))?;
 
-        // Keep all servers EXCEPT this session's Maestro entry
+        // Keep all servers EXCEPT this session's Chorus entry
         existing
             .get("mcpServers")
             .and_then(|s| s.as_object())
@@ -200,10 +200,10 @@ pub async fn write_session_mcp_config(
     Ok(())
 }
 
-/// Removes Maestro server entries from `.mcp.json`.
+/// Removes Chorus server entries from `.mcp.json`.
 ///
 /// This should be called when a session is killed to clean up the config file.
-/// Removes the single "maestro-status" entry and any legacy per-session entries.
+/// Removes the single "chorus-status" entry and any legacy per-session entries.
 /// The function is idempotent - it does nothing if no entries exist.
 ///
 /// Note: With the single-entry pattern, this removes the entry entirely.
@@ -212,7 +212,7 @@ pub async fn write_session_mcp_config(
 /// # Arguments
 ///
 /// * `working_dir` - Directory containing the `.mcp.json` file
-/// * `session_id` - Session identifier (used for logging, cleanup removes all Maestro entries)
+/// * `session_id` - Session identifier (used for logging, cleanup removes all Chorus entries)
 pub async fn remove_session_mcp_config(working_dir: &Path, session_id: u32) -> Result<(), String> {
     let mcp_path = working_dir.join(".mcp.json");
     if !mcp_path.exists() {
@@ -227,15 +227,15 @@ pub async fn remove_session_mcp_config(working_dir: &Path, session_id: u32) -> R
         .map_err(|e| format!("Failed to parse .mcp.json: {}", e))?;
 
     if let Some(servers) = config.get_mut("mcpServers").and_then(|s| s.as_object_mut()) {
-        // Remove the single maestro-status entry
-        if servers.remove("maestro-status").is_some() {
-            log::debug!("Removed maestro-status MCP config from {:?} (session {})", mcp_path, session_id);
+        // Remove the single chorus-status entry
+        if servers.remove("chorus-status").is_some() {
+            log::debug!("Removed chorus-status MCP config from {:?} (session {})", mcp_path, session_id);
         }
 
         // Also clean up any legacy per-session entries that might exist
         let legacy_keys: Vec<String> = servers
             .keys()
-            .filter(|k| k.starts_with("maestro-status-") || k.starts_with("maestro-") || *k == "maestro")
+            .filter(|k| k.starts_with("chorus-status-") || k.starts_with("chorus-") || *k == "chorus")
             .cloned()
             .collect();
 
@@ -314,11 +314,11 @@ mod tests {
     }
 
     #[test]
-    fn test_merge_preserves_user_servers_removes_all_maestro() {
+    fn test_merge_preserves_user_servers_removes_all_chorus() {
         let dir = tempdir().unwrap();
         let mcp_path = dir.path().join(".mcp.json");
 
-        // Write an existing config with a user server and multiple legacy Maestro entries
+        // Write an existing config with a user server and multiple legacy Chorus entries
         let existing = json!({
             "mcpServers": {
                 "user-server": {
@@ -326,51 +326,51 @@ mod tests {
                     "command": "/usr/bin/user-server",
                     "args": []
                 },
-                "maestro": {
+                "chorus": {
                     "type": "stdio",
-                    "command": "/usr/bin/old-maestro",
+                    "command": "/usr/bin/old-chorus",
                     "args": []
                 },
-                "maestro-status-1": {
+                "chorus-status-1": {
                     "type": "stdio",
-                    "command": "/usr/bin/maestro-status-1",
+                    "command": "/usr/bin/chorus-status-1",
                     "args": [],
                     "env": {
-                        "MAESTRO_SESSION_ID": "1"
+                        "CHORUS_SESSION_ID": "1"
                     }
                 },
-                "maestro-status-2": {
+                "chorus-status-2": {
                     "type": "stdio",
-                    "command": "/usr/bin/maestro-status-2",
+                    "command": "/usr/bin/chorus-status-2",
                     "args": [],
                     "env": {
-                        "MAESTRO_SESSION_ID": "2"
+                        "CHORUS_SESSION_ID": "2"
                     }
                 },
-                "maestro-status": {
+                "chorus-status": {
                     "type": "stdio",
-                    "command": "/usr/bin/old-maestro-status",
+                    "command": "/usr/bin/old-chorus-status",
                     "args": [],
                     "env": {
-                        "MAESTRO_SESSION_ID": "old"
+                        "CHORUS_SESSION_ID": "old"
                     }
                 }
             }
         });
         std::fs::write(&mcp_path, serde_json::to_string(&existing).unwrap()).unwrap();
 
-        // Merge with new single maestro-status entry for session 3
+        // Merge with new single chorus-status entry for session 3
         let mut new_servers = HashMap::new();
         new_servers.insert(
-            "maestro-status".to_string(),
+            "chorus-status".to_string(),
             json!({
                 "type": "stdio",
-                "command": "/usr/bin/new-maestro-status",
+                "command": "/usr/bin/new-chorus-status",
                 "args": [],
                 "env": {
-                    "MAESTRO_SESSION_ID": "3",
-                    "MAESTRO_STATUS_URL": "http://127.0.0.1:9900/status",
-                    "MAESTRO_INSTANCE_ID": "test-instance"
+                    "CHORUS_SESSION_ID": "3",
+                    "CHORUS_STATUS_URL": "http://127.0.0.1:9900/status",
+                    "CHORUS_INSTANCE_ID": "test-instance"
                 }
             }),
         );
@@ -380,21 +380,21 @@ mod tests {
 
         // User server should be preserved
         assert!(servers.contains_key("user-server"), "user-server should be preserved");
-        // ALL legacy Maestro entries should be removed
-        assert!(!servers.contains_key("maestro"), "bare 'maestro' should be removed");
-        assert!(!servers.contains_key("maestro-status-1"), "legacy session 1 entry should be removed");
-        assert!(!servers.contains_key("maestro-status-2"), "legacy session 2 entry should be removed");
-        // New single maestro-status entry should be present with updated command and session ID
-        assert!(servers.contains_key("maestro-status"), "maestro-status entry should be present");
+        // ALL legacy Chorus entries should be removed
+        assert!(!servers.contains_key("chorus"), "bare 'chorus' should be removed");
+        assert!(!servers.contains_key("chorus-status-1"), "legacy session 1 entry should be removed");
+        assert!(!servers.contains_key("chorus-status-2"), "legacy session 2 entry should be removed");
+        // New single chorus-status entry should be present with updated command and session ID
+        assert!(servers.contains_key("chorus-status"), "chorus-status entry should be present");
         assert_eq!(
-            servers["maestro-status"]["command"],
-            "/usr/bin/new-maestro-status",
-            "maestro-status should have new command"
+            servers["chorus-status"]["command"],
+            "/usr/bin/new-chorus-status",
+            "chorus-status should have new command"
         );
         assert_eq!(
-            servers["maestro-status"]["env"]["MAESTRO_SESSION_ID"],
+            servers["chorus-status"]["env"]["CHORUS_SESSION_ID"],
             "3",
-            "maestro-status should have session ID 3 in env"
+            "chorus-status should have session ID 3 in env"
         );
     }
 
@@ -406,20 +406,20 @@ mod tests {
         // Write config with various legacy format entries
         let existing = json!({
             "mcpServers": {
-                "maestro-1": {
+                "chorus-1": {
                     "type": "stdio",
-                    "command": "/usr/bin/maestro-1",
+                    "command": "/usr/bin/chorus-1",
                     "args": [],
                     "env": {
-                        "MAESTRO_SESSION_ID": "1"
+                        "CHORUS_SESSION_ID": "1"
                     }
                 },
-                "maestro-2": {
+                "chorus-2": {
                     "type": "stdio",
-                    "command": "/usr/bin/maestro-2",
+                    "command": "/usr/bin/chorus-2",
                     "args": [],
                     "env": {
-                        "MAESTRO_SESSION_ID": "2"
+                        "CHORUS_SESSION_ID": "2"
                     }
                 },
                 "other-server": {
@@ -434,13 +434,13 @@ mod tests {
         // Add new single entry
         let mut new_servers = HashMap::new();
         new_servers.insert(
-            "maestro-status".to_string(),
+            "chorus-status".to_string(),
             json!({
                 "type": "stdio",
-                "command": "/usr/bin/new-maestro-status",
+                "command": "/usr/bin/new-chorus-status",
                 "args": [],
                 "env": {
-                    "MAESTRO_SESSION_ID": "5"
+                    "CHORUS_SESSION_ID": "5"
                 }
             }),
         );
@@ -449,11 +449,11 @@ mod tests {
         let servers = result["mcpServers"].as_object().unwrap();
 
         // All legacy entries should be removed
-        assert!(!servers.contains_key("maestro-1"), "maestro-1 legacy entry should be removed");
-        assert!(!servers.contains_key("maestro-2"), "maestro-2 legacy entry should be removed");
-        // Non-Maestro server should be preserved
+        assert!(!servers.contains_key("chorus-1"), "chorus-1 legacy entry should be removed");
+        assert!(!servers.contains_key("chorus-2"), "chorus-2 legacy entry should be removed");
+        // Non-Chorus server should be preserved
         assert!(servers.contains_key("other-server"), "other-server should be preserved");
         // New entry should be present
-        assert!(servers.contains_key("maestro-status"), "new maestro-status entry should be present");
+        assert!(servers.contains_key("chorus-status"), "new chorus-status entry should be present");
     }
 }

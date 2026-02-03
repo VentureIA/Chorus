@@ -1,7 +1,7 @@
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { Terminal } from "@xterm/xterm";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import "@xterm/xterm/css/xterm.css";
 
 import { QuickActionsManager } from "@/components/quickactions/QuickActionsManager";
@@ -28,6 +28,17 @@ interface TerminalViewProps {
   isFocused?: boolean;
   onFocus?: () => void;
   onKill: (sessionId: number) => void;
+  onHandoff?: (sessionId: number) => void;
+}
+
+/**
+ * Methods exposed via ref for parent components to interact with the terminal.
+ */
+export interface TerminalViewHandle {
+  /** Extract the full terminal buffer content as plain text (scrollback + visible). */
+  getBufferContent: () => string;
+  /** Focus the terminal. */
+  focus: () => void;
 }
 
 /** Map backend AiMode to frontend AIProvider */
@@ -95,7 +106,10 @@ function cellStatusClass(status: SessionStatus): string {
  * ResizeObserver, disposes xterm listeners, unsubscribes the Tauri event listener
  * (even if the listener promise hasn't resolved yet), and destroys the Terminal.
  */
-export function TerminalView({ sessionId, status = "idle", isFocused = false, onFocus, onKill }: TerminalViewProps) {
+export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(function TerminalView(
+  { sessionId, status = "idle", isFocused = false, onFocus, onKill, onHandoff },
+  ref,
+) {
   const sessionConfig = useSessionStore((s) => s.sessions.find((sess) => sess.id === sessionId));
   const effectiveStatus = sessionConfig ? mapStatus(sessionConfig.status) : status;
   const effectiveProvider = sessionConfig ? mapAiMode(sessionConfig.mode) : "claude";
@@ -116,6 +130,31 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
+
+  // Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    getBufferContent: () => {
+      const term = termRef.current;
+      if (!term) return "";
+      const buffer = term.buffer.active;
+      const lines: string[] = [];
+      // Include scrollback and visible content
+      for (let i = 0; i < buffer.length; i++) {
+        const line = buffer.getLine(i);
+        if (line) {
+          lines.push(line.translateToString(true));
+        }
+      }
+      // Trim trailing empty lines
+      while (lines.length > 0 && lines[lines.length - 1].trim() === "") {
+        lines.pop();
+      }
+      return lines.join("\n");
+    },
+    focus: () => {
+      termRef.current?.focus();
+    },
+  }), []);
 
   // Track user input for auto-title generation
   const inputBufferRef = useRef<string>("");
@@ -436,7 +475,7 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
 
   return (
     <div
-      className={`terminal-cell flex h-full flex-col bg-maestro-bg ${cellStatusClass(effectiveStatus)} ${isFocused ? "ring-2 ring-maestro-accent ring-inset" : ""}`}
+      className={`terminal-cell flex h-full flex-col bg-chorus-bg ${cellStatusClass(effectiveStatus)} ${isFocused ? "ring-2 ring-chorus-accent ring-inset" : ""}`}
       onClick={onFocus}
     >
       {/* Rich header bar */}
@@ -451,6 +490,7 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
         fontSize={effectiveFontSize}
         sessionTitle={sessionConfig?.title}
         onKill={handleKill}
+        onHandoff={onHandoff ? () => onHandoff(sessionId) : undefined}
         onZoomIn={() => setLocalFontSize((prev) => Math.min(32, (prev ?? terminalSettings.fontSize) + 1))}
         onZoomOut={() => setLocalFontSize((prev) => Math.max(8, (prev ?? terminalSettings.fontSize) - 1))}
         onZoomReset={() => setLocalFontSize(null)}
@@ -471,4 +511,4 @@ export function TerminalView({ sessionId, status = "idle", isFocused = false, on
       )}
     </div>
   );
-}
+});

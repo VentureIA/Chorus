@@ -200,19 +200,19 @@ export function McpServerEditorModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="w-full max-w-lg rounded-lg border border-maestro-border bg-maestro-bg shadow-2xl"
+        className="w-full max-w-lg rounded-lg border border-chorus-border bg-chorus-bg shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-maestro-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-maestro-text">
+        <div className="flex items-center justify-between border-b border-chorus-border px-4 py-3">
+          <h2 className="text-sm font-semibold text-chorus-text">
             {isEditing ? "Edit MCP Server" : "Add MCP Server"}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 hover:bg-maestro-border/40"
+            className="rounded p-1 hover:bg-chorus-border/40"
           >
-            <X size={16} className="text-maestro-muted" />
+            <X size={16} className="text-chorus-muted" />
           </button>
         </div>
 
@@ -220,7 +220,7 @@ export function McpServerEditorModal({
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4">
           {/* Name */}
           <section>
-            <label className="mb-1.5 block text-xs font-medium text-maestro-text">
+            <label className="mb-1.5 block text-xs font-medium text-chorus-text">
               Name
             </label>
             <input
@@ -228,14 +228,14 @@ export function McpServerEditorModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="My MCP Server"
-              className="w-full rounded border border-maestro-border bg-maestro-surface px-3 py-2 text-xs text-maestro-text placeholder:text-maestro-muted focus:border-maestro-accent focus:outline-none"
+              className="w-full rounded border border-chorus-border bg-chorus-surface px-3 py-2 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
               autoFocus
             />
           </section>
 
           {/* Command */}
           <section>
-            <label className="mb-1.5 block text-xs font-medium text-maestro-text">
+            <label className="mb-1.5 block text-xs font-medium text-chorus-text">
               Command
             </label>
             <input
@@ -243,13 +243,13 @@ export function McpServerEditorModal({
               value={command}
               onChange={(e) => setCommand(e.target.value)}
               placeholder="npx, node, python, etc."
-              className="w-full rounded border border-maestro-border bg-maestro-surface px-3 py-2 text-xs text-maestro-text placeholder:text-maestro-muted focus:border-maestro-accent focus:outline-none"
+              className="w-full rounded border border-chorus-border bg-chorus-surface px-3 py-2 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
             />
           </section>
 
           {/* Arguments */}
           <section>
-            <label className="mb-1.5 block text-xs font-medium text-maestro-text">
+            <label className="mb-1.5 block text-xs font-medium text-chorus-text">
               Arguments
             </label>
             <input
@@ -257,16 +257,16 @@ export function McpServerEditorModal({
               value={argsString}
               onChange={(e) => setArgsString(e.target.value)}
               placeholder="-y @modelcontextprotocol/server-filesystem"
-              className="w-full rounded border border-maestro-border bg-maestro-surface px-3 py-2 text-xs text-maestro-text placeholder:text-maestro-muted focus:border-maestro-accent focus:outline-none"
+              className="w-full rounded border border-chorus-border bg-chorus-surface px-3 py-2 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
             />
-            <p className="mt-1 text-[10px] text-maestro-muted">
+            <p className="mt-1 text-[10px] text-chorus-muted">
               Space-separated arguments. Use quotes for values with spaces.
             </p>
           </section>
 
           {/* Working Directory */}
           <section>
-            <label className="mb-1.5 block text-xs font-medium text-maestro-text">
+            <label className="mb-1.5 block text-xs font-medium text-chorus-text">
               Working Directory
             </label>
             <div className="flex gap-2">
@@ -275,12 +275,12 @@ export function McpServerEditorModal({
                 value={workingDirectory}
                 onChange={(e) => setWorkingDirectory(e.target.value)}
                 placeholder="(Optional) /path/to/directory"
-                className="flex-1 rounded border border-maestro-border bg-maestro-surface px-3 py-2 text-xs text-maestro-text placeholder:text-maestro-muted focus:border-maestro-accent focus:outline-none"
+                className="flex-1 rounded border border-chorus-border bg-chorus-surface px-3 py-2 text-xs text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
               />
               <button
                 type="button"
                 onClick={handleBrowseWorkingDir}
-                className="rounded border border-maestro-border bg-maestro-card px-3 py-2 text-xs text-maestro-text hover:bg-maestro-surface"
+                className="rounded border border-chorus-border bg-chorus-card px-3 py-2 text-xs text-chorus-text hover:bg-chorus-surface"
               >
                 <FolderOpen size={14} />
               </button>
@@ -290,21 +290,21 @@ export function McpServerEditorModal({
           {/* Environment Variables */}
           <section>
             <div className="mb-1.5 flex items-center justify-between">
-              <label className="text-xs font-medium text-maestro-text">
+              <label className="text-xs font-medium text-chorus-text">
                 Environment Variables
               </label>
               <button
                 type="button"
                 onClick={addEnvVar}
-                className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-maestro-accent hover:bg-maestro-accent/10"
+                className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-chorus-accent hover:bg-chorus-accent/10"
               >
                 <Plus size={10} />
                 Add
               </button>
             </div>
-            <div className="space-y-2 rounded-lg border border-maestro-border bg-maestro-card p-2">
+            <div className="space-y-2 rounded-lg border border-chorus-border bg-chorus-card p-2">
               {envVars.length === 0 ? (
-                <p className="py-1 text-center text-[10px] text-maestro-muted">
+                <p className="py-1 text-center text-[10px] text-chorus-muted">
                   No environment variables
                 </p>
               ) : (
@@ -315,22 +315,22 @@ export function McpServerEditorModal({
                       value={ev.key}
                       onChange={(e) => updateEnvVar(index, "key", e.target.value)}
                       placeholder="KEY"
-                      className="w-28 rounded border border-maestro-border bg-maestro-surface px-2 py-1 text-[11px] text-maestro-text placeholder:text-maestro-muted focus:border-maestro-accent focus:outline-none"
+                      className="w-28 rounded border border-chorus-border bg-chorus-surface px-2 py-1 text-[11px] text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
                     />
-                    <span className="text-maestro-muted">=</span>
+                    <span className="text-chorus-muted">=</span>
                     <input
                       type="text"
                       value={ev.value}
                       onChange={(e) => updateEnvVar(index, "value", e.target.value)}
                       placeholder="value"
-                      className="flex-1 rounded border border-maestro-border bg-maestro-surface px-2 py-1 text-[11px] text-maestro-text placeholder:text-maestro-muted focus:border-maestro-accent focus:outline-none"
+                      className="flex-1 rounded border border-chorus-border bg-chorus-surface px-2 py-1 text-[11px] text-chorus-text placeholder:text-chorus-muted focus:border-chorus-accent focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={() => removeEnvVar(index)}
-                      className="rounded p-1 hover:bg-maestro-red/10"
+                      className="rounded p-1 hover:bg-chorus-red/10"
                     >
-                      <Trash2 size={12} className="text-maestro-red" />
+                      <Trash2 size={12} className="text-chorus-red" />
                     </button>
                   </div>
                 ))
@@ -340,28 +340,28 @@ export function McpServerEditorModal({
 
           {/* Enabled */}
           <section>
-            <label className="flex items-center gap-2 text-xs text-maestro-text">
+            <label className="flex items-center gap-2 text-xs text-chorus-text">
               <input
                 type="checkbox"
                 checked={isEnabled}
                 onChange={(e) => setIsEnabled(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-maestro-border"
+                className="h-3.5 w-3.5 rounded border-chorus-border"
               />
               Enable by default
             </label>
-            <p className="mt-1 pl-5 text-[10px] text-maestro-muted">
+            <p className="mt-1 pl-5 text-[10px] text-chorus-muted">
               Enabled servers are included in new sessions automatically.
             </p>
           </section>
 
           {/* Command Preview */}
           <section>
-            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-maestro-text">
+            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-chorus-text">
               <Terminal size={12} />
               Command Preview
             </label>
-            <div className="rounded-lg border border-maestro-border bg-maestro-surface p-2">
-              <code className="text-[11px] text-maestro-accent break-all">
+            <div className="rounded-lg border border-chorus-border bg-chorus-surface p-2">
+              <code className="text-[11px] text-chorus-accent break-all">
                 {buildCommandPreview()}
               </code>
             </div>
@@ -369,16 +369,16 @@ export function McpServerEditorModal({
 
           {/* Error */}
           {error && (
-            <p className="text-xs text-maestro-red">{error}</p>
+            <p className="text-xs text-chorus-red">{error}</p>
           )}
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 border-t border-maestro-border px-4 py-3">
+        <div className="flex justify-end gap-2 border-t border-chorus-border px-4 py-3">
           <button
             type="button"
             onClick={onClose}
-            className="rounded px-4 py-2 text-xs text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+            className="rounded px-4 py-2 text-xs text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
           >
             Cancel
           </button>
@@ -386,7 +386,7 @@ export function McpServerEditorModal({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 rounded bg-maestro-accent px-4 py-2 text-xs text-white hover:bg-maestro-accent/80 disabled:opacity-50"
+            className="flex items-center gap-2 rounded bg-chorus-accent px-4 py-2 text-xs text-white hover:bg-chorus-accent/80 disabled:opacity-50"
           >
             {saving ? (
               <>

@@ -31,10 +31,10 @@ export function MarketplaceFilters() {
     filters.showNotInstalled;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-maestro-border px-4 py-2">
+    <div className="flex flex-wrap items-center gap-2 border-b border-chorus-border px-4 py-2">
       {/* Category chips */}
       <div className="flex flex-wrap items-center gap-1">
-        <span className="mr-1 text-[10px] uppercase tracking-wider text-maestro-muted">
+        <span className="mr-1 text-[10px] uppercase tracking-wider text-chorus-muted">
           Category:
         </span>
         {CATEGORIES.map((cat) => (
@@ -46,8 +46,8 @@ export function MarketplaceFilters() {
             }
             className={`rounded-full px-2 py-0.5 text-xs transition-colors ${
               filters.category === cat.value
-                ? "bg-maestro-accent text-white"
-                : "bg-maestro-card text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+                ? "bg-chorus-accent text-white"
+                : "bg-chorus-card text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
             }`}
           >
             {cat.label}
@@ -55,11 +55,11 @@ export function MarketplaceFilters() {
         ))}
       </div>
 
-      <div className="mx-2 h-4 w-px bg-maestro-border" />
+      <div className="mx-2 h-4 w-px bg-chorus-border" />
 
       {/* Type chips */}
       <div className="flex flex-wrap items-center gap-1">
-        <span className="mr-1 text-[10px] uppercase tracking-wider text-maestro-muted">
+        <span className="mr-1 text-[10px] uppercase tracking-wider text-chorus-muted">
           Type:
         </span>
         {TYPES.map((t) => (
@@ -71,8 +71,8 @@ export function MarketplaceFilters() {
             }
             className={`rounded-full px-2 py-0.5 text-xs transition-colors ${
               filters.type === t.value
-                ? "bg-maestro-accent text-white"
-                : "bg-maestro-card text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+                ? "bg-chorus-accent text-white"
+                : "bg-chorus-card text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
             }`}
           >
             {t.label}
@@ -80,7 +80,7 @@ export function MarketplaceFilters() {
         ))}
       </div>
 
-      <div className="mx-2 h-4 w-px bg-maestro-border" />
+      <div className="mx-2 h-4 w-px bg-chorus-border" />
 
       {/* Installed filter */}
       <div className="flex items-center gap-1">
@@ -90,7 +90,7 @@ export function MarketplaceFilters() {
           className={`rounded-full px-2 py-0.5 text-xs transition-colors ${
             filters.showInstalled
               ? "bg-green-500/20 text-green-400"
-              : "bg-maestro-card text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+              : "bg-chorus-card text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
           }`}
         >
           Installed
@@ -101,7 +101,7 @@ export function MarketplaceFilters() {
           className={`rounded-full px-2 py-0.5 text-xs transition-colors ${
             filters.showNotInstalled
               ? "bg-blue-500/20 text-blue-400"
-              : "bg-maestro-card text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+              : "bg-chorus-card text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
           }`}
         >
           Not Installed
@@ -111,11 +111,11 @@ export function MarketplaceFilters() {
       {/* Clear button */}
       {hasActiveFilters && (
         <>
-          <div className="mx-2 h-4 w-px bg-maestro-border" />
+          <div className="mx-2 h-4 w-px bg-chorus-border" />
           <button
             type="button"
             onClick={clearFilters}
-            className="rounded px-2 py-0.5 text-xs text-maestro-muted hover:bg-maestro-surface hover:text-maestro-text"
+            className="rounded px-2 py-0.5 text-xs text-chorus-muted hover:bg-chorus-surface hover:text-chorus-text"
           >
             Clear filters
           </button>

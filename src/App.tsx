@@ -44,24 +44,24 @@ function App() {
   const [isStoppingAll, setIsStoppingAll] = useState(false);
   const [currentBranch, setCurrentBranch] = useState<string | undefined>(undefined);
   const [theme, setTheme] = useState<Theme>(() => {
-    const stored = localStorage.getItem("maestro-theme");
+    const stored = localStorage.getItem("chorus-theme");
     return isValidTheme(stored) ? stored : "dark";
   });
   const [zoom, setZoom] = useState<number>(() => {
-    const stored = localStorage.getItem("maestro-zoom");
+    const stored = localStorage.getItem("chorus-zoom");
     return stored ? Number.parseFloat(stored) : ZOOM_DEFAULT;
   });
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("maestro-theme", theme);
+    localStorage.setItem("chorus-theme", theme);
   }, [theme]);
 
   // Apply zoom level to document
   useEffect(() => {
     document.documentElement.style.fontSize = `${zoom * 100}%`;
-    localStorage.setItem("maestro-zoom", zoom.toString());
+    localStorage.setItem("chorus-zoom", zoom.toString());
   }, [zoom]);
 
   // Quick actions for keyboard shortcuts
@@ -137,6 +137,7 @@ function App() {
     },
     onCloseSession: () => multiProjectRef.current?.closeSession(),
     onRestartSession: () => multiProjectRef.current?.restartSession(),
+    onHandoffSession: () => multiProjectRef.current?.handoffSession(),
     // Terminal navigation
     onFocusTerminal: (index) => {
       console.log("[App] onFocusTerminal called, index:", index, "ref exists:", !!multiProjectRef.current);
@@ -265,7 +266,7 @@ function App() {
   }, []);
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-maestro-bg">
+    <div className="flex h-screen w-screen flex-col bg-chorus-bg">
       {/* Project tabs — full width at top (with window controls) */}
       <ProjectTabs
         tabs={tabs.map((t) => ({ id: t.id, name: t.name, active: t.active }))}
@@ -289,7 +290,7 @@ function App() {
         {/* Right column: top bar + content + bottom bar */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Top bar row - includes git panel header when open */}
-          <div className="flex h-10 shrink-0 bg-maestro-bg">
+          <div className="flex h-10 shrink-0 bg-chorus-bg">
             {/* TopBar takes flex-1 to fill available space */}
             <TopBar
               sidebarOpen={sidebarOpen}
@@ -305,13 +306,13 @@ function App() {
             {/* Git panel header - inline at same level as TopBar */}
             {gitPanelOpen && (
               <div
-                className="flex h-10 shrink-0 items-center border-l border-maestro-border px-3 gap-2 bg-maestro-bg"
+                className="flex h-10 shrink-0 items-center border-l border-chorus-border px-3 gap-2 bg-chorus-bg"
                 style={{ width: 560 }}
               >
-                <GitFork size={14} className="text-maestro-muted" />
-                <span className="text-sm font-medium text-maestro-text">Commits</span>
+                <GitFork size={14} className="text-chorus-muted" />
+                <span className="text-sm font-medium text-chorus-text">Commits</span>
                 {commits.length > 0 && (
-                  <span className="rounded-full bg-maestro-accent/15 px-1.5 py-px text-[10px] font-medium text-maestro-accent">
+                  <span className="rounded-full bg-chorus-accent/15 px-1.5 py-px text-[10px] font-medium text-chorus-accent">
                     {commits.length}
                   </span>
                 )}
@@ -321,7 +322,7 @@ function App() {
                     type="button"
                     onClick={handleRefreshGit}
                     disabled={isRefreshingGit}
-                    className="rounded p-1 text-maestro-muted transition-colors hover:bg-maestro-card hover:text-maestro-text disabled:opacity-50"
+                    className="rounded p-1 text-chorus-muted transition-colors hover:bg-chorus-card hover:text-chorus-text disabled:opacity-50"
                     aria-label="Refresh commits"
                   >
                     <RefreshCw size={14} className={isRefreshingGit ? "animate-spin" : ""} />
@@ -330,7 +331,7 @@ function App() {
                 <button
                   type="button"
                   onClick={() => setGitPanelOpen(false)}
-                  className="rounded p-1 text-maestro-muted transition-colors hover:bg-maestro-card hover:text-maestro-text"
+                  className="rounded p-1 text-chorus-muted transition-colors hover:bg-chorus-card hover:text-chorus-text"
                   aria-label="Close git panel"
                 >
                   <X size={14} />
@@ -342,7 +343,7 @@ function App() {
           {/* Content area (main + optional git panel) */}
           <div className="flex flex-1 overflow-hidden">
             {/* Main content - MultiProjectView keeps all projects alive */}
-            <main className="relative flex-1 overflow-hidden bg-maestro-bg">
+            <main className="relative flex-1 overflow-hidden bg-chorus-bg">
               <MultiProjectView
                 ref={multiProjectRef}
                 onSessionCountChange={handleSessionCountChange}
@@ -359,7 +360,7 @@ function App() {
           </div>
 
           {/* Bottom action bar */}
-          <div className="bg-maestro-bg">
+          <div className="bg-chorus-bg">
             <BottomBar
               inGridView={activeTabSessionsLaunched}
               slotCount={activeTabSlotCount}

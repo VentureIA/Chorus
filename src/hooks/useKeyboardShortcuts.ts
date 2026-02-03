@@ -16,6 +16,7 @@ export interface KeyboardShortcutCallbacks {
   onAddSession?: () => void;
   onCloseSession?: () => void;
   onRestartSession?: () => void;
+  onHandoffSession?: () => void;
 
   // Panel Toggles
   onToggleSidebar?: () => void;
@@ -118,6 +119,9 @@ export function useKeyboardShortcuts({
         case "restartSession":
           callbacks.onRestartSession?.();
           break;
+        case "handoffSession":
+          callbacks.onHandoffSession?.();
+          break;
 
         // Panel Toggles
         case "toggleSidebar":
@@ -218,6 +222,8 @@ export function useKeyboardShortcuts({
           return !!callbacks.onCloseSession;
         case "restartSession":
           return !!callbacks.onRestartSession;
+        case "handoffSession":
+          return !!callbacks.onHandoffSession;
         case "toggleSidebar":
           return !!callbacks.onToggleSidebar;
         case "toggleGitPanel":

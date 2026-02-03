@@ -23,11 +23,11 @@ export function MarketplacePluginCard({ plugin, onInstall }: MarketplacePluginCa
   const typesLabel = plugin.types.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(", ");
 
   return (
-    <div className="group flex flex-col rounded-lg border border-maestro-border bg-maestro-card p-4 transition-all hover:border-maestro-accent/50 hover:shadow-lg">
+    <div className="group flex flex-col rounded-lg border border-chorus-border bg-chorus-card p-4 transition-all hover:border-chorus-accent/50 hover:shadow-lg">
       {/* Header */}
       <div className="mb-3 flex items-start gap-3">
         {/* Icon */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-maestro-accent/10">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-chorus-accent/10">
           {plugin.icon_url ? (
             <img
               src={plugin.icon_url}
@@ -35,28 +35,28 @@ export function MarketplacePluginCard({ plugin, onInstall }: MarketplacePluginCa
               className="h-6 w-6 rounded"
             />
           ) : (
-            <Package size={20} className="text-maestro-accent" />
+            <Package size={20} className="text-chorus-accent" />
           )}
         </div>
 
         {/* Title and author */}
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-medium text-maestro-text">
+          <h3 className="truncate text-sm font-medium text-chorus-text">
             {plugin.name}
           </h3>
-          <p className="truncate text-xs text-maestro-muted">
+          <p className="truncate text-xs text-chorus-muted">
             by {plugin.author}
           </p>
         </div>
 
         {/* Version badge */}
-        <span className="shrink-0 rounded bg-maestro-surface px-1.5 py-0.5 text-[10px] text-maestro-muted">
+        <span className="shrink-0 rounded bg-chorus-surface px-1.5 py-0.5 text-[10px] text-chorus-muted">
           v{plugin.version}
         </span>
       </div>
 
       {/* Description */}
-      <p className="mb-3 line-clamp-2 flex-1 text-xs text-maestro-muted">
+      <p className="mb-3 line-clamp-2 flex-1 text-xs text-chorus-muted">
         {plugin.description || "No description available."}
       </p>
 
@@ -66,13 +66,13 @@ export function MarketplacePluginCard({ plugin, onInstall }: MarketplacePluginCa
           {plugin.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-maestro-surface px-2 py-0.5 text-[10px] text-maestro-muted"
+              className="rounded-full bg-chorus-surface px-2 py-0.5 text-[10px] text-chorus-muted"
             >
               {tag}
             </span>
           ))}
           {plugin.tags.length > 3 && (
-            <span className="rounded-full bg-maestro-surface px-2 py-0.5 text-[10px] text-maestro-muted">
+            <span className="rounded-full bg-chorus-surface px-2 py-0.5 text-[10px] text-chorus-muted">
               +{plugin.tags.length - 3}
             </span>
           )}
@@ -80,18 +80,18 @@ export function MarketplacePluginCard({ plugin, onInstall }: MarketplacePluginCa
       )}
 
       {/* Category and types */}
-      <div className="mb-3 flex items-center gap-2 text-[10px] text-maestro-muted">
-        <span className="rounded bg-maestro-accent/10 px-1.5 py-0.5 text-maestro-accent">
+      <div className="mb-3 flex items-center gap-2 text-[10px] text-chorus-muted">
+        <span className="rounded bg-chorus-accent/10 px-1.5 py-0.5 text-chorus-accent">
           {categoryLabel}
         </span>
         {typesLabel && (
-          <span className="text-maestro-border">|</span>
+          <span className="text-chorus-border">|</span>
         )}
         <span>{typesLabel}</span>
       </div>
 
       {/* Stats */}
-      <div className="mb-3 flex items-center gap-4 text-[10px] text-maestro-muted">
+      <div className="mb-3 flex items-center gap-4 text-[10px] text-chorus-muted">
         {plugin.downloads !== null && (
           <span className="flex items-center gap-1">
             <Download size={10} />
@@ -126,7 +126,7 @@ export function MarketplacePluginCard({ plugin, onInstall }: MarketplacePluginCa
             type="button"
             onClick={onInstall}
             disabled={isInstalling}
-            className="flex flex-1 items-center justify-center gap-1 rounded bg-maestro-accent py-1.5 text-xs text-white transition-colors hover:bg-maestro-accent/80 disabled:opacity-50"
+            className="flex flex-1 items-center justify-center gap-1 rounded bg-chorus-accent py-1.5 text-xs text-white transition-colors hover:bg-chorus-accent/80 disabled:opacity-50"
           >
             {isInstalling ? (
               <>
@@ -148,7 +148,7 @@ export function MarketplacePluginCard({ plugin, onInstall }: MarketplacePluginCa
             href={plugin.homepage_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded p-1.5 text-maestro-muted transition-colors hover:bg-maestro-surface hover:text-maestro-text"
+            className="rounded p-1.5 text-chorus-muted transition-colors hover:bg-chorus-surface hover:text-chorus-text"
           >
             <ExternalLink size={14} />
           </a>

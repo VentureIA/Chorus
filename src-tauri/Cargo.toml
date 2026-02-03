@@ -1,12 +1,12 @@
 [package]
-name = "maestro"
+name = "chorus"
 version = "0.1.0"
-description = "Maestro — Multi-session AI orchestrator"
+description = "Chorus — Multi-session AI orchestrator"
 authors = ["lliWcWill"]
 edition = "2021"
 
 [lib]
-name = "maestro_lib"
+name = "chorus_lib"
 crate-type = ["lib"]
 
 [features]

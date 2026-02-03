@@ -1,6 +1,6 @@
-//! HTTP-based status reporting to Maestro.
+//! HTTP-based status reporting to Chorus.
 //!
-//! Reports agent status via HTTP POST to the Maestro application's
+//! Reports agent status via HTTP POST to the Chorus application's
 //! status endpoint. This replaces the previous file-based approach
 //! to eliminate race conditions and provide real-time updates.
 
@@ -13,7 +13,7 @@ pub enum StatusError {
     HttpError(#[from] reqwest::Error),
 }
 
-/// Payload sent to Maestro's status endpoint.
+/// Payload sent to Chorus's status endpoint.
 #[derive(Debug, Serialize)]
 pub struct StatusPayload {
     pub session_id: u32,
@@ -25,7 +25,7 @@ pub struct StatusPayload {
     pub timestamp: String,
 }
 
-/// Reports status to Maestro via HTTP POST.
+/// Reports status to Chorus via HTTP POST.
 pub struct StatusReporter {
     client: reqwest::Client,
     status_url: Option<String>,
@@ -47,7 +47,7 @@ impl StatusReporter {
         }
     }
 
-    /// Report status to Maestro.
+    /// Report status to Chorus.
     ///
     /// Returns Ok(()) if the status was successfully reported, or if
     /// no status URL is configured (graceful degradation).
@@ -77,9 +77,9 @@ impl StatusReporter {
             timestamp: chrono::Utc::now().to_rfc3339(),
         };
 
-        // Send HTTP POST to Maestro's status endpoint
+        // Send HTTP POST to Chorus's status endpoint
         eprintln!(
-            "[maestro-mcp-server] Sending status to {}: session_id={}, state={}, message={}",
+            "[chorus-mcp-server] Sending status to {}: session_id={}, state={}, message={}",
             status_url, payload.session_id, payload.state, payload.message
         );
 
@@ -91,7 +91,7 @@ impl StatusReporter {
             .await?;
 
         eprintln!(
-            "[maestro-mcp-server] Status response: {}",
+            "[chorus-mcp-server] Status response: {}",
             response.status()
         );
 

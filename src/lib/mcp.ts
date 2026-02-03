@@ -129,10 +129,10 @@ export async function loadProjectMcpDefaults(
  * Writes a session-specific `.mcp.json` to the working directory.
  *
  * This MUST be called BEFORE launching the Claude CLI so it can discover
- * the configured MCP servers, including the Maestro status server.
+ * the configured MCP servers, including the Chorus status server.
  *
  * @param workingDir - Directory where the CLI will be launched
- * @param sessionId - Session ID for the Maestro MCP server env vars
+ * @param sessionId - Session ID for the Chorus MCP server env vars
  * @param projectPath - Project path for hash generation and server lookup
  * @param enabledServerNames - Names of MCP servers enabled for this session
  */
@@ -151,7 +151,7 @@ export async function writeSessionMcpConfig(
 }
 
 /**
- * Removes a session-specific Maestro server from `.mcp.json`.
+ * Removes a session-specific Chorus server from `.mcp.json`.
  *
  * This should be called when a session is killed to clean up the config file.
  * The function is idempotent - it does nothing if the session entry doesn't exist.

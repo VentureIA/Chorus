@@ -21,6 +21,7 @@ export interface MultiProjectViewHandle {
   closeSession: () => Promise<void>;
   restartSession: () => Promise<void>;
   maximizeTerminal: () => void;
+  handoffSession: () => void;
 }
 
 /**
@@ -82,6 +83,9 @@ export const MultiProjectView = forwardRef<MultiProjectViewHandle, MultiProjectV
     maximizeTerminal: () => {
       getActiveGridRef()?.maximizeTerminal();
     },
+    handoffSession: () => {
+      getActiveGridRef()?.handoffSession();
+    },
   }), [tabs]);
 
   // Create stable callbacks per tab to avoid infinite re-render loops
@@ -126,7 +130,7 @@ export const MultiProjectView = forwardRef<MultiProjectViewHandle, MultiProjectV
   if (tabs.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-sm text-maestro-muted">
+        <p className="text-sm text-chorus-muted">
           Select a directory to launch Claude Code instances
         </p>
       </div>

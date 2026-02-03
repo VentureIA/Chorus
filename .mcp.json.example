@@ -1,13 +1,13 @@
 {
   "mcpServers": {
-    "maestro": {
+    "chorus": {
       "type": "stdio",
-      "command": "/path/to/MaestroMCPServer",
+      "command": "/path/to/ChorusMCPServer",
       "args": [],
       "env": {
-        "MAESTRO_SESSION_ID": "1",
-        "MAESTRO_PORT_RANGE_START": "3000",
-        "MAESTRO_PORT_RANGE_END": "3099"
+        "CHORUS_SESSION_ID": "1",
+        "CHORUS_PORT_RANGE_START": "3000",
+        "CHORUS_PORT_RANGE_END": "3099"
       }
     }
   }

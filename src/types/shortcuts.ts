@@ -29,6 +29,7 @@ export type ShortcutAction =
   | "addSession"
   | "closeSession"
   | "restartSession"
+  | "handoffSession"
   // Panel Toggles
   | "toggleSidebar"
   | "toggleGitPanel"
@@ -387,6 +388,14 @@ export const DEFAULT_SHORTCUTS: ShortcutDefinition[] = [
     category: "session",
     label: "Restart Session",
     description: "Restart the focused session",
+  },
+  {
+    id: "handoff-session",
+    action: "handoffSession",
+    keys: "mod+shift+h",
+    category: "session",
+    label: "Handoff Session",
+    description: "Transfer context to a new session",
   },
 
   // Panel Toggles

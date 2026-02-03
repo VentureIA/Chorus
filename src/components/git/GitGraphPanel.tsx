@@ -77,7 +77,7 @@ export function GitGraphPanel({
       aria-hidden={!open}
       tabIndex={open ? undefined : -1}
       {...(!open ? ({ inert: "" } as { inert: "" }) : {})}
-      className={`relative z-30 flex flex-row border-l border-maestro-border bg-maestro-surface transition-all duration-200 overflow-hidden ${
+      className={`relative z-30 flex flex-row border-l border-chorus-border bg-chorus-surface transition-all duration-200 overflow-hidden ${
         open ? "w-[560px]" : "w-0 border-l-0"
       }`}
     >
@@ -90,10 +90,10 @@ export function GitGraphPanel({
             <div className="flex flex-col items-center gap-3">
               <GitFork
                 size={32}
-                className="animate-breathe text-maestro-muted/30"
+                className="animate-breathe text-chorus-muted/30"
                 strokeWidth={1}
               />
-              <p className="text-xs text-maestro-muted/60">
+              <p className="text-xs text-chorus-muted/60">
                 Open a git repository to view commits
               </p>
             </div>

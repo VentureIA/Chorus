@@ -13,7 +13,7 @@ import type { BackendCapabilities, BackendType } from "./terminalTheme";
  * Spawns a new PTY shell session on the backend.
  * @param cwd - Starting working directory; when omitted the backend uses its default.
  * @param env - Environment variables to pass to the shell process. These are inherited
- *   by all child processes (including Claude CLI → MCP server). MAESTRO_SESSION_ID is
+ *   by all child processes (including Claude CLI → MCP server). CHORUS_SESSION_ID is
  *   automatically set by the backend.
  * @returns The numeric session ID assigned by the backend.
  */

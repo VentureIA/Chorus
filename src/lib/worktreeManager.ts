@@ -43,17 +43,17 @@ function sanitizeBranch(branch: string): string {
 
 /**
  * Gets the base directory for worktrees.
- * Uses ~/.claude-maestro/worktrees/
+ * Uses ~/.claude-chorus/worktrees/
  */
 async function getWorktreeBaseDir(): Promise<string> {
   const home = await homeDir();
-  return `${home}.claude-maestro/worktrees`;
+  return `${home}.claude-chorus/worktrees`;
 }
 
 /**
  * Calculates the worktree path for a given repo and branch.
  *
- * Path format: ~/.claude-maestro/worktrees/{repoHash}/{sanitizedBranch}/
+ * Path format: ~/.claude-chorus/worktrees/{repoHash}/{sanitizedBranch}/
  *
  * @param repoPath - The path to the main repository
  * @param branch - The branch name

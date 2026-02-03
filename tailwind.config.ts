@@ -2,14 +2,14 @@ import type { Config } from "tailwindcss";
 
 /** Reference a CSS variable RGB triplet with alpha support */
 const rgb = (varName: string) =>
-  `rgb(var(--maestro-${varName}) / <alpha-value>)`;
+  `rgb(var(--chorus-${varName}) / <alpha-value>)`;
 
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        maestro: {
+        chorus: {
           bg: rgb("bg"),
           surface: rgb("surface"),
           card: rgb("card"),

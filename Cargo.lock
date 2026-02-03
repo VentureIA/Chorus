@@ -400,6 +400,47 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
+name = "chorus"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "dashmap",
+ "directories",
+ "env_logger",
+ "font-kit",
+ "hex",
+ "libc",
+ "log",
+ "portable-pty",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sysinfo",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-store",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "uuid",
+ "vte",
+]
+
+[[package]]
+name = "chorus-mcp-server"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2093,47 +2134,6 @@ name = "mac"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4"
-
-[[package]]
-name = "maestro"
-version = "0.1.0"
-dependencies = [
- "axum",
- "dashmap",
- "directories",
- "env_logger",
- "font-kit",
- "hex",
- "libc",
- "log",
- "portable-pty",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "sha2",
- "sysinfo",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-store",
- "tempfile",
- "thiserror 2.0.18",
- "tokio",
- "uuid",
- "vte",
-]
-
-[[package]]
-name = "maestro-mcp-server"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tokio",
-]
 
 [[package]]
 name = "markup5ever"

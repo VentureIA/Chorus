@@ -353,7 +353,7 @@ export const useQuickActionStore = create<QuickActionState & QuickActionActions>
       },
     }),
     {
-      name: "maestro-quick-actions",
+      name: "chorus-quick-actions",
       storage: createJSONStorage(() => tauriStorage),
       partialize: (state) => ({ actions: state.actions, hasInitialized: state.hasInitialized }),
       version: 1,

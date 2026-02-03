@@ -1,7 +1,7 @@
 //! MCP protocol implementation over stdio.
 //!
 //! Implements the Model Context Protocol (MCP) JSON-RPC over stdio,
-//! providing the `maestro_status` tool for reporting agent state.
+//! providing the `chorus_status` tool for reporting agent state.
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -104,7 +104,7 @@ impl McpServer {
             "initialize" => (Some(self.handle_initialize()), None),
             "notifications/initialized" => {
                 // Auto-report "idle" status when Claude connects
-                eprintln!("[maestro-mcp-server] Initialized - reporting idle status");
+                eprintln!("[chorus-mcp-server] Initialized - reporting idle status");
                 let _ = self.status_reporter.report_status("idle", "Ready", None).await;
                 return None;
             }
@@ -145,7 +145,7 @@ impl McpServer {
                 "tools": {}
             },
             "serverInfo": {
-                "name": "maestro-mcp-server",
+                "name": "chorus-mcp-server",
                 "version": env!("CARGO_PKG_VERSION")
             }
         })
@@ -156,8 +156,8 @@ impl McpServer {
         json!({
             "tools": [
                 {
-                    "name": "maestro_status",
-                    "description": "Report your current status to the Maestro UI. Use this to keep the user informed about what you're doing.",
+                    "name": "chorus_status",
+                    "description": "Report your current status to the Chorus UI. Use this to keep the user informed about what you're doing.",
                     "inputSchema": {
                         "type": "object",
                         "properties": {
@@ -190,7 +190,7 @@ impl McpServer {
             .unwrap_or("");
 
         match name {
-            "maestro_status" => {
+            "chorus_status" => {
                 let arguments = params.get("arguments").cloned().unwrap_or(json!({}));
 
                 let state = arguments

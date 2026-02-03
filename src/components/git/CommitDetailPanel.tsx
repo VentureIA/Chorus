@@ -35,7 +35,7 @@ function getFileStatusDisplay(status: FileChangeStatus) {
     case "copied":
       return { icon: FileText, color: "text-purple-400", label: "C" };
     default:
-      return { icon: FileText, color: "text-maestro-muted", label: "?" };
+      return { icon: FileText, color: "text-chorus-muted", label: "?" };
   }
 }
 
@@ -118,16 +118,16 @@ export function CommitDetailPanel({
   const isMerge = commit.parent_hashes.length > 1;
 
   return (
-    <div className="flex h-full flex-col border-l border-maestro-border bg-maestro-surface">
+    <div className="flex h-full flex-col border-l border-chorus-border bg-chorus-surface">
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between border-b border-maestro-border px-3 py-2">
-        <span className="text-sm font-medium text-maestro-text">
+      <div className="flex shrink-0 items-center justify-between border-b border-chorus-border px-3 py-2">
+        <span className="text-sm font-medium text-chorus-text">
           Commit Details
         </span>
         <button
           type="button"
           onClick={onClose}
-          className="rounded p-1 text-maestro-muted transition-colors hover:bg-maestro-card hover:text-maestro-text"
+          className="rounded p-1 text-chorus-muted transition-colors hover:bg-chorus-card hover:text-chorus-text"
           aria-label="Close"
         >
           <X size={14} />
@@ -138,7 +138,7 @@ export function CommitDetailPanel({
       <div className="flex-1 overflow-auto p-3">
         {/* Hash with copy button */}
         <div className="mb-4">
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-maestro-muted/60">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-chorus-muted/60">
             SHA
           </div>
           <div className="flex items-center gap-2">
@@ -146,13 +146,13 @@ export function CommitDetailPanel({
               className="h-2 w-2 shrink-0 rounded-full"
               style={{ backgroundColor: railColor }}
             />
-            <code className="flex-1 truncate font-mono text-xs text-maestro-text">
+            <code className="flex-1 truncate font-mono text-xs text-chorus-text">
               {commit.hash}
             </code>
             <button
               type="button"
               onClick={handleCopyHash}
-              className="rounded p-1 text-maestro-muted transition-colors hover:bg-maestro-card hover:text-maestro-text"
+              className="rounded p-1 text-chorus-muted transition-colors hover:bg-chorus-card hover:text-chorus-text"
               aria-label="Copy hash"
             >
               {copiedHash ? (
@@ -166,31 +166,31 @@ export function CommitDetailPanel({
 
         {/* Author */}
         <div className="mb-4">
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-maestro-muted/60">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-chorus-muted/60">
             Author
           </div>
-          <div className="text-xs text-maestro-text">{commit.author_name}</div>
-          <div className="text-[11px] text-maestro-muted">
+          <div className="text-xs text-chorus-text">{commit.author_name}</div>
+          <div className="text-[11px] text-chorus-muted">
             {commit.author_email}
           </div>
         </div>
 
         {/* Date */}
         <div className="mb-4">
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-maestro-muted/60">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-chorus-muted/60">
             Date
           </div>
-          <div className="text-xs text-maestro-text">
+          <div className="text-xs text-chorus-text">
             {formatDate(commit.timestamp)}
           </div>
         </div>
 
         {/* Message */}
         <div className="mb-4">
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-maestro-muted/60">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-chorus-muted/60">
             Message
           </div>
-          <div className="whitespace-pre-wrap text-xs text-maestro-text">
+          <div className="whitespace-pre-wrap text-xs text-chorus-text">
             {commit.summary}
           </div>
         </div>
@@ -198,14 +198,14 @@ export function CommitDetailPanel({
         {/* Parents */}
         {commit.parent_hashes.length > 0 && (
           <div className="mb-4">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-maestro-muted/60">
+            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-chorus-muted/60">
               {isMerge ? "Parents (merge)" : "Parent"}
             </div>
             <div className="flex flex-col gap-1">
               {commit.parent_hashes.map((hash, i) => (
                 <code
                   key={hash}
-                  className="font-mono text-[11px] text-maestro-muted"
+                  className="font-mono text-[11px] text-chorus-muted"
                 >
                   {i + 1}. {hash.slice(0, 12)}
                 </code>
@@ -220,7 +220,7 @@ export function CommitDetailPanel({
             <button
               type="button"
               onClick={() => onCreateBranchAtCommit(commit.hash)}
-              className="flex items-center gap-1.5 rounded border border-maestro-border bg-maestro-card px-2 py-1 text-xs text-maestro-text transition-colors hover:bg-maestro-border/50"
+              className="flex items-center gap-1.5 rounded border border-chorus-border bg-chorus-card px-2 py-1 text-xs text-chorus-text transition-colors hover:bg-chorus-border/50"
             >
               <GitBranch size={12} />
               Create branch
@@ -230,7 +230,7 @@ export function CommitDetailPanel({
             <button
               type="button"
               onClick={() => onCheckoutCommit(commit.hash)}
-              className="flex items-center gap-1.5 rounded border border-maestro-border bg-maestro-card px-2 py-1 text-xs text-maestro-text transition-colors hover:bg-maestro-border/50"
+              className="flex items-center gap-1.5 rounded border border-chorus-border bg-chorus-card px-2 py-1 text-xs text-chorus-text transition-colors hover:bg-chorus-border/50"
             >
               <Check size={12} />
               Checkout
@@ -241,27 +241,27 @@ export function CommitDetailPanel({
         {/* Files changed */}
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-maestro-muted/60">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-chorus-muted/60">
               Files Changed
             </span>
-            <span className="rounded-full bg-maestro-accent/15 px-1.5 py-px text-[10px] font-medium text-maestro-accent">
+            <span className="rounded-full bg-chorus-accent/15 px-1.5 py-px text-[10px] font-medium text-chorus-accent">
               {files.length}
             </span>
           </div>
 
           {isLoadingFiles ? (
-            <div className="py-4 text-center text-xs text-maestro-muted">
+            <div className="py-4 text-center text-xs text-chorus-muted">
               Loading files...
             </div>
           ) : files.length === 0 ? (
-            <div className="py-4 text-center text-xs text-maestro-muted">
+            <div className="py-4 text-center text-xs text-chorus-muted">
               No files changed
             </div>
           ) : (
             <div className="space-y-2">
               {filesByDirectory.map(([dir, dirFiles]) => (
                 <div key={dir}>
-                  <div className="mb-1 text-[10px] font-medium text-maestro-muted">
+                  <div className="mb-1 text-[10px] font-medium text-chorus-muted">
                     {dir}
                   </div>
                   <div className="space-y-0.5">
@@ -274,10 +274,10 @@ export function CommitDetailPanel({
                       return (
                         <div
                           key={file.path}
-                          className="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-maestro-card/30"
+                          className="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-chorus-card/30"
                         >
                           <Icon size={12} className={color} />
-                          <span className="flex-1 truncate text-[11px] text-maestro-text">
+                          <span className="flex-1 truncate text-[11px] text-chorus-text">
                             {fileName}
                           </span>
                           <span

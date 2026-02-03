@@ -24,14 +24,14 @@ export function QuickActionPills({ onAction, onManageClick }: QuickActionPillsPr
   );
 
   return (
-    <div className="no-select flex shrink-0 items-center gap-1 border-t border-maestro-border bg-maestro-surface px-2 py-1">
+    <div className="no-select flex shrink-0 items-center gap-1 border-t border-chorus-border bg-chorus-surface px-2 py-1">
       {sortedActions.map((a) => (
         <button
           type="button"
           key={a.id}
           disabled={!onAction}
           onClick={() => onAction?.(a.prompt)}
-          className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-maestro-muted transition-colors hover:bg-maestro-card hover:text-maestro-text${!onAction ? " opacity-50 cursor-not-allowed" : ""}`}
+          className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-chorus-muted transition-colors hover:bg-chorus-card hover:text-chorus-text${!onAction ? " opacity-50 cursor-not-allowed" : ""}`}
         >
           <DynamicIcon
             name={a.icon}
@@ -47,7 +47,7 @@ export function QuickActionPills({ onAction, onManageClick }: QuickActionPillsPr
         onClick={onManageClick}
         disabled={!onManageClick}
         title="Manage Quick Actions"
-        className={`inline-flex items-center justify-center rounded p-0.5 text-maestro-muted transition-colors hover:bg-maestro-card hover:text-maestro-text${!onManageClick ? " opacity-50 cursor-not-allowed" : ""}`}
+        className={`inline-flex items-center justify-center rounded p-0.5 text-chorus-muted transition-colors hover:bg-chorus-card hover:text-chorus-text${!onManageClick ? " opacity-50 cursor-not-allowed" : ""}`}
       >
         <Plus size={11} />
       </button>

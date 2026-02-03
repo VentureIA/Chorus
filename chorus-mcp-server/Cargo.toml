@@ -1,12 +1,12 @@
 [package]
-name = "maestro-mcp-server"
+name = "chorus-mcp-server"
 version = "0.1.0"
 edition = "2021"
-description = "MCP server for Claude Maestro status reporting"
+description = "MCP server for Chorus status reporting"
 authors = ["lliWcWill"]
 
 [[bin]]
-name = "maestro-mcp-server"
+name = "chorus-mcp-server"
 path = "src/main.rs"
 
 [dependencies]

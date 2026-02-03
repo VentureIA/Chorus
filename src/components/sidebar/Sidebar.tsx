@@ -61,9 +61,9 @@ interface SidebarProps {
 
 /* ── Shared card class ── */
 const cardClass =
-  "rounded-lg border border-maestro-border/60 bg-maestro-card p-3 shadow-[0_1px_4px_rgb(0_0_0/0.15),0_0_0_1px_rgb(255_255_255/0.03)_inset] transition-shadow hover:shadow-[0_2px_8px_rgb(0_0_0/0.25),0_0_0_1px_rgb(255_255_255/0.05)_inset]";
+  "rounded-lg border border-chorus-border/60 bg-chorus-card p-3 shadow-[0_1px_4px_rgb(0_0_0/0.15),0_0_0_1px_rgb(255_255_255/0.03)_inset] transition-shadow hover:shadow-[0_2px_8px_rgb(0_0_0/0.25),0_0_0_1px_rgb(255_255_255/0.05)_inset]";
 
-const divider = <div className="h-px bg-maestro-border/30 my-1" />;
+const divider = <div className="h-px bg-chorus-border/30 my-1" />;
 
 const SIDEBAR_MIN_WIDTH = 180;
 const SIDEBAR_MAX_WIDTH = 320;
@@ -71,13 +71,13 @@ const SIDEBAR_COLLAPSE_THRESHOLD = 60;
 const SIDEBAR_WIDTH_STEP = 4;
 
 const STATUS_DOT_CLASS: Record<BackendSessionStatus, string> = {
-  Starting: "bg-maestro-orange",
-  Idle: "bg-maestro-muted",
-  Working: "bg-maestro-accent",
-  NeedsInput: "bg-maestro-yellow",
-  Done: "bg-maestro-green",
-  Error: "bg-maestro-red",
-  Timeout: "bg-maestro-red",
+  Starting: "bg-chorus-orange",
+  Idle: "bg-chorus-muted",
+  Working: "bg-chorus-accent",
+  NeedsInput: "bg-chorus-yellow",
+  Done: "bg-chorus-green",
+  Error: "bg-chorus-red",
+  Timeout: "bg-chorus-red",
 };
 
 const STATUS_LABEL: Record<BackendSessionStatus, string> = {
@@ -182,19 +182,19 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme }: Sidebar
   return (
     // Use a class-based width to avoid inline styles (CSP-friendly).
     <aside
-      className={`theme-transition no-select relative flex h-full flex-col border-r border-maestro-border bg-maestro-surface ${sidebarWidthClass} ${
+      className={`theme-transition no-select relative flex h-full flex-col border-r border-chorus-border bg-chorus-surface ${sidebarWidthClass} ${
         isDragging ? "" : "transition-all duration-200 ease-out"
       } ${collapsed ? "overflow-hidden border-r-0 opacity-0" : "opacity-100"}`}
     >
       {/* Tab switcher */}
-      <div className="flex shrink-0 border-b border-maestro-border">
+      <div className="flex shrink-0 border-b border-chorus-border">
         <button
           type="button"
           onClick={() => setActiveTab("config")}
           className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold tracking-wide uppercase ${
             activeTab === "config"
-              ? "border-b-2 border-maestro-accent text-maestro-accent"
-              : "text-maestro-muted hover:text-maestro-text"
+              ? "border-b-2 border-chorus-accent text-chorus-accent"
+              : "text-chorus-muted hover:text-chorus-text"
           }`}
         >
           <Settings size={12} />
@@ -205,8 +205,8 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme }: Sidebar
           onClick={() => setActiveTab("processes")}
           className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold tracking-wide uppercase ${
             activeTab === "processes"
-              ? "border-b-2 border-maestro-accent text-maestro-accent"
-              : "text-maestro-muted hover:text-maestro-text"
+              ? "border-b-2 border-chorus-accent text-chorus-accent"
+              : "text-chorus-muted hover:text-chorus-text"
           }`}
         >
           <Activity size={12} />
@@ -235,7 +235,7 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme }: Sidebar
           aria-valuetext={`${Math.round(width)} pixels`}
           tabIndex={0}
           aria-label="Resize sidebar"
-          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-maestro-accent/30 active:bg-maestro-accent/40"
+          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-chorus-accent/30 active:bg-chorus-accent/40"
           onMouseDown={handleDragStart}
           onKeyDown={handleResizeKeyDown}
         />
@@ -264,10 +264,10 @@ function SectionHeader({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-maestro-muted">
+    <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
       <Icon
         size={13}
-        className={`${iconColor ?? "text-maestro-muted/80"} ${breathe ? "animate-breathe" : ""}`}
+        className={`${iconColor ?? "text-chorus-muted/80"} ${breathe ? "animate-breathe" : ""}`}
       />
       <span className="flex-1">{label}</span>
       {badge}
@@ -297,7 +297,7 @@ function ConfigTab({
       {divider}
       <StatusSection />
       {divider}
-      <MaestroMCPSection />
+      <ChorusMCPSection />
       {divider}
       <MCPServersSection />
       {divider}
@@ -365,9 +365,9 @@ function GitRepositorySection() {
         <SectionHeader
           icon={GitBranch}
           label="Git Repository"
-          iconColor="text-maestro-muted"
+          iconColor="text-chorus-muted"
         />
-        <div className="px-1 py-1 text-xs text-maestro-muted">No project selected</div>
+        <div className="px-1 py-1 text-xs text-chorus-muted">No project selected</div>
       </div>
     );
   }
@@ -378,38 +378,38 @@ function GitRepositorySection() {
         <SectionHeader
           icon={GitBranch}
           label="Git Repository"
-          iconColor="text-maestro-green"
+          iconColor="text-chorus-green"
           right={
             <button
               type="button"
               onClick={() => setShowSettings(true)}
-              className="rounded p-0.5 hover:bg-maestro-border/40"
+              className="rounded p-0.5 hover:bg-chorus-border/40"
               title="Git settings"
             >
-              <Settings size={12} className="text-maestro-muted" />
+              <Settings size={12} className="text-chorus-muted" />
             </button>
           }
         />
         {/* User */}
         <div className="flex items-center gap-2 px-1 py-1">
-          <User size={12} className={hasUser ? "text-maestro-green" : "text-maestro-muted"} />
-          <span className="text-xs font-semibold text-maestro-text truncate">{displayName}</span>
+          <User size={12} className={hasUser ? "text-chorus-green" : "text-chorus-muted"} />
+          <span className="text-xs font-semibold text-chorus-text truncate">{displayName}</span>
         </div>
-        <div className="pl-5 text-[11px] text-maestro-muted truncate">{displayEmail}</div>
+        <div className="pl-5 text-[11px] text-chorus-muted truncate">{displayEmail}</div>
 
         {/* Remotes */}
         {remotes.length === 0 ? (
-          <div className="mt-2 px-1 py-1 text-xs text-maestro-muted">No remotes configured</div>
+          <div className="mt-2 px-1 py-1 text-xs text-chorus-muted">No remotes configured</div>
         ) : (
           remotes.map((remote) => (
             <div key={remote.name} className="mt-1">
               <div className="flex items-center gap-2 px-1 py-1">
                 <RemoteStatusIndicator status={remoteStatuses[remote.name] ?? "unknown"} />
-                <span className="text-xs font-semibold text-maestro-text truncate">
+                <span className="text-xs font-semibold text-chorus-text truncate">
                   {remote.name}
                 </span>
               </div>
-              <div className="pl-5 text-[11px] text-maestro-muted truncate">
+              <div className="pl-5 text-[11px] text-chorus-muted truncate">
                 {formatRemoteUrl(remote.url)}
               </div>
             </div>
@@ -477,10 +477,10 @@ function ProjectContextSection() {
         <SectionHeader
           icon={FileText}
           label="Project Context"
-          iconColor="text-maestro-muted"
+          iconColor="text-chorus-muted"
         />
         <div className="flex items-center gap-2 px-1 py-1">
-          <span className="text-xs text-maestro-muted">No project selected</span>
+          <span className="text-xs text-chorus-muted">No project selected</span>
         </div>
       </div>
     );
@@ -495,38 +495,38 @@ function ProjectContextSection() {
         <SectionHeader
           icon={FileText}
           label="Project Context"
-          iconColor={fileExists ? "text-maestro-green" : "text-maestro-orange"}
+          iconColor={fileExists ? "text-chorus-green" : "text-chorus-orange"}
           right={
             <button
               type="button"
               onClick={handleRefresh}
-              className="rounded p-0.5 hover:bg-maestro-border/40"
+              className="rounded p-0.5 hover:bg-chorus-border/40"
               disabled={isLoading}
             >
               <RefreshCw
                 size={12}
-                className={`text-maestro-muted ${isLoading ? "animate-spin" : ""}`}
+                className={`text-chorus-muted ${isLoading ? "animate-spin" : ""}`}
               />
             </button>
           }
         />
         {isLoading ? (
           <div className="flex items-center gap-2 px-1 py-1">
-            <Loader2 size={13} className="text-maestro-muted shrink-0 animate-spin" />
-            <span className="text-xs text-maestro-muted">Checking...</span>
+            <Loader2 size={13} className="text-chorus-muted shrink-0 animate-spin" />
+            <span className="text-xs text-chorus-muted">Checking...</span>
           </div>
         ) : fileExists ? (
           <div className="flex items-center gap-2 px-1 py-1">
-            <Check size={13} className="text-maestro-green shrink-0" />
-            <span className="text-xs text-maestro-text">CLAUDE.md</span>
+            <Check size={13} className="text-chorus-green shrink-0" />
+            <span className="text-xs text-chorus-text">CLAUDE.md</span>
           </div>
         ) : (
           <>
             <div className="flex items-center gap-2 px-1 py-1">
-              <AlertTriangle size={13} className="text-maestro-orange shrink-0" />
-              <span className="text-xs text-maestro-text">No CLAUDE.md</span>
+              <AlertTriangle size={13} className="text-chorus-orange shrink-0" />
+              <span className="text-xs text-chorus-text">No CLAUDE.md</span>
             </div>
-            <div className="pl-7 text-[11px] text-maestro-muted">
+            <div className="pl-7 text-[11px] text-chorus-muted">
               Click to create project context file
             </div>
           </>
@@ -562,21 +562,21 @@ function SessionsSection() {
 
   return (
     <div className={cardClass}>
-      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-maestro-muted">
+      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 hover:text-maestro-text"
+          className="flex items-center gap-1 hover:text-chorus-text"
         >
           {expanded ? (
-            <ChevronDown size={13} className="text-maestro-muted/80" />
+            <ChevronDown size={13} className="text-chorus-muted/80" />
           ) : (
-            <ChevronRight size={13} className="text-maestro-muted/80" />
+            <ChevronRight size={13} className="text-chorus-muted/80" />
           )}
         </button>
-        <Bot size={13} className="text-maestro-accent animate-breathe" />
+        <Bot size={13} className="text-chorus-accent animate-breathe" />
         <span className="flex-1">Sessions</span>
-        <span className="bg-maestro-accent/20 text-maestro-accent text-[10px] px-1.5 rounded-full font-bold">
+        <span className="bg-chorus-accent/20 text-chorus-accent text-[10px] px-1.5 rounded-full font-bold">
           {sessions.length}
         </span>
       </div>
@@ -584,18 +584,18 @@ function SessionsSection() {
       {expanded && (
         <div className="space-y-0.5">
           {sessions.length === 0 ? (
-            <div className="px-2 py-1 text-[11px] text-maestro-muted/60">No sessions yet</div>
+            <div className="px-2 py-1 text-[11px] text-chorus-muted/60">No sessions yet</div>
           ) : (
             sessions.map((s) => (
               <div
                 key={s.id}
                 title={s.statusMessage || s.needsInputPrompt || STATUS_LABEL[s.status]}
-                className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text hover:bg-maestro-border/40"
+                className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
               >
                 <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT_CLASS[s.status]}`} />
-                <Bot size={12} className="text-maestro-purple shrink-0" />
+                <Bot size={12} className="text-chorus-purple shrink-0" />
                 <span className="flex-1 font-medium">#{s.id}</span>
-                <span className="text-[10px] text-maestro-muted">{STATUS_LABEL[s.status]}</span>
+                <span className="text-[10px] text-chorus-muted">{STATUS_LABEL[s.status]}</span>
               </div>
             ))
           )}
@@ -658,7 +658,7 @@ function StatusSection() {
 
   return (
     <div className={cardClass}>
-      <SectionHeader icon={Activity} label="Status" iconColor="text-maestro-accent" />
+      <SectionHeader icon={Activity} label="Status" iconColor="text-chorus-accent" />
       <div className="space-y-0.5">
         {/* AI mode buckets - only show modes with count > 0 */}
         {AI_MODES.filter((mode) => counts.mode[mode] > 0).map((mode) => {
@@ -666,61 +666,61 @@ function StatusSection() {
           return (
             <div
               key={mode}
-              className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text"
+              className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text"
             >
-              <ModeIcon size={12} className="text-maestro-purple shrink-0" />
+              <ModeIcon size={12} className="text-chorus-purple shrink-0" />
               <span className="flex-1">{mode}:</span>
-              <span className="font-semibold text-maestro-text">{counts.mode[mode]}</span>
+              <span className="font-semibold text-chorus-text">{counts.mode[mode]}</span>
             </div>
           );
         })}
         {/* Divider between types and states - only show if both sections have items */}
         {AI_MODES.some((mode) => counts.mode[mode] > 0) &&
           SESSION_STATUSES.some((st) => counts.status[st] > 0) && (
-            <div className="h-px bg-maestro-border/40 my-1.5" />
+            <div className="h-px bg-chorus-border/40 my-1.5" />
           )}
         {/* Session status buckets - only show statuses with count > 0 */}
         {SESSION_STATUSES.filter((st) => counts.status[st] > 0).map((st) => (
           <div
             key={st}
-            className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text"
+            className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text"
           >
             <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT_CLASS[st]}`} />
             <span className="flex-1">{STATUS_LABEL[st]}:</span>
-            <span className="font-semibold text-maestro-text">{counts.status[st]}</span>
+            <span className="font-semibold text-chorus-text">{counts.status[st]}</span>
           </div>
         ))}
         {/* Empty state when no sessions */}
         {!AI_MODES.some((mode) => counts.mode[mode] > 0) &&
           !SESSION_STATUSES.some((st) => counts.status[st] > 0) && (
-            <div className="px-2 py-1 text-[11px] text-maestro-muted/60">No active sessions</div>
+            <div className="px-2 py-1 text-[11px] text-chorus-muted/60">No active sessions</div>
           )}
       </div>
     </div>
   );
 }
 
-/* ── 5. Maestro MCP ── */
+/* ── 5. Chorus MCP ── */
 
-function MaestroMCPSection() {
+function ChorusMCPSection() {
   return (
     <div className={cardClass}>
       <SectionHeader
         icon={Server}
-        label="Maestro MCP"
-        iconColor="text-maestro-green"
+        label="Chorus MCP"
+        iconColor="text-chorus-green"
         right={
-          <button type="button" className="rounded p-0.5 hover:bg-maestro-border/40">
-            <RefreshCw size={12} className="text-maestro-muted" />
+          <button type="button" className="rounded p-0.5 hover:bg-chorus-border/40">
+            <RefreshCw size={12} className="text-chorus-muted" />
           </button>
         }
       />
       <div className="flex items-center gap-2 px-1 py-1">
-        <span className="h-2 w-2 shrink-0 rounded-full bg-maestro-green" />
-        <span className="text-xs text-maestro-text font-medium">Available</span>
+        <span className="h-2 w-2 shrink-0 rounded-full bg-chorus-green" />
+        <span className="text-xs text-chorus-text font-medium">Available</span>
       </div>
-      <div className="pl-5 text-[10px] text-maestro-muted truncate">
-        /usr/lib/maestro...MCPServer
+      <div className="pl-5 text-[10px] text-chorus-muted truncate">
+        /usr/lib/chorus...MCPServer
       </div>
     </div>
   );
@@ -747,9 +747,9 @@ function MCPServersSection() {
     isLoading,
   } = useMcpStore();
 
-  // Filter out the internal "maestro" server - it's shown in the dedicated Maestro MCP section
+  // Filter out the internal "chorus" server - it's shown in the dedicated Chorus MCP section
   const discoveredServers = projectPath
-    ? (projectServers[projectPath] ?? []).filter((s) => s.name !== "maestro")
+    ? (projectServers[projectPath] ?? []).filter((s) => s.name !== "chorus")
     : [];
   const loading = projectPath ? (isLoading[projectPath] ?? false) : false;
 
@@ -798,22 +798,22 @@ function MCPServersSection() {
   return (
     <>
       <div className={cardClass}>
-        <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-maestro-muted">
+        <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-1 hover:text-maestro-text"
+            className="flex items-center gap-1 hover:text-chorus-text"
           >
             {expanded ? (
-              <ChevronDown size={13} className="text-maestro-muted/80" />
+              <ChevronDown size={13} className="text-chorus-muted/80" />
             ) : (
-              <ChevronRight size={13} className="text-maestro-muted/80" />
+              <ChevronRight size={13} className="text-chorus-muted/80" />
             )}
           </button>
-          <Server size={13} className={totalCount > 0 ? "text-maestro-green" : "text-maestro-muted/80"} />
+          <Server size={13} className={totalCount > 0 ? "text-chorus-green" : "text-chorus-muted/80"} />
           <span className="flex-1">MCP Servers</span>
           {totalCount > 0 && (
-            <span className="bg-maestro-green/20 text-maestro-green text-[10px] px-1.5 rounded-full font-bold">
+            <span className="bg-chorus-green/20 text-chorus-green text-[10px] px-1.5 rounded-full font-bold">
               {totalCount}
             </span>
           )}
@@ -821,18 +821,18 @@ function MCPServersSection() {
             <button
               type="button"
               onClick={handleRefresh}
-              className="rounded p-0.5 hover:bg-maestro-border/40"
+              className="rounded p-0.5 hover:bg-chorus-border/40"
               title="Refresh MCP servers"
             >
-              <RefreshCw size={12} className={`text-maestro-muted ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw size={12} className={`text-chorus-muted ${loading ? "animate-spin" : ""}`} />
             </button>
             <button
               type="button"
               onClick={handleAddServer}
-              className="rounded p-0.5 hover:bg-maestro-border/40"
+              className="rounded p-0.5 hover:bg-chorus-border/40"
               title="Add custom MCP server"
             >
-              <Plus size={12} className="text-maestro-accent" />
+              <Plus size={12} className="text-chorus-accent" />
             </button>
           </div>
         </div>
@@ -842,7 +842,7 @@ function MCPServersSection() {
             {/* Discovered servers from .mcp.json */}
             {discoveredServers.length > 0 && (
               <>
-                <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-maestro-muted/60">
+                <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted/60">
                   Discovered ({discoveredServers.length})
                 </div>
                 {discoveredServers.map((server) => {
@@ -851,11 +851,11 @@ function MCPServersSection() {
                   return (
                     <div
                       key={server.name}
-                      className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text hover:bg-maestro-border/40"
+                      className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
                     >
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-maestro-green" />
+                      <span className="h-2 w-2 shrink-0 rounded-full bg-chorus-green" />
                       <span className="flex-1 truncate font-medium">{server.name}</span>
-                      <span className="text-[10px] text-maestro-muted">
+                      <span className="text-[10px] text-chorus-muted">
                         {isHttp ? "HTTP" : "stdio"}
                       </span>
                     </div>
@@ -867,37 +867,37 @@ function MCPServersSection() {
             {/* Custom servers */}
             {customServers.length > 0 && (
               <>
-                <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-maestro-muted/60">
+                <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted/60">
                   Custom ({customServers.length})
                 </div>
                 {customServers.map((server) => (
                   <div
                     key={server.id}
-                    className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text hover:bg-maestro-border/40"
+                    className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
                   >
                     <span
                       className={`h-2 w-2 shrink-0 rounded-full ${
-                        server.isEnabled ? "bg-maestro-green" : "bg-maestro-muted"
+                        server.isEnabled ? "bg-chorus-green" : "bg-chorus-muted"
                       }`}
                     />
                     <span className="flex-1 truncate font-medium">{server.name}</span>
-                    <span className="text-[10px] text-maestro-muted">custom</span>
+                    <span className="text-[10px] text-chorus-muted">custom</span>
                     <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         type="button"
                         onClick={() => handleEditServer(server)}
-                        className="rounded p-0.5 hover:bg-maestro-border/40"
+                        className="rounded p-0.5 hover:bg-chorus-border/40"
                         title="Edit server"
                       >
-                        <Edit2 size={10} className="text-maestro-muted" />
+                        <Edit2 size={10} className="text-chorus-muted" />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteServer(server.id)}
-                        className="rounded p-0.5 hover:bg-maestro-red/10"
+                        className="rounded p-0.5 hover:bg-chorus-red/10"
                         title="Delete server"
                       >
-                        <Trash2 size={10} className="text-maestro-red" />
+                        <Trash2 size={10} className="text-chorus-red" />
                       </button>
                     </div>
                   </div>
@@ -907,7 +907,7 @@ function MCPServersSection() {
 
             {/* Empty state */}
             {totalCount === 0 && (
-              <div className="px-2 py-1 text-[11px] text-maestro-muted/60">
+              <div className="px-2 py-1 text-[11px] text-chorus-muted/60">
                 No MCP servers configured
               </div>
             )}
@@ -937,25 +937,25 @@ function getSkillSourceBadge(source: SkillSource): { text: string; className: st
     case "project":
       return {
         text: "Project",
-        className: "bg-maestro-accent/20 text-maestro-accent",
+        className: "bg-chorus-accent/20 text-chorus-accent",
         icon: FileText,
       };
     case "personal":
       return {
         text: "Personal",
-        className: "bg-maestro-green/20 text-maestro-green",
+        className: "bg-chorus-green/20 text-chorus-green",
         icon: Home,
       };
     case "plugin":
       return {
         text: source.name,
-        className: "bg-maestro-purple/20 text-maestro-purple",
+        className: "bg-chorus-purple/20 text-chorus-purple",
         icon: Package,
       };
     case "legacy":
       return {
         text: "Legacy",
-        className: "bg-maestro-muted/20 text-maestro-muted",
+        className: "bg-chorus-muted/20 text-chorus-muted",
         icon: FileText,
       };
   }
@@ -1091,22 +1091,22 @@ function PluginsSection() {
 
   return (
     <div className={cardClass}>
-      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-maestro-muted">
+      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 hover:text-maestro-text"
+          className="flex items-center gap-1 hover:text-chorus-text"
         >
           {expanded ? (
-            <ChevronDown size={13} className="text-maestro-muted/80" />
+            <ChevronDown size={13} className="text-chorus-muted/80" />
           ) : (
-            <ChevronRight size={13} className="text-maestro-muted/80" />
+            <ChevronRight size={13} className="text-chorus-muted/80" />
           )}
         </button>
-        <Store size={13} className={totalCount > 0 ? "text-maestro-purple" : "text-maestro-muted/80"} />
+        <Store size={13} className={totalCount > 0 ? "text-chorus-purple" : "text-chorus-muted/80"} />
         <span className="flex-1">Plugins & Skills</span>
         {totalCount > 0 && (
-          <span className="bg-maestro-purple/20 text-maestro-purple text-[10px] px-1.5 rounded-full font-bold">
+          <span className="bg-chorus-purple/20 text-chorus-purple text-[10px] px-1.5 rounded-full font-bold">
             {totalCount}
           </span>
         )}
@@ -1114,18 +1114,18 @@ function PluginsSection() {
           <button
             type="button"
             onClick={handleRefresh}
-            className="rounded p-0.5 hover:bg-maestro-border/40"
+            className="rounded p-0.5 hover:bg-chorus-border/40"
             title="Refresh plugins"
           >
-            <RefreshCw size={12} className={`text-maestro-muted ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw size={12} className={`text-chorus-muted ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
             type="button"
             onClick={() => setShowMarketplace(true)}
-            className="rounded p-0.5 hover:bg-maestro-border/40"
+            className="rounded p-0.5 hover:bg-chorus-border/40"
             title="Add plugin"
           >
-            <PlusCircle size={12} className="text-maestro-accent" />
+            <PlusCircle size={12} className="text-chorus-accent" />
           </button>
         </div>
       </div>
@@ -1133,13 +1133,13 @@ function PluginsSection() {
       {expanded && (
         <div className="space-y-0.5">
           {!projectPath ? (
-            <div className="px-2 py-1 text-[11px] text-maestro-muted/60">No project selected</div>
+            <div className="px-2 py-1 text-[11px] text-chorus-muted/60">No project selected</div>
           ) : totalCount === 0 ? (
             <>
-              <div className="px-2 py-1 text-[11px] text-maestro-muted/60">
+              <div className="px-2 py-1 text-[11px] text-chorus-muted/60">
                 No skills found
               </div>
-              <div className="px-2 text-[10px] text-maestro-muted/40">
+              <div className="px-2 text-[10px] text-chorus-muted/40">
                 Add skills to .claude/skills/ or ~/.claude/skills/
               </div>
             </>
@@ -1148,7 +1148,7 @@ function PluginsSection() {
               {/* Plugins with their skills */}
               {plugins.length > 0 && (
                 <>
-                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-maestro-muted/60">
+                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted/60">
                     Plugins ({plugins.length})
                   </div>
                   {plugins.map((plugin) => {
@@ -1166,7 +1166,7 @@ function PluginsSection() {
                       <div key={plugin.id}>
                         {/* Plugin row - clickable to expand */}
                         <div
-                          className="group flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text hover:bg-maestro-border/40"
+                          className="group flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
                           title={plugin.description || plugin.path || undefined}
                         >
                           <button
@@ -1176,31 +1176,31 @@ function PluginsSection() {
                           >
                             {pluginSkills.length > 0 ? (
                               isPluginExpanded ? (
-                                <ChevronDown size={10} className="shrink-0 text-maestro-muted" />
+                                <ChevronDown size={10} className="shrink-0 text-chorus-muted" />
                               ) : (
-                                <ChevronRight size={10} className="shrink-0 text-maestro-muted" />
+                                <ChevronRight size={10} className="shrink-0 text-chorus-muted" />
                               )
                             ) : (
                               <span className="w-[10px]" />
                             )}
-                            <Package size={12} className="shrink-0 text-maestro-purple" />
+                            <Package size={12} className="shrink-0 text-chorus-purple" />
                             <span className="flex-1 truncate font-medium text-left">{plugin.name}</span>
                           </button>
                           {pluginSkills.length > 0 && (
-                            <span className="text-[10px] text-maestro-muted">{pluginSkills.length}</span>
+                            <span className="text-[10px] text-chorus-muted">{pluginSkills.length}</span>
                           )}
-                          <span className="text-[10px] text-maestro-muted">v{plugin.version}</span>
+                          <span className="text-[10px] text-chorus-muted">v{plugin.version}</span>
                           {canUninstallPlugin(plugin) && (
                             <button
                               type="button"
                               onClick={(e) => handleUninstallPlugin(e, plugin.id, plugin.path, plugin.plugin_source)}
                               disabled={isUninstalling}
-                              className="shrink-0 rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-maestro-red/10 transition-opacity"
+                              className="shrink-0 rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-chorus-red/10 transition-opacity"
                               title="Uninstall plugin"
                             >
                               <Trash2
                                 size={10}
-                                className={isUninstalling ? "text-maestro-muted animate-pulse" : "text-maestro-red"}
+                                className={isUninstalling ? "text-chorus-muted animate-pulse" : "text-chorus-red"}
                               />
                             </button>
                           )}
@@ -1208,14 +1208,14 @@ function PluginsSection() {
 
                         {/* Expanded skills */}
                         {isPluginExpanded && pluginSkills.length > 0 && (
-                          <div className="ml-4 border-l border-maestro-border/40 pl-2">
+                          <div className="ml-4 border-l border-chorus-border/40 pl-2">
                             {pluginSkills.map((skill) => (
                               <div
                                 key={skill.id}
-                                className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text hover:bg-maestro-border/40"
+                                className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
                                 title={skill.description || skill.path || undefined}
                               >
-                                <Zap size={11} className="shrink-0 text-maestro-orange" />
+                                <Zap size={11} className="shrink-0 text-chorus-orange" />
                                 <span className="flex-1 truncate">{skill.name}</span>
                               </div>
                             ))}
@@ -1230,7 +1230,7 @@ function PluginsSection() {
               {/* Standalone Skills */}
               {standaloneSkills.length > 0 && (
                 <>
-                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-maestro-muted/60">
+                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-chorus-muted/60">
                     Skills ({standaloneSkills.length})
                   </div>
                   {standaloneSkills.map((skill) => {
@@ -1239,10 +1239,10 @@ function PluginsSection() {
                     return (
                       <div
                         key={skill.id}
-                        className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text hover:bg-maestro-border/40"
+                        className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
                         title={skill.description || skill.path || undefined}
                       >
-                        <Zap size={12} className="shrink-0 text-maestro-orange" />
+                        <Zap size={12} className="shrink-0 text-chorus-orange" />
                         <span className="flex-1 truncate font-medium">{skill.name}</span>
                         <span className={`shrink-0 rounded px-1 text-[9px] ${badge.className}`}>
                           {badge.text}
@@ -1252,12 +1252,12 @@ function PluginsSection() {
                             type="button"
                             onClick={(e) => handleDeleteSkill(e, skill.id, skill.path)}
                             disabled={isDeleting}
-                            className="shrink-0 rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-maestro-red/10 transition-opacity"
+                            className="shrink-0 rounded p-0.5 opacity-0 group-hover:opacity-100 hover:bg-chorus-red/10 transition-opacity"
                             title="Delete skill"
                           >
                             <Trash2
                               size={10}
-                              className={isDeleting ? "text-maestro-muted animate-pulse" : "text-maestro-red"}
+                              className={isDeleting ? "text-chorus-muted animate-pulse" : "text-chorus-red"}
                             />
                           </button>
                         )}
@@ -1288,10 +1288,10 @@ function QuickActionsSection() {
   const [showManager, setShowManager] = useState(false);
 
   const actions = [
-    { label: "Run App", icon: Play, color: "text-maestro-green" },
-    { label: "Commit & Push", icon: Circle, color: "text-maestro-accent" },
-    { label: "Fix Errors", icon: AlertTriangle, color: "text-maestro-orange" },
-    { label: "Lint & Format", icon: Wrench, color: "text-maestro-purple" },
+    { label: "Run App", icon: Play, color: "text-chorus-green" },
+    { label: "Commit & Push", icon: Circle, color: "text-chorus-accent" },
+    { label: "Fix Errors", icon: AlertTriangle, color: "text-chorus-orange" },
+    { label: "Lint & Format", icon: Wrench, color: "text-chorus-purple" },
   ];
 
   return (
@@ -1300,18 +1300,18 @@ function QuickActionsSection() {
         <SectionHeader
           icon={Zap}
           label="Quick Actions"
-          iconColor="text-maestro-orange"
+          iconColor="text-chorus-orange"
           breathe
           right={
             <div className="flex items-center gap-1">
-              <span className="h-2 w-2 shrink-0 rounded-full bg-maestro-yellow" />
+              <span className="h-2 w-2 shrink-0 rounded-full bg-chorus-yellow" />
               <button
                 type="button"
-                className="rounded p-0.5 hover:bg-maestro-border/40"
+                className="rounded p-0.5 hover:bg-chorus-border/40"
                 onClick={() => setShowManager(true)}
                 title="Manage Quick Actions"
               >
-                <Settings size={12} className="text-maestro-muted" />
+                <Settings size={12} className="text-chorus-muted" />
               </button>
             </div>
           }
@@ -1321,7 +1321,7 @@ function QuickActionsSection() {
             <button
               type="button"
               key={a.label}
-              className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-maestro-text transition-colors hover:bg-maestro-border/40"
+              className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
             >
               <a.icon size={14} className={a.color} />
               <span>{a.label}</span>
@@ -1353,36 +1353,36 @@ function AppearanceSection({
   return (
     <>
       <div className={cardClass}>
-        <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-maestro-muted">
+        <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
           <Settings size={13} />
           Appearance
         </div>
         <button
           type="button"
           onClick={onToggle}
-          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-maestro-text transition-colors hover:bg-maestro-border/40"
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
         >
           {isDark ? (
-            <Sun size={14} className="text-maestro-orange" />
+            <Sun size={14} className="text-chorus-orange" />
           ) : (
-            <Moon size={14} className="text-maestro-accent" />
+            <Moon size={14} className="text-chorus-accent" />
           )}
           <span>{isDark ? "Switch to Light" : "Switch to Dark"}</span>
         </button>
         <button
           type="button"
           onClick={() => setShowTerminalSettings(true)}
-          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-maestro-text transition-colors hover:bg-maestro-border/40"
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
         >
-          <Wrench size={14} className="text-maestro-muted" />
+          <Wrench size={14} className="text-chorus-muted" />
           <span>Terminal Settings</span>
         </button>
         <button
           type="button"
           onClick={() => setShowShortcuts(true)}
-          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-maestro-text transition-colors hover:bg-maestro-border/40"
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-chorus-text transition-colors hover:bg-chorus-border/40"
         >
-          <Keyboard size={14} className="text-maestro-accent" />
+          <Keyboard size={14} className="text-chorus-accent" />
           <span>Keyboard Shortcuts</span>
         </button>
       </div>
@@ -1429,29 +1429,29 @@ function AgentSessionsSection() {
       <SectionHeader
         icon={Cpu}
         label="Agent Sessions"
-        iconColor="text-maestro-accent"
+        iconColor="text-chorus-accent"
         breathe
         badge={
-          <span className="bg-maestro-accent/20 text-maestro-accent text-[10px] px-1.5 rounded-full font-bold">
+          <span className="bg-chorus-accent/20 text-chorus-accent text-[10px] px-1.5 rounded-full font-bold">
             {sessions.length}
           </span>
         }
       />
       <div className="space-y-0.5">
         {sessions.length === 0 ? (
-          <div className="px-2 py-1 text-[11px] text-maestro-muted/60">No active agents</div>
+          <div className="px-2 py-1 text-[11px] text-chorus-muted/60">No active agents</div>
         ) : (
           sessions.map((s) => (
             <div
               key={s.id}
-              className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text hover:bg-maestro-border/40"
+              className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
             >
               <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT_CLASS[s.status]}`} />
               <span className="flex-1 truncate">
                 <span className="font-medium">#{s.id}</span>{" "}
-                <span className="text-maestro-muted">{s.mode}</span>{" "}
-                <span className="text-maestro-muted">-</span>{" "}
-                <span className="text-maestro-muted">{STATUS_LABEL[s.status]}</span>
+                <span className="text-chorus-muted">{s.mode}</span>{" "}
+                <span className="text-chorus-muted">-</span>{" "}
+                <span className="text-chorus-muted">{STATUS_LABEL[s.status]}</span>
               </span>
             </div>
           ))
@@ -1557,27 +1557,27 @@ function ProcessTreeSection() {
     };
 
     return (
-      <div className={depth > 0 ? "ml-3 border-l border-maestro-border/40 pl-2" : ""}>
-        <div className="group flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] text-maestro-text hover:bg-maestro-border/40">
+      <div className={depth > 0 ? "ml-3 border-l border-chorus-border/40 pl-2" : ""}>
+        <div className="group flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] text-chorus-text hover:bg-chorus-border/40">
           {hasChildren ? (
             <button
               type="button"
               onClick={() => setNodeExpanded(!nodeExpanded)}
-              className="shrink-0 p-0.5 hover:bg-maestro-border/40 rounded"
+              className="shrink-0 p-0.5 hover:bg-chorus-border/40 rounded"
             >
               {nodeExpanded ? (
-                <ChevronDown size={10} className="text-maestro-muted" />
+                <ChevronDown size={10} className="text-chorus-muted" />
               ) : (
-                <ChevronRight size={10} className="text-maestro-muted" />
+                <ChevronRight size={10} className="text-chorus-muted" />
               )}
             </button>
           ) : (
             <span className="w-[18px]" />
           )}
-          <Cpu size={10} className="shrink-0 text-maestro-accent" />
+          <Cpu size={10} className="shrink-0 text-chorus-accent" />
           <span className="flex-1 truncate font-medium">{process.name}</span>
-          <span className="shrink-0 text-[9px] text-maestro-muted">{process.pid}</span>
-          <span className="shrink-0 text-[9px] text-maestro-muted/60">
+          <span className="shrink-0 text-[9px] text-chorus-muted">{process.pid}</span>
+          <span className="shrink-0 text-[9px] text-chorus-muted/60">
             {formatMemory(process.memoryBytes)}
           </span>
           {/* Kill button - only for non-root processes */}
@@ -1586,10 +1586,10 @@ function ProcessTreeSection() {
               type="button"
               onClick={handleKill}
               disabled={isKilling}
-              className="shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-maestro-red/20 transition-opacity"
+              className="shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-chorus-red/20 transition-opacity"
               title={`Kill process ${process.pid}`}
             >
-              <X size={10} className={isKilling ? "text-maestro-muted animate-pulse" : "text-maestro-red"} />
+              <X size={10} className={isKilling ? "text-chorus-muted animate-pulse" : "text-chorus-red"} />
             </button>
           )}
         </div>
@@ -1609,39 +1609,39 @@ function ProcessTreeSection() {
 
   return (
     <div className={cardClass}>
-      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-maestro-muted">
+      <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-chorus-muted">
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 hover:text-maestro-text"
+          className="flex items-center gap-1 hover:text-chorus-text"
         >
           {expanded ? (
-            <ChevronDown size={13} className="text-maestro-muted/80" />
+            <ChevronDown size={13} className="text-chorus-muted/80" />
           ) : (
-            <ChevronRight size={13} className="text-maestro-muted/80" />
+            <ChevronRight size={13} className="text-chorus-muted/80" />
           )}
         </button>
-        <Globe size={13} className={totalProcesses > 0 ? "text-maestro-green" : "text-maestro-muted/80"} />
+        <Globe size={13} className={totalProcesses > 0 ? "text-chorus-green" : "text-chorus-muted/80"} />
         <span className="flex-1">Process Tree</span>
         {totalProcesses > 0 && (
-          <span className="bg-maestro-green/20 text-maestro-green text-[10px] px-1.5 rounded-full font-bold">
+          <span className="bg-chorus-green/20 text-chorus-green text-[10px] px-1.5 rounded-full font-bold">
             {totalProcesses}
           </span>
         )}
         <button
           type="button"
           onClick={handleRefresh}
-          className="rounded p-0.5 hover:bg-maestro-border/40"
+          className="rounded p-0.5 hover:bg-chorus-border/40"
           title="Refresh process tree"
         >
-          <RefreshCw size={12} className={`text-maestro-muted ${isLoading ? "animate-spin" : ""}`} />
+          <RefreshCw size={12} className={`text-chorus-muted ${isLoading ? "animate-spin" : ""}`} />
         </button>
       </div>
 
       {expanded && (
         <div className="space-y-1">
           {projectTrees.length === 0 ? (
-            <div className="px-2 py-1 text-[11px] text-maestro-muted/60">
+            <div className="px-2 py-1 text-[11px] text-chorus-muted/60">
               {projectSessions.length === 0 ? "No active sessions" : "No running processes"}
             </div>
           ) : (
@@ -1657,23 +1657,23 @@ function ProcessTreeSection() {
                   <button
                     type="button"
                     onClick={() => toggleSession(tree.sessionId)}
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-maestro-text hover:bg-maestro-border/40"
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-chorus-text hover:bg-chorus-border/40"
                   >
                     {isSessionExpanded ? (
-                      <ChevronDown size={10} className="shrink-0 text-maestro-muted" />
+                      <ChevronDown size={10} className="shrink-0 text-chorus-muted" />
                     ) : (
-                      <ChevronRight size={10} className="shrink-0 text-maestro-muted" />
+                      <ChevronRight size={10} className="shrink-0 text-chorus-muted" />
                     )}
-                    <Bot size={12} className="shrink-0 text-maestro-purple" />
+                    <Bot size={12} className="shrink-0 text-chorus-purple" />
                     <span className="flex-1 text-left font-medium">
                       Session #{tree.sessionId}
                       {session && (
-                        <span className="ml-1 text-maestro-muted font-normal">
+                        <span className="ml-1 text-chorus-muted font-normal">
                           ({session.mode})
                         </span>
                       )}
                     </span>
-                    <span className="text-[10px] text-maestro-muted">
+                    <span className="text-[10px] text-chorus-muted">
                       {tree.processes.length} proc{tree.processes.length !== 1 && "s"}
                     </span>
                   </button>
@@ -1707,16 +1707,16 @@ function OrphanedProcessesSection() {
       <SectionHeader
         icon={Skull}
         label="Orphaned Processes"
-        iconColor="text-maestro-red"
+        iconColor="text-chorus-red"
         right={
-          <button type="button" className="rounded p-0.5 hover:bg-maestro-border/40">
-            <RefreshCw size={12} className="text-maestro-muted" />
+          <button type="button" className="rounded p-0.5 hover:bg-chorus-border/40">
+            <RefreshCw size={12} className="text-chorus-muted" />
           </button>
         }
       />
       <div className="flex items-center gap-2 px-2 py-1">
-        <span className="h-2 w-2 shrink-0 rounded-full bg-maestro-green" />
-        <span className="text-[11px] text-maestro-muted/60">No orphaned processes</span>
+        <span className="h-2 w-2 shrink-0 rounded-full bg-chorus-green" />
+        <span className="text-[11px] text-chorus-muted/60">No orphaned processes</span>
       </div>
     </div>
   );
