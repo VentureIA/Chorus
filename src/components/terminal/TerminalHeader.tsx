@@ -102,7 +102,7 @@ export function TerminalHeader({
           <ProviderIcon
             size={18}
             strokeWidth={1.5}
-            className="text-violet-500 drop-shadow-[0_0_4px_rgba(139,92,246,0.5)]"
+            className="text-blue-500 drop-shadow-[0_0_4px_rgba(59,130,246,0.5)]"
           />
           <ChevronDown size={9} className="text-muted-foreground/60" />
         </button>

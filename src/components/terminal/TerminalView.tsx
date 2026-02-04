@@ -475,7 +475,8 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
   return (
     <div
-      className={`terminal-cell flex h-full flex-col bg-background ${cellStatusClass(effectiveStatus)} ${isFocused ? "ring-2 ring-primary ring-inset" : ""}`}
+      className={`terminal-cell flex h-full flex-col ${cellStatusClass(effectiveStatus)}`}
+      style={{ backgroundColor: "#1e1e1e" }}
       onClick={onFocus}
     >
       {/* Rich header bar */}
@@ -497,7 +498,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       />
 
       {/* xterm.js container */}
-      <div ref={containerRef} className="flex-1 overflow-hidden p-2" />
+      <div ref={containerRef} className="flex-1 overflow-hidden px-4 py-2" style={{ backgroundColor: "#1e1e1e" }} />
 
       {/* Quick action pills */}
       <QuickActionPills

@@ -28,6 +28,11 @@
     --ring: 0 0% 83.1%;                   /* #d4d4d4 */
     --radius: 0rem;
 
+    /* Chorus status colors (RGB triplets for rgba() usage) */
+    --chorus-orange: 245 158 11;
+    --chorus-yellow: 234 179 8;
+    --chorus-green: 63 185 80;
+
     /* Chart colors */
     --chart-1: 270 70% 85%;
     --chart-2: 80 75% 65%;
@@ -195,19 +200,16 @@
 
 /* ── Terminal Cell Styling ── */
 .terminal-cell {
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
-  border: 3px solid rgb(var(--border));
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.3),
-    0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 1px solid #333333;
+  box-shadow: none;
   transition:
-    border-color 200ms ease,
-    box-shadow 200ms ease;
+    border-color 200ms ease;
 }
 
 .terminal-cell-idle {
-  border-color: rgb(var(--muted-foreground) / 0.4);
+  border-color: #333333;
 }
 
 .terminal-cell-starting {
@@ -219,10 +221,10 @@
 }
 
 .terminal-cell-working {
-  border-color: rgb(var(--primary));
+  border-color: rgb(var(--muted-foreground));
   box-shadow:
-    0 0 12px rgba(88, 166, 255, 0.4),
-    0 0 24px rgba(88, 166, 255, 0.2);
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .terminal-cell-needs-input {

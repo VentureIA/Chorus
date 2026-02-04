@@ -47,35 +47,35 @@ export interface TerminalTheme {
 }
 
 /**
- * Chorus's default terminal theme (GitHub Dark inspired).
+ * Chorus's default terminal theme (VS Code Dark+ inspired).
  */
 export const DEFAULT_THEME: TerminalTheme = {
-  background: "#0d1117",
-  foreground: "#e6edf3",
-  cursor: "#58a6ff",
-  cursorAccent: "#0d1117",
+  background: "#1e1e1e",
+  foreground: "#cccccc",
+  cursor: "#ffffff",
+  cursorAccent: "#1e1e1e",
   selectionBackground: "#264f78",
   selectionForeground: undefined,
 
-  // Standard colors
-  black: "#484f58",
-  red: "#f85149",
-  green: "#3fb950",
-  yellow: "#d29922",
-  blue: "#58a6ff",
-  magenta: "#bc8cff",
-  cyan: "#76e3ea",
-  white: "#e6edf3",
+  // Standard colors (VS Code Dark+ palette)
+  black: "#000000",
+  red: "#cd3131",
+  green: "#0dbc79",
+  yellow: "#e5e510",
+  blue: "#2472c8",
+  magenta: "#bc3fbc",
+  cyan: "#11a8cd",
+  white: "#e5e5e5",
 
   // Bright colors
-  brightBlack: "#6e7681",
-  brightRed: "#ffa198",
-  brightGreen: "#56d364",
-  brightYellow: "#e3b341",
-  brightBlue: "#79c0ff",
-  brightMagenta: "#d2a8ff",
-  brightCyan: "#b3f0ff",
-  brightWhite: "#f0f6fc",
+  brightBlack: "#666666",
+  brightRed: "#f14c4c",
+  brightGreen: "#23d18b",
+  brightYellow: "#f5f543",
+  brightBlue: "#3b8eea",
+  brightMagenta: "#d670d6",
+  brightCyan: "#29b8db",
+  brightWhite: "#ffffff",
 };
 
 /**

@@ -47,7 +47,7 @@ type TerminalSettingsActions = {
 
 const DEFAULT_SETTINGS: TerminalSettings = {
   fontFamily: EMBEDDED_FONT,
-  fontSize: 14,
+  fontSize: 12,
   lineHeight: 1.2,
 };
 

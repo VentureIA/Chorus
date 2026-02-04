@@ -39,7 +39,7 @@ function getSkillSourceLabel(source: SkillSource): { text: string; className: st
     case "plugin":
       return {
         text: source.name,
-        className: "bg-purple-400/20 text-purple-400",
+        className: "bg-blue-400/20 text-blue-400",
       };
     case "legacy":
       return {
@@ -88,7 +88,7 @@ interface PreLaunchCardProps {
 }
 
 const AI_MODES: { mode: AiMode; icon: typeof BrainCircuit; label: string; color: string }[] = [
-  { mode: "Claude", icon: BrainCircuit, label: "Claude Code", color: "text-violet-500" },
+  { mode: "Claude", icon: BrainCircuit, label: "Claude Code", color: "text-blue-500" },
   { mode: "Gemini", icon: Sparkles, label: "Gemini CLI", color: "text-blue-400" },
   { mode: "Codex", icon: Code2, label: "Codex", color: "text-green-400" },
   { mode: "Plain", icon: Terminal, label: "Terminal", color: "text-muted-foreground" },
@@ -586,7 +586,7 @@ export function PreLaunchCard({
                 className="flex w-full items-center justify-between gap-2 rounded border border-border bg-card px-3 py-2 text-left text-sm text-foreground transition-colors hover:border-primary/50"
               >
                 <div className="flex items-center gap-2">
-                  <Store size={14} className="text-purple-400" />
+                  <Store size={14} className="text-blue-400" />
                   <span>
                     {enabledPluginsCount} plugins, {enabledSkillsCount} skills
                   </span>
@@ -700,13 +700,13 @@ export function PreLaunchCard({
                                     <span
                                       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                                         isPluginEnabled
-                                          ? "border-purple-400 bg-purple-400"
+                                          ? "border-blue-400 bg-blue-400"
                                           : "border-border bg-transparent"
                                       }`}
                                     >
                                       {isPluginEnabled && <Check size={12} className="text-white" />}
                                     </span>
-                                    <Package size={12} className="shrink-0 text-purple-400" />
+                                    <Package size={12} className="shrink-0 text-blue-400" />
                                     <span className={`flex-1 truncate ${isPluginEnabled ? "text-foreground" : "text-muted-foreground"}`}>
                                       {plugin.name}
                                     </span>
