@@ -233,56 +233,8 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
     }
   }, [effectiveFontSize, terminalSettings.fontFamily, terminalSettings.lineHeight, getEffectiveFontFamily]);
 
-  // Handle Cmd+Plus/Minus for per-terminal zoom
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      if (e.metaKey || e.ctrlKey) {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? -1 : 1;
-        setLocalFontSize((prev) => {
-          const current = prev ?? terminalSettings.fontSize;
-          return Math.max(8, Math.min(32, current + delta));
-        });
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isFocused) return;
-      const isMod = e.metaKey || e.ctrlKey;
-      if (!isMod) return;
-
-      if (e.key === "=" || e.key === "+") {
-        e.preventDefault();
-        e.stopPropagation();
-        setLocalFontSize((prev) => {
-          const current = prev ?? terminalSettings.fontSize;
-          return Math.min(32, current + 1);
-        });
-      } else if (e.key === "-") {
-        e.preventDefault();
-        e.stopPropagation();
-        setLocalFontSize((prev) => {
-          const current = prev ?? terminalSettings.fontSize;
-          return Math.max(8, current - 1);
-        });
-      } else if (e.key === "0") {
-        e.preventDefault();
-        e.stopPropagation();
-        setLocalFontSize(null); // Reset to global setting
-      }
-    };
-
-    container.addEventListener("wheel", handleWheel, { passive: false });
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      container.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isFocused, terminalSettings.fontSize]);
+  // Terminal zoom is controlled only via header buttons (onZoomIn/onZoomOut/onZoomReset)
+  // Keyboard shortcuts and mouse wheel zoom are disabled to prevent accidental zoom changes
 
   /**
    * Immediately removes the terminal from UI (optimistic update),

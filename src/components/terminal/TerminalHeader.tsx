@@ -201,7 +201,7 @@ export function TerminalHeader({
               type="button"
               onClick={onZoomOut}
               className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
-              title="Zoom out (Cmd+-)"
+              title="Zoom out"
               aria-label="Zoom out"
             >
               <Minus size={11} />
@@ -211,7 +211,7 @@ export function TerminalHeader({
                 type="button"
                 onClick={onZoomReset}
                 className="min-w-[28px] rounded px-1 py-0.5 text-[9px] font-medium text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
-                title="Reset zoom (Cmd+0)"
+                title="Reset zoom"
               >
                 {fontSize}px
               </button>
@@ -220,7 +220,7 @@ export function TerminalHeader({
               type="button"
               onClick={onZoomIn}
               className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
-              title="Zoom in (Cmd++)"
+              title="Zoom in"
               aria-label="Zoom in"
             >
               <Plus size={11} />
