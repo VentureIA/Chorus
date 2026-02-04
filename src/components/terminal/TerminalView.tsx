@@ -6,6 +6,7 @@ import "@xterm/xterm/css/xterm.css";
 
 import { QuickActionsManager } from "@/components/quickactions/QuickActionsManager";
 import { buildFontFamily, waitForFont } from "@/lib/fonts";
+import { StatusDetector } from "@/lib/statusDetector";
 import { getBackendInfo, killSession, onPtyOutput, resizePty, writeStdin, type BackendInfo } from "@/lib/terminal";
 import { DEFAULT_THEME, LIGHT_THEME, toXtermTheme } from "@/lib/terminalTheme";
 import { useMcpStore } from "@/stores/useMcpStore";
@@ -279,6 +280,25 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
     let resizeDisposable: { dispose: () => void } | null = null;
     let resizeObserver: ResizeObserver | null = null;
 
+    // Create status detector for this session with callback to update store
+    // Always create the detector - it will update the session status regardless of projectPath
+    console.log(`[TerminalView] Session ${sessionId}: Creating StatusDetector`);
+    const statusDetector = new StatusDetector(sessionId, "", (detectedStatus) => {
+      // Map detected status to backend status format
+      const statusMap: Record<string, "Idle" | "Working" | "NeedsInput" | "Done" | "Error"> = {
+        idle: "Idle",
+        working: "Working",
+        "needs-input": "NeedsInput",
+        done: "Done",
+        error: "Error",
+      };
+      const backendStatus = statusMap[detectedStatus];
+      if (backendStatus) {
+        console.log(`[TerminalView] Session ${sessionId}: Updating status to ${backendStatus}`);
+        useSessionStore.getState().updateSessionStatus(sessionId, backendStatus);
+      }
+    });
+
     // Wait for font to load before initializing terminal
     const initTerminal = async () => {
       await waitForFont(fontFamily, 2000);
@@ -369,6 +389,8 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       const listenerReady = onPtyOutput(sessionId, (data) => {
         if (!disposed && term) {
           term.write(data);
+          // Feed output to status detector for automatic status detection
+          statusDetector.processOutput(data);
         }
       });
       listenerReady
@@ -410,6 +432,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       resizeObserver?.disconnect();
       dataDisposable?.dispose();
       resizeDisposable?.dispose();
+      statusDetector.dispose();
       if (unlisten) unlisten();
       term?.dispose();
       termRef.current = null;

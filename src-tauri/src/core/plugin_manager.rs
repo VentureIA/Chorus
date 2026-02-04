@@ -5,7 +5,8 @@
 //! - Project commands: `<project>/.claude/commands/*.md`
 //! - Personal skills: `~/.claude/skills/*/SKILL.md`
 //! - Personal commands: `~/.claude/commands/*.md`
-//! - Installed plugins: `~/.claude/plugins/*/`
+//! - Chorus plugins: `~/.chorus/plugins/*/` (marketplace-installed, Chorus-exclusive)
+//! - Legacy plugins: `~/.claude/plugins/*/`
 //! - Legacy `.plugins.json` files at project roots
 //!
 //! It also tracks which skills/plugins are enabled per session.
@@ -25,7 +26,7 @@ pub enum SkillSource {
     Project,
     /// From user's ~/.claude/skills/ or ~/.claude/commands/ directory.
     Personal,
-    /// From an installed plugin in ~/.claude/plugins/.
+    /// From an installed plugin in ~/.chorus/plugins/ or ~/.claude/plugins/.
     Plugin { name: String },
     /// Legacy: from .plugins.json file.
     Legacy,
@@ -91,7 +92,7 @@ pub enum PluginSource {
     Builtin,
     /// Defined in the project's .plugins.json (legacy).
     Project,
-    /// User-installed plugin from ~/.claude/plugins/.
+    /// User-installed plugin from ~/.chorus/plugins/ or ~/.claude/plugins/.
     Installed,
     /// Installed from marketplace.
     Marketplace { url: String },
@@ -423,7 +424,7 @@ fn scan_commands_directory(dir: &Path, source: SkillSource) -> Vec<SkillConfig> 
     skills
 }
 
-/// Scans the installed plugins directory (~/.claude/plugins/).
+/// Scans a plugins directory (~/.chorus/plugins/ or ~/.claude/plugins/).
 /// Returns tuples of (PluginConfig, Vec<SkillConfig>).
 fn scan_plugins_directory(dir: &Path) -> Vec<(PluginConfig, Vec<SkillConfig>)> {
     let mut results = Vec::new();
@@ -663,8 +664,9 @@ impl PluginManager {
     /// 2. Project commands: `<project>/.claude/commands/*.md`
     /// 3. Personal skills: `~/.claude/skills/*/SKILL.md`
     /// 4. Personal commands: `~/.claude/commands/*.md`
-    /// 5. Installed plugins: `~/.claude/plugins/*/`
-    /// 6. Legacy .plugins.json
+    /// 5. Chorus plugins: `~/.chorus/plugins/*/` (marketplace-installed, Chorus-exclusive)
+    /// 6. Legacy plugins: `~/.claude/plugins/*/`
+    /// 7. Legacy .plugins.json
     ///
     /// Skills are deduplicated, with earlier sources taking priority.
     fn discover_all(project_path: &str) -> ProjectPlugins {
@@ -714,7 +716,16 @@ impl PluginManager {
                 ));
             }
 
-            // 5. Installed plugins: ~/.claude/plugins/*/
+            // 5. Chorus plugins: ~/.chorus/plugins/*/ (marketplace-installed, Chorus-exclusive)
+            let chorus_plugins_dir = home.join(".chorus").join("plugins");
+            if chorus_plugins_dir.exists() {
+                for (plugin, plugin_skills) in scan_plugins_directory(&chorus_plugins_dir) {
+                    all_plugins.push(plugin);
+                    all_skills.extend(plugin_skills);
+                }
+            }
+
+            // 6. Legacy plugins: ~/.claude/plugins/*/
             let plugins_dir = claude_dir.join("plugins");
             if plugins_dir.exists() {
                 for (plugin, plugin_skills) in scan_plugins_directory(&plugins_dir) {
@@ -724,7 +735,7 @@ impl PluginManager {
             }
         }
 
-        // 6. Legacy .plugins.json
+        // 7. Legacy .plugins.json
         let legacy = Self::parse_legacy_plugins_json(project_path);
         all_skills.extend(legacy.skills);
         all_plugins.extend(legacy.plugins);

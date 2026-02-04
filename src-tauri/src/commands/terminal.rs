@@ -140,7 +140,7 @@ pub async fn resize_pty(
 
 /// Exposes `ProcessManager::kill_session` to the frontend.
 /// Gracefully terminates the PTY session (SIGTERM, then SIGKILL after 3s).
-/// Also unregisters the session from the status server.
+/// Also unregisters the session from the status server and cleans up session files.
 #[tauri::command]
 pub async fn kill_session(
     state: State<'_, ProcessManager>,
@@ -155,12 +155,21 @@ pub async fn kill_session(
     // Unregister the session from the status server so it stops accepting updates
     status_server.unregister_session(session_id).await;
 
-    // Log for debugging
-    let _project_path = session_mgr
+    // Clean up .chorus-session file if it exists
+    if let Some(session) = session_mgr
         .all_sessions()
         .into_iter()
         .find(|s| s.id == session_id)
-        .map(|s| s.project_path);
+    {
+        let session_file = std::path::Path::new(&session.project_path).join(".chorus-session");
+        if session_file.exists() {
+            if let Err(e) = std::fs::remove_file(&session_file) {
+                log::warn!("Failed to remove .chorus-session file: {}", e);
+            } else {
+                log::debug!("Removed .chorus-session file from {:?}", session_file);
+            }
+        }
+    }
 
     result
 }

@@ -20,6 +20,7 @@ import {
   createSession,
   killSession,
   spawnShell,
+  getStatusServerInfo,
   writeStdin,
 } from "@/lib/terminal";
 import { cleanupSessionWorktree, prepareSessionWorktree } from "@/lib/worktreeManager";
@@ -436,6 +437,16 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
         envVars.CHORUS_PROJECT_HASH = projectHash;
       }
 
+      // Inject status server info for hooks-based status reporting
+      // Claude Code hooks can check CHORUS_STATUS_URL to know if they're in a Chorus session
+      try {
+        const statusServerInfo = await getStatusServerInfo();
+        envVars.CHORUS_STATUS_URL = statusServerInfo.status_url;
+        envVars.CHORUS_INSTANCE_ID = statusServerInfo.instance_id;
+      } catch (err) {
+        console.warn("Failed to get status server info:", err);
+      }
+
       // Spawn the shell in the correct directory (worktree or project path)
       // CHORUS_SESSION_ID is automatically injected by the backend
       const sessionId = await spawnShell(workingDirectory, envVars);
@@ -496,16 +507,24 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
                 // Non-fatal - continue with CLI launch, MCP servers just won't be available
               }
 
-              // NOTE: We no longer write plugin config to settings.local.json
-              // Claude CLI auto-discovers plugins from ~/.claude/plugins/
-              // Writing a `plugins` array was interfering with auto-discovery
             }
+
+            // Build --plugin-dir flags for enabled plugins
+            // This injects Chorus-exclusive plugins at runtime without polluting ~/.claude/
+            const pluginDirFlags = slot.enabledPlugins
+              .map((pluginId) => plugins.find((p) => p.id === pluginId))
+              .filter((p): p is NonNullable<typeof p> => p !== undefined && p.path !== null)
+              .map((p) => `--plugin-dir "${p.path}"`)
+              .join(" ");
 
             // Brief delay for shell to initialize (reduced from 500ms)
             await new Promise((resolve) => setTimeout(resolve, 100));
 
-            // Send CLI launch command IMMEDIATELY after writing config
-            await writeStdin(sessionId, `${cliConfig.command}\r`);
+            // Send CLI launch command with plugin-dir flags
+            const cliCommand = pluginDirFlags
+              ? `${cliConfig.command} ${pluginDirFlags}`
+              : cliConfig.command;
+            await writeStdin(sessionId, `${cliCommand}\r`);
 
             // Brief delay for CLI initialization.
             // With session-specific MCP server names (chorus-1, chorus-2, etc.),
@@ -537,7 +556,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
       console.error("Failed to spawn shell:", err);
       setError("Failed to start terminal session");
     }
-  }, [projectPath, tabId, addSessionToProject]);
+  }, [projectPath, tabId, addSessionToProject, plugins]);
 
   /**
    * Launches a single slot by spawning a shell with the configured settings.

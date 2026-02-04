@@ -140,3 +140,25 @@ export async function hasEnhancedState(): Promise<boolean> {
   const info = await getBackendInfo();
   return info.capabilities.enhancedState;
 }
+
+/** Status server info returned by the backend. */
+export interface StatusServerInfo {
+  status_url: string;
+  instance_id: string;
+}
+
+/** Cached status server info to avoid repeated IPC calls. */
+let cachedStatusServerInfo: StatusServerInfo | null = null;
+
+/**
+ * Returns information about the Chorus status server.
+ * Used to inject CHORUS_STATUS_URL and CHORUS_INSTANCE_ID into Claude sessions
+ * for hooks-based status reporting.
+ */
+export async function getStatusServerInfo(): Promise<StatusServerInfo> {
+  if (cachedStatusServerInfo) {
+    return cachedStatusServerInfo;
+  }
+  cachedStatusServerInfo = await invoke<StatusServerInfo>("get_status_server_info");
+  return cachedStatusServerInfo;
+}

@@ -1,12 +1,20 @@
 //! MCP protocol implementation over stdio.
 //!
 //! Implements the Model Context Protocol (MCP) JSON-RPC over stdio,
-//! providing the `chorus_status` tool for reporting agent state.
+//! providing automatic status reporting to Chorus based on MCP activity.
+//!
+//! Status is reported automatically:
+//! - "idle" when initialized or after completing a tool call
+//! - "working" when a tool call is received
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::io::{self, BufRead, Write};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::time::{Duration, Instant};
 use thiserror::Error;
+use tokio::sync::Mutex;
 
 use crate::status_reporter::StatusReporter;
 
@@ -48,9 +56,40 @@ struct JsonRpcError {
     message: String,
 }
 
-/// MCP server implementation.
+/// Tracks the current working state for automatic status reporting.
+struct ActivityTracker {
+    /// Last time we saw activity
+    last_activity: Mutex<Instant>,
+    /// Whether we're currently in "working" state
+    is_working: AtomicBool,
+}
+
+impl ActivityTracker {
+    fn new() -> Self {
+        Self {
+            last_activity: Mutex::new(Instant::now()),
+            is_working: AtomicBool::new(false),
+        }
+    }
+
+    async fn mark_activity(&self) {
+        let mut last = self.last_activity.lock().await;
+        *last = Instant::now();
+    }
+
+    fn set_working(&self, working: bool) {
+        self.is_working.store(working, Ordering::SeqCst);
+    }
+
+    fn is_working(&self) -> bool {
+        self.is_working.load(Ordering::SeqCst)
+    }
+}
+
+/// MCP server implementation with automatic status reporting.
 pub struct McpServer {
     status_reporter: StatusReporter,
+    activity: Arc<ActivityTracker>,
 }
 
 impl McpServer {
@@ -61,19 +100,44 @@ impl McpServer {
     ) -> Self {
         Self {
             status_reporter: StatusReporter::new(status_url, session_id, instance_id),
+            activity: Arc::new(ActivityTracker::new()),
         }
     }
 
     /// Run the MCP server, reading from stdin and writing to stdout.
+    /// Automatically reports status based on MCP activity.
     pub async fn run(&self) -> Result<(), McpError> {
         let stdin = io::stdin();
         let mut stdout = io::stdout();
+
+        // Spawn idle detection task
+        let activity = self.activity.clone();
+        let reporter = self.status_reporter.clone();
+        tokio::spawn(async move {
+            let idle_threshold = Duration::from_secs(2);
+            loop {
+                tokio::time::sleep(Duration::from_millis(500)).await;
+
+                let last = *activity.last_activity.lock().await;
+                let elapsed = last.elapsed();
+
+                // If we were working but haven't seen activity for a while, go idle
+                if activity.is_working() && elapsed > idle_threshold {
+                    activity.set_working(false);
+                    eprintln!("[chorus-mcp-server] No activity for {:?}, reporting idle", elapsed);
+                    let _ = reporter.report_status("idle", "Ready", None).await;
+                }
+            }
+        });
 
         for line in stdin.lock().lines() {
             let line = line?;
             if line.is_empty() {
                 continue;
             }
+
+            // Mark activity on every message
+            self.activity.mark_activity().await;
 
             let request: JsonRpcRequest = match serde_json::from_str(&line) {
                 Ok(req) => req,

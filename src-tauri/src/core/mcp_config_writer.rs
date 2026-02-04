@@ -147,13 +147,25 @@ fn merge_with_existing(
     Ok(json!({ "mcpServers": final_servers }))
 }
 
+/// Configuration for the Chorus status MCP server.
+#[derive(Debug, Clone)]
+pub struct ChorusStatusConfig {
+    /// Path to the chorus-mcp-server binary
+    pub binary_path: PathBuf,
+    /// URL of the Chorus status HTTP server (e.g., "http://127.0.0.1:9900/status")
+    pub status_url: String,
+    /// Unique instance ID for this Chorus app instance
+    pub instance_id: String,
+}
+
 /// Writes a session-specific `.mcp.json` to the working directory.
 ///
 /// This function:
-/// 1. Adds enabled discovered servers from the project's .mcp.json
-/// 2. Adds enabled custom servers (user-defined, global)
-/// 3. Merges with any existing `.mcp.json` (preserving user servers)
-/// 4. Writes the final config to the working directory
+/// 1. Adds the Chorus status server for real-time status reporting
+/// 2. Adds enabled discovered servers from the project's .mcp.json
+/// 3. Adds enabled custom servers (user-defined, global)
+/// 4. Merges with any existing `.mcp.json` (preserving user servers)
+/// 5. Writes the final config to the working directory
 ///
 /// # Arguments
 ///
@@ -161,13 +173,37 @@ fn merge_with_existing(
 /// * `session_id` - Session identifier used for merging
 /// * `enabled_servers` - List of discovered MCP server configs enabled for this session
 /// * `custom_servers` - List of custom MCP servers that are enabled
+/// * `chorus_status` - Optional configuration for the Chorus status MCP server
 pub async fn write_session_mcp_config(
     working_dir: &Path,
     session_id: u32,
     enabled_servers: &[McpServerConfig],
     custom_servers: &[McpCustomServer],
+    chorus_status: Option<&ChorusStatusConfig>,
 ) -> Result<(), String> {
     let mut mcp_servers: HashMap<String, Value> = HashMap::new();
+
+    // Add the Chorus status server for real-time status reporting
+    if let Some(config) = chorus_status {
+        let chorus_server = json!({
+            "type": "stdio",
+            "command": config.binary_path.to_string_lossy(),
+            "args": [],
+            "env": {
+                "CHORUS_STATUS_URL": &config.status_url,
+                "CHORUS_SESSION_ID": session_id.to_string(),
+                "CHORUS_INSTANCE_ID": &config.instance_id
+            }
+        });
+        mcp_servers.insert("chorus-status".to_string(), chorus_server);
+        log::info!(
+            "Added chorus-status MCP server: binary={:?}, url={}, session_id={}, instance_id={}",
+            config.binary_path,
+            config.status_url,
+            session_id,
+            config.instance_id
+        );
+    }
 
     // Add enabled discovered servers from project .mcp.json
     for server in enabled_servers {
@@ -306,6 +342,7 @@ mod tests {
             1,
             &[],
             &[],
+            None, // No chorus-status config for this test
         )
         .await;
 

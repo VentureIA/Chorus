@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum InstallScope {
-    /// Installed to ~/.claude/plugins/ - available to all projects for this user.
+    /// Installed to ~/.chorus/plugins/ - Chorus-exclusive, injected via --plugin-dir.
     User,
     /// Installed to <project>/.claude/plugins/ - available to this project only.
     Project,

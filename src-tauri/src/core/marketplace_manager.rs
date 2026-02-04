@@ -75,17 +75,21 @@ impl MarketplaceManager {
         }
     }
 
-    /// Gets the base plugins directory (~/.claude/plugins/).
+    /// Gets the base plugins directory (~/.chorus/plugins/).
+    ///
+    /// We use ~/.chorus/ instead of ~/.claude/ so that plugins installed via
+    /// Chorus are only available when launched through Chorus (via --plugin-dir).
+    /// This prevents plugins from being globally available in standalone Claude CLI.
     fn get_user_plugins_dir() -> Option<PathBuf> {
-        BaseDirs::new().map(|dirs| dirs.home_dir().join(".claude").join("plugins"))
+        BaseDirs::new().map(|dirs| dirs.home_dir().join(".chorus").join("plugins"))
     }
 
-    /// Gets the marketplaces cache directory (~/.claude/plugins/marketplaces/).
+    /// Gets the marketplaces cache directory (~/.chorus/plugins/marketplaces/).
     fn get_marketplaces_cache_dir() -> Option<PathBuf> {
         Self::get_user_plugins_dir().map(|p| p.join("marketplaces"))
     }
 
-    /// Gets the repos cache directory (~/.claude/plugins/repos/).
+    /// Gets the repos cache directory (~/.chorus/plugins/repos/).
     fn get_repos_cache_dir() -> Option<PathBuf> {
         Self::get_user_plugins_dir().map(|p| p.join("repos"))
     }
@@ -588,16 +592,25 @@ impl MarketplaceManager {
         let manifest_dir = plugin_dir.join(".claude-plugin");
         tokio::fs::create_dir_all(&manifest_dir).await?;
 
-        // Write plugin.json manifest
+        // Write plugin.json manifest (Claude Code compatible format)
+        // - name must be kebab-case (no spaces)
+        // - only standard fields: name, version, description, author
         let manifest = serde_json::json!({
-            "name": plugin.name,
+            "name": plugin_dir_name,
             "version": plugin.version,
             "description": plugin.description,
-            "marketplace_id": plugin.marketplace_id,
-            "plugin_id": marketplace_plugin_id,
         });
         let manifest_path = manifest_dir.join("plugin.json");
         tokio::fs::write(&manifest_path, serde_json::to_string_pretty(&manifest)?).await?;
+
+        // Write Chorus-specific metadata separately (for uninstall/update tracking)
+        let chorus_metadata = serde_json::json!({
+            "display_name": plugin.name,
+            "marketplace_id": plugin.marketplace_id,
+            "plugin_id": marketplace_plugin_id,
+        });
+        let metadata_path = manifest_dir.join("chorus-metadata.json");
+        tokio::fs::write(&metadata_path, serde_json::to_string_pretty(&chorus_metadata)?).await?;
 
         // Discover components
         let (skills, commands, mcp_servers, agents, hooks) = Self::discover_plugin_components(&plugin_dir);

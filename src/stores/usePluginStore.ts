@@ -151,7 +151,7 @@ interface PluginState {
   deleteSkill: (skillId: string, skillPath: string, projectPath: string) => Promise<void>;
 
   /**
-   * Deletes a manually installed plugin (from ~/.claude/plugins/ or .claude/plugins/).
+   * Deletes a manually installed plugin (from ~/.chorus/plugins/, ~/.claude/plugins/, or .claude/plugins/).
    * Refreshes the plugin list after deletion.
    */
   deletePlugin: (pluginId: string, pluginPath: string, projectPath: string) => Promise<void>;

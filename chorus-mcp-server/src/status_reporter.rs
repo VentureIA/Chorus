@@ -26,6 +26,7 @@ pub struct StatusPayload {
 }
 
 /// Reports status to Chorus via HTTP POST.
+#[derive(Clone)]
 pub struct StatusReporter {
     client: reqwest::Client,
     status_url: Option<String>,
