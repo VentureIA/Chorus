@@ -334,7 +334,7 @@ export const DEFAULT_SHORTCUTS: ShortcutDefinition[] = [
   {
     id: "unfocus-terminal",
     action: "unfocusTerminal",
-    keys: "escape",
+    keys: "mod+escape",
     category: "terminal",
     label: "Unfocus Terminal",
     description: "Remove focus from current terminal",
