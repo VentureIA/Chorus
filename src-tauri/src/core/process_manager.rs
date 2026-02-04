@@ -139,8 +139,8 @@ impl ProcessManager {
     /// Uses `$SHELL` (falling back to `/bin/sh`) with `-l` for a login environment.
     /// The child process calls `setsid()` via portable-pty, making it a session
     /// leader so `kill_session` can signal the entire process group.
-    /// A dedicated OS thread reads PTY output into a bounded 256-slot channel
-    /// (~1 MB of 4 KB chunks), and a tokio task drains it into Tauri events
+    /// A dedicated OS thread reads PTY output into a bounded 1024-slot channel
+    /// (~4 MB of 4 KB chunks), and a tokio task drains it into Tauri events
     /// named `pty-output-{id}`. If the channel fills, output is dropped and a
     /// log message is emitted to make the loss visible.
     ///
@@ -253,9 +253,9 @@ impl ProcessManager {
         let shutdown_clone = shutdown.clone();
 
         // Dedicated OS thread for reading PTY output.
-        // Sends data through a bounded mpsc channel (~1 MB of 4 KB chunks) to a
+        // Sends data through a bounded mpsc channel (~4 MB of 4 KB chunks) to a
         // tokio task that emits Tauri events.
-        let (tx, mut rx) = tokio::sync::mpsc::channel::<Vec<u8>>(256);
+        let (tx, mut rx) = tokio::sync::mpsc::channel::<Vec<u8>>(1024);
 
         // Shutdown mechanism: dropping the master/writer FDs closes the PTY
         // file descriptor, which causes the blocking `reader.read()` call
