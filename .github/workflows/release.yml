@@ -105,9 +105,23 @@ jobs:
             cargo build --release -p chorus-mcp-server
           fi
 
+      # macOS: Check if signing secrets are configured
+      - name: Check signing configuration
+        id: signing
+        if: matrix.platform == 'macos-latest'
+        run: |
+          if [ -n "$APPLE_CERT" ]; then
+            echo "enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Apple signing secrets not configured - building unsigned"
+          fi
+        env:
+          APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE }}
+
       # macOS: Import Apple Developer certificates for code signing
       - name: Import Apple Developer Certificate
-        if: matrix.platform == 'macos-latest' && env.APPLE_CERTIFICATE != ''
+        if: matrix.platform == 'macos-latest' && steps.signing.outputs.enabled == 'true'
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -129,7 +143,7 @@ jobs:
 
       # macOS: Setup notarization credentials
       - name: Setup Notarization Credentials
-        if: matrix.platform == 'macos-latest' && env.APPLE_ID != ''
+        if: matrix.platform == 'macos-latest' && steps.signing.outputs.enabled == 'true'
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
@@ -140,25 +154,25 @@ jobs:
             --password "$APPLE_PASSWORD" \
             --team-id "$APPLE_TEAM_ID"
 
+      # Build for non-macOS platforms
       - name: Build Tauri app
+        if: matrix.platform != 'macos-latest'
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # macOS signing (only if secrets are set)
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        with:
-          args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
 
-      # macOS: Notarize the DMG
-      - name: Notarize macOS DMG
-        if: matrix.platform == 'macos-latest' && env.APPLE_ID != ''
+      # Build for macOS (unsigned)
+      - name: Build Tauri app (macOS)
+        if: matrix.platform == 'macos-latest'
+        uses: tauri-apps/tauri-action@v0
         env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --target universal-apple-darwin
+
+      # macOS: Notarize the DMG (only if signing was enabled)
+      - name: Notarize macOS DMG
+        if: matrix.platform == 'macos-latest' && steps.signing.outputs.enabled == 'true'
         run: |
           DMG_PATH=$(find target/universal-apple-darwin/release/bundle/dmg -name "*.dmg" | head -1)
           if [ -n "$DMG_PATH" ]; then
