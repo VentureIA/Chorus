@@ -41,7 +41,7 @@ import { usePluginStore } from "@/stores/usePluginStore";
 import { useMarketplaceStore } from "@/stores/useMarketplaceStore";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { useProcessTreeStore, type ProcessInfo, type SessionProcessTree } from "@/stores/useProcessTreeStore";
-import { GitSettingsModal, RemoteStatusIndicator } from "@/components/git";
+import { GitChangesSection, GitSettingsModal, RemoteStatusIndicator } from "@/components/git";
 import { QuickActionsManager } from "@/components/quickactions/QuickActionsManager";
 import { MarketplaceBrowser } from "@/components/marketplace";
 import { McpServerEditorModal } from "@/components/mcp";
@@ -75,7 +75,7 @@ const SIDEBAR_WIDTH_STEP = 4;
 const STATUS_DOT_CLASS: Record<BackendSessionStatus, string> = {
   Starting: "bg-orange-500",
   Idle: "bg-muted-foreground",
-  Working: "bg-primary",
+  Working: "bg-violet-500",
   NeedsInput: "bg-yellow-500",
   Done: "bg-green-500",
   Error: "bg-destructive",
@@ -292,6 +292,8 @@ function ConfigTab({
   return (
     <>
       <GitRepositorySection />
+      {divider}
+      <GitChangesSection />
       {divider}
       <ProjectContextSection />
       {divider}

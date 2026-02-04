@@ -20,7 +20,7 @@ export type ProjectStatus =
 export const STATUS_COLORS: Record<ProjectStatus, string> = {
   idle: "bg-muted-foreground",
   starting: "bg-orange-500",
-  working: "bg-primary",
+  working: "bg-violet-500",
   "needs-input": "bg-yellow-500",
   done: "bg-green-500",
   error: "bg-red-500",

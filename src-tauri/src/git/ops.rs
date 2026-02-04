@@ -65,6 +65,21 @@ pub enum FileChangeStatus {
     Unknown,
 }
 
+/// A file with changes in the working directory (staged and/or unstaged).
+///
+/// Parsed from `git status --porcelain` output where the first column is
+/// the index (staged) status and the second column is the worktree status.
+#[derive(Debug, Clone, Serialize)]
+pub struct WorkingChange {
+    pub path: String,
+    /// Status in the index (staged changes). None if unchanged in index.
+    pub index_status: Option<FileChangeStatus>,
+    /// Status in the worktree (unstaged changes). None if unchanged in worktree.
+    pub worktree_status: Option<FileChangeStatus>,
+    /// Original path for renamed files.
+    pub old_path: Option<String>,
+}
+
 /// Git user configuration (name and email).
 #[derive(Debug, Clone, Serialize)]
 pub struct GitUserConfig {
@@ -156,6 +171,150 @@ impl Git {
     pub async fn uncommitted_count(&self) -> Result<usize, GitError> {
         let output = self.run(&["status", "--porcelain"]).await?;
         Ok(output.lines().len())
+    }
+
+    /// Returns detailed information about all working directory changes.
+    ///
+    /// Parses `git status --porcelain` output where each line has the format:
+    /// `XY path` or `XY old_path -> new_path` for renames.
+    /// X is the index (staged) status, Y is the worktree (unstaged) status.
+    pub async fn get_working_changes(&self) -> Result<Vec<WorkingChange>, GitError> {
+        let output = self.run(&["status", "--porcelain"]).await?;
+
+        let mut changes = Vec::new();
+        for line in output.lines() {
+            if line.len() < 3 {
+                continue;
+            }
+
+            let index_char = line.chars().next().unwrap_or(' ');
+            let worktree_char = line.chars().nth(1).unwrap_or(' ');
+            let path_part = &line[3..];
+
+            // Parse status characters
+            let index_status = Self::parse_status_char(index_char);
+            let worktree_status = Self::parse_status_char(worktree_char);
+
+            // Handle renames (format: "old_path -> new_path")
+            let (path, old_path) = if path_part.contains(" -> ") {
+                let parts: Vec<&str> = path_part.splitn(2, " -> ").collect();
+                (
+                    parts.get(1).unwrap_or(&"").to_string(),
+                    Some(parts.first().unwrap_or(&"").to_string()),
+                )
+            } else {
+                (path_part.to_string(), None)
+            };
+
+            changes.push(WorkingChange {
+                path,
+                index_status,
+                worktree_status,
+                old_path,
+            });
+        }
+
+        Ok(changes)
+    }
+
+    /// Helper to parse a single status character from git status --porcelain.
+    fn parse_status_char(c: char) -> Option<FileChangeStatus> {
+        match c {
+            'M' => Some(FileChangeStatus::Modified),
+            'A' => Some(FileChangeStatus::Added),
+            'D' => Some(FileChangeStatus::Deleted),
+            'R' => Some(FileChangeStatus::Renamed),
+            'C' => Some(FileChangeStatus::Copied),
+            '?' => Some(FileChangeStatus::Unknown), // Untracked
+            '!' => Some(FileChangeStatus::Unknown), // Ignored
+            ' ' => None,                            // No change
+            _ => Some(FileChangeStatus::Unknown),
+        }
+    }
+
+    /// Stages the specified files for commit.
+    ///
+    /// Runs `git add` with the provided paths.
+    pub async fn stage_files(&self, paths: &[String]) -> Result<(), GitError> {
+        if paths.is_empty() {
+            return Ok(());
+        }
+        let mut args: Vec<&str> = vec!["add", "--"];
+        args.extend(paths.iter().map(|s| s.as_str()));
+        self.run(&args).await?;
+        Ok(())
+    }
+
+    /// Unstages the specified files (removes from index but keeps changes).
+    ///
+    /// Runs `git restore --staged` with the provided paths.
+    pub async fn unstage_files(&self, paths: &[String]) -> Result<(), GitError> {
+        if paths.is_empty() {
+            return Ok(());
+        }
+        let mut args: Vec<&str> = vec!["restore", "--staged", "--"];
+        args.extend(paths.iter().map(|s| s.as_str()));
+        self.run(&args).await?;
+        Ok(())
+    }
+
+    /// Discards changes in the specified files (restores to HEAD).
+    ///
+    /// Runs `git restore` for tracked files or removes untracked files.
+    /// Warning: This is destructive and cannot be undone!
+    pub async fn discard_files(&self, paths: &[String]) -> Result<(), GitError> {
+        if paths.is_empty() {
+            return Ok(());
+        }
+        let mut args: Vec<&str> = vec!["restore", "--"];
+        args.extend(paths.iter().map(|s| s.as_str()));
+        self.run(&args).await?;
+        Ok(())
+    }
+
+    /// Removes untracked files from the working directory.
+    ///
+    /// Warning: This is destructive and cannot be undone!
+    pub async fn clean_files(&self, paths: &[String]) -> Result<(), GitError> {
+        if paths.is_empty() {
+            return Ok(());
+        }
+        let mut args: Vec<&str> = vec!["clean", "-f", "--"];
+        args.extend(paths.iter().map(|s| s.as_str()));
+        self.run(&args).await?;
+        Ok(())
+    }
+
+    /// Creates a commit with the staged changes.
+    ///
+    /// Returns the hash of the created commit.
+    pub async fn create_commit(&self, message: &str) -> Result<String, GitError> {
+        self.run(&["commit", "-m", message]).await?;
+        // Get the hash of the commit we just created
+        let output = self.run(&["rev-parse", "HEAD"]).await?;
+        Ok(output.trimmed().to_string())
+    }
+
+    /// Pushes commits to the remote repository.
+    ///
+    /// If `set_upstream` is true, sets the upstream tracking reference.
+    pub async fn push(&self, remote: Option<&str>, branch: Option<&str>, set_upstream: bool) -> Result<(), GitError> {
+        let mut args = vec!["push"];
+
+        if set_upstream {
+            args.push("-u");
+        }
+
+        if let Some(r) = remote {
+            args.push(r);
+        }
+
+        if let Some(b) = branch {
+            args.push(b);
+        }
+
+        self.run(&args).await?;
+        Ok(())
     }
 
     /// Lists all worktrees by parsing `git worktree list --porcelain`.
