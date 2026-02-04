@@ -1,7 +1,5 @@
 # Chorus
 
-![Chorus Banner](assets/banner.png)
-
 **Run multiple AI coding sessions in parallel**
 
 Chorus is a desktop application that lets you orchestrate 1-6 AI coding assistants simultaneously, each working in its own isolated git worktree.
