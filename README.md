@@ -7,7 +7,7 @@ Chorus is a desktop application that lets you orchestrate 1-6 AI coding assistan
 ![macOS](https://img.shields.io/badge/macOS-13%2B-blue)
 ![Windows](https://img.shields.io/badge/Windows-10%2B-blue)
 ![Linux](https://img.shields.io/badge/Linux-supported-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+![License](https://img.shields.io/badge/license-Proprietary-red)
 
 ---
 
