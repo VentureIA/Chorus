@@ -336,7 +336,15 @@ impl CatalogPlugin {
             version: self.version.unwrap_or_else(|| "0.0.0".to_string()),
             author: author_name,
             category: parse_category(&self.category),
-            types: self.types.iter().filter_map(|t| parse_plugin_type(t)).collect(),
+            types: {
+                let parsed: Vec<PluginType> = self.types.iter().filter_map(|t| parse_plugin_type(t)).collect();
+                // Default to Skill if no types are specified
+                if parsed.is_empty() {
+                    vec![PluginType::Skill]
+                } else {
+                    parsed
+                }
+            },
             download_url: self.download_url,
             repository_url,
             source_path,

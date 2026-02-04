@@ -11,7 +11,7 @@ export function IdleLandingView({ onAdd }: IdleLandingViewProps) {
       <BrainCircuit
         size={56}
         strokeWidth={1.2}
-        className="motion-safe:animate-breathe motion-reduce:animate-none text-violet-500 drop-shadow-[0_0_10px_rgba(139,92,246,0.6)]"
+        className="motion-safe:animate-breathe motion-reduce:animate-none text-stone-400 drop-shadow-[0_0_10px_rgba(168,162,158,0.4)]"
       />
 
       <div className="flex flex-col items-center gap-1.5">

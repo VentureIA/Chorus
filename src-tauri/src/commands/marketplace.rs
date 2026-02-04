@@ -26,6 +26,7 @@ async fn save_marketplace_data(app: &AppHandle, manager: &MarketplaceManager) ->
 }
 
 /// Loads marketplace data from the Tauri store.
+/// Ensures the official marketplace is always present after loading.
 #[tauri::command]
 pub async fn load_marketplace_data(
     app: AppHandle,
@@ -45,12 +46,16 @@ pub async fn load_marketplace_data(
         .unwrap_or_default();
 
     // Create JSON blob and load into manager
+    // Note: load_from_json ensures official marketplace is always present
     let data = MarketplaceData {
         sources,
         installed_plugins,
     };
     let json = serde_json::to_string(&data).map_err(|e| e.to_string())?;
     state.load_from_json(&json).map_err(|e| e.to_string())?;
+
+    // Save state to persist official marketplace if it was added
+    save_marketplace_data(&app, &state).await?;
 
     Ok(())
 }

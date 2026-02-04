@@ -22,6 +22,11 @@ const OFFICIAL_MARKETPLACE_NAME: &str = "Claude Code Official";
 const OFFICIAL_MARKETPLACE_URL: &str = "https://github.com/anthropics/claude-code";
 const OFFICIAL_MARKETPLACE_ID: &str = "official-anthropic-claude-code";
 
+/// Chorus Skills marketplace - bundled with Chorus.
+const CHORUS_MARKETPLACE_NAME: &str = "Chorus Skills";
+const CHORUS_MARKETPLACE_URL: &str = "https://github.com/VentureIA/chorus-marketplace";
+const CHORUS_MARKETPLACE_ID: &str = "chorus-skills-official";
+
 /// Session key for per-session configuration: (project_path, session_id).
 type SessionKey = (String, u32);
 
@@ -40,7 +45,7 @@ pub struct MarketplaceManager {
 }
 
 impl MarketplaceManager {
-    /// Creates a new marketplace manager with the official Anthropic marketplace.
+    /// Creates a new marketplace manager with the official marketplaces.
     pub fn new() -> Self {
         let official_source = MarketplaceSource {
             id: OFFICIAL_MARKETPLACE_ID.to_string(),
@@ -52,8 +57,18 @@ impl MarketplaceManager {
             last_error: None,
         };
 
+        let chorus_source = MarketplaceSource {
+            id: CHORUS_MARKETPLACE_ID.to_string(),
+            name: CHORUS_MARKETPLACE_NAME.to_string(),
+            repository_url: CHORUS_MARKETPLACE_URL.to_string(),
+            is_official: true,
+            is_enabled: true,
+            last_fetched: None,
+            last_error: None,
+        };
+
         Self {
-            sources: RwLock::new(vec![official_source]),
+            sources: RwLock::new(vec![official_source, chorus_source]),
             available_plugins: DashMap::new(),
             installed_plugins: RwLock::new(Vec::new()),
             session_configs: DashMap::new(),
@@ -694,12 +709,55 @@ impl MarketplaceManager {
 
     // ========== Persistence ==========
 
+    /// Ensures the official Anthropic marketplace source exists.
+    /// Returns true if the official source was added (didn't exist before).
+    /// Ensures all default marketplaces (Official + Chorus) exist.
+    /// Returns true if any marketplace was added.
+    pub fn ensure_official_marketplace(&self) -> bool {
+        let mut sources = self.sources.write().unwrap();
+        let mut added = false;
+
+        // Ensure Claude Code Official marketplace
+        if !sources.iter().any(|s| s.id == OFFICIAL_MARKETPLACE_ID) {
+            sources.push(MarketplaceSource {
+                id: OFFICIAL_MARKETPLACE_ID.to_string(),
+                name: OFFICIAL_MARKETPLACE_NAME.to_string(),
+                repository_url: OFFICIAL_MARKETPLACE_URL.to_string(),
+                is_official: true,
+                is_enabled: true,
+                last_fetched: None,
+                last_error: None,
+            });
+            added = true;
+        }
+
+        // Ensure Chorus Skills marketplace
+        if !sources.iter().any(|s| s.id == CHORUS_MARKETPLACE_ID) {
+            sources.push(MarketplaceSource {
+                id: CHORUS_MARKETPLACE_ID.to_string(),
+                name: CHORUS_MARKETPLACE_NAME.to_string(),
+                repository_url: CHORUS_MARKETPLACE_URL.to_string(),
+                is_official: true,
+                is_enabled: true,
+                last_fetched: None,
+                last_error: None,
+            });
+            added = true;
+        }
+
+        added
+    }
+
     /// Loads marketplace data from a JSON string.
+    /// Ensures the official marketplace is always present after loading.
     pub fn load_from_json(&self, json: &str) -> MarketplaceResult<()> {
         let data: MarketplaceData = serde_json::from_str(json)?;
 
         *self.sources.write().unwrap() = data.sources;
         *self.installed_plugins.write().unwrap() = data.installed_plugins;
+
+        // Always ensure official marketplace exists after loading
+        self.ensure_official_marketplace();
 
         Ok(())
     }
