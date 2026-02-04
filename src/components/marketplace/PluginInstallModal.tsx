@@ -86,7 +86,7 @@ export function PluginInstallModal({
     {
       value: "user",
       label: "User",
-      description: "Available in all projects (~/.claude/plugins/)",
+      description: "Available in Chorus only (~/.chorus/plugins/)",
       icon: <User size={16} />,
     },
     {

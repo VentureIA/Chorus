@@ -112,7 +112,7 @@ export interface ProjectPluginConfig extends BasePluginConfig {
 }
 
 /**
- * Plugin config with installed source (~/.claude/plugins/).
+ * Plugin config with installed source (~/.chorus/plugins/).
  */
 export interface InstalledPluginConfig extends BasePluginConfig {
   plugin_source: "installed";
@@ -294,7 +294,7 @@ export async function deleteSkill(skillPath: string): Promise<void> {
 /**
  * Deletes a plugin directory from the filesystem.
  *
- * Only allows deletion of paths within .claude/plugins/ (project) or ~/.claude/plugins/ (personal).
+ * Only allows deletion of paths within ~/.chorus/plugins/, ~/.claude/plugins/, or .claude/plugins/.
  */
 export async function deletePlugin(pluginPath: string): Promise<void> {
   return invoke("delete_plugin", { pluginPath });

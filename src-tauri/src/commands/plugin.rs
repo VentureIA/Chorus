@@ -343,7 +343,8 @@ pub async fn delete_skill(skill_path: String) -> Result<(), String> {
 /// Deletes a plugin directory from the filesystem.
 ///
 /// For security, this command only allows deletion of paths that are within:
-/// - The user's `~/.claude/plugins/` directory
+/// - The user's `~/.chorus/plugins/` directory (marketplace-installed)
+/// - The user's `~/.claude/plugins/` directory (legacy)
 /// - A project's `.claude/plugins/` directory
 ///
 /// This prevents accidental or malicious deletion of arbitrary files.
@@ -364,18 +365,20 @@ pub async fn delete_plugin(plugin_path: String) -> Result<(), String> {
     let home_dir = base_dirs.home_dir();
 
     // Build allowed paths
-    let personal_plugins_dir = home_dir.join(".claude").join("plugins");
+    let chorus_plugins_dir = home_dir.join(".chorus").join("plugins");
+    let legacy_plugins_dir = home_dir.join(".claude").join("plugins");
 
     // Check if the path is within allowed directories
-    let is_personal_plugin = canonical_path.starts_with(&personal_plugins_dir);
+    let is_chorus_plugin = canonical_path.starts_with(&chorus_plugins_dir);
+    let is_legacy_plugin = canonical_path.starts_with(&legacy_plugins_dir);
 
     // Check if it's a project plugin (path contains .claude/plugins/)
     let path_str = canonical_path.to_string_lossy();
     let is_project_plugin = path_str.contains("/.claude/plugins/") || path_str.contains("\\.claude\\plugins\\");
 
-    if !is_personal_plugin && !is_project_plugin {
+    if !is_chorus_plugin && !is_legacy_plugin && !is_project_plugin {
         return Err(format!(
-            "Cannot delete plugin: path '{}' is not within .claude/plugins/ or ~/.claude/plugins/",
+            "Cannot delete plugin: path '{}' is not within ~/.chorus/plugins/, ~/.claude/plugins/, or .claude/plugins/",
             plugin_path.display()
         ));
     }

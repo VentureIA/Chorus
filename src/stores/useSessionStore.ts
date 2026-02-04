@@ -74,6 +74,7 @@ interface SessionState {
   removeSessionsForProject: (projectPath: string) => Promise<SessionConfig[]>;
   getSessionsByProject: (projectPath: string) => SessionConfig[];
   updateSessionTitle: (sessionId: number, title: string) => void;
+  updateSessionStatus: (sessionId: number, status: BackendSessionStatus, message?: string) => void;
   initListeners: () => Promise<UnlistenFn>;
 }
 
@@ -263,6 +264,21 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     invoke("update_session_title", { sessionId, title }).catch((err) => {
       console.warn(`Failed to persist session title: ${err}`);
     });
+  },
+
+  updateSessionStatus: (sessionId: number, status: BackendSessionStatus, message?: string) => {
+    // Clear startup timeout when session transitions out of Starting state
+    if (status !== "Starting") {
+      clearStartupTimeout(sessionId);
+    }
+
+    set((state) => ({
+      sessions: state.sessions.map((s) =>
+        s.id === sessionId
+          ? { ...s, status, statusMessage: message }
+          : s
+      ),
+    }));
   },
 
   initListeners: async () => {

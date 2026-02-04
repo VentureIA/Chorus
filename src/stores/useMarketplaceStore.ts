@@ -207,6 +207,11 @@ export const useMarketplaceStore = create<MarketplaceState>()((set, get) => ({
         installedPlugins,
         isLoading: false,
       });
+
+      // If no plugins are cached, trigger a refresh to fetch from marketplaces
+      if (availablePlugins.length === 0 && sources.some((s) => s.is_enabled)) {
+        get().refreshMarketplaces();
+      }
     } catch (err) {
       console.error("Failed to fetch marketplace data:", err);
       set({

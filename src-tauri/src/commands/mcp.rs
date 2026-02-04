@@ -6,10 +6,11 @@ use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use tauri::{AppHandle, State};
+use tauri::path::BaseDirectory;
+use tauri::{AppHandle, Manager, State};
 use tauri_plugin_store::StoreExt;
 
-use crate::core::mcp_config_writer;
+use crate::core::mcp_config_writer::{self, ChorusStatusConfig};
 use crate::core::mcp_manager::{McpManager, McpServerConfig};
 use crate::core::status_server::StatusServer;
 
@@ -306,21 +307,136 @@ pub async fn write_session_mcp_config(
         .filter(|s| s.is_enabled)
         .collect();
 
+    // Resolve the path to the chorus-mcp-server binary
+    // In development, it's in the target directory; in production, it's bundled as a resource
+    let chorus_status_config = resolve_chorus_mcp_server_path(&app)
+        .map(|binary_path| {
+            ChorusStatusConfig {
+                binary_path,
+                status_url: status_server.status_url(),
+                instance_id: status_server.instance_id().to_string(),
+            }
+        });
+
+    if chorus_status_config.is_none() {
+        log::warn!("chorus-mcp-server binary not found - status reporting will be disabled");
+    }
+
     log::info!(
-        "Writing MCP config for session {} to {} ({} discovered + {} custom servers)",
+        "Writing MCP config for session {} to {} ({} discovered + {} custom servers, chorus-status={})",
         session_id,
         working_dir,
         enabled_discovered.len(),
         enabled_custom.len(),
+        chorus_status_config.is_some(),
     );
+
+    // Write .chorus-session file for hooks to find session config
+    // This file allows Claude Code hooks to know the status URL and session ID
+    let session_file_path = Path::new(&working_dir).join(".chorus-session");
+    let session_file_content = format!(
+        "# Chorus session configuration - auto-generated, do not edit\n\
+         # This file is used by Claude Code hooks to report status\n\
+         STATUS_URL=\"{}\"\n\
+         SESSION_ID={}\n\
+         INSTANCE_ID=\"{}\"\n",
+        status_server.status_url(),
+        session_id,
+        status_server.instance_id(),
+    );
+    if let Err(e) = std::fs::write(&session_file_path, &session_file_content) {
+        log::warn!("Failed to write .chorus-session file: {}", e);
+    } else {
+        log::info!("Wrote .chorus-session file to {:?}", session_file_path);
+    }
 
     mcp_config_writer::write_session_mcp_config(
         Path::new(&working_dir),
         session_id,
         &enabled_discovered,
         &enabled_custom,
+        chorus_status_config.as_ref(),
     )
     .await
+}
+
+/// Resolves the path to the chorus-mcp-server binary.
+///
+/// Tries multiple locations in order:
+/// 1. Bundled resource (production builds)
+/// 2. Target directory relative to executable (development)
+/// 3. Same directory as the executable
+fn resolve_chorus_mcp_server_path(app: &AppHandle) -> Option<PathBuf> {
+    #[cfg(target_os = "windows")]
+    let binary_name = "chorus-mcp-server.exe";
+    #[cfg(not(target_os = "windows"))]
+    let binary_name = "chorus-mcp-server";
+
+    // Try 1: Bundled resource path (production)
+    if let Ok(resource_path) = app.path().resolve(binary_name, BaseDirectory::Resource) {
+        if resource_path.exists() {
+            log::info!("Found chorus-mcp-server at resource path: {:?}", resource_path);
+            return Some(resource_path);
+        }
+    }
+
+    // Try 2: Same directory as executable (common for bundled apps)
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            let sibling_path = exe_dir.join(binary_name);
+            if sibling_path.exists() {
+                log::info!("Found chorus-mcp-server next to executable: {:?}", sibling_path);
+                return Some(sibling_path);
+            }
+
+            // Try 3: For macOS .app bundles, check Contents/Resources
+            #[cfg(target_os = "macos")]
+            {
+                // exe is at Chorus.app/Contents/MacOS/Chorus
+                // resources are at Chorus.app/Contents/Resources
+                if let Some(contents_dir) = exe_dir.parent() {
+                    let resources_path = contents_dir.join("Resources").join(binary_name);
+                    if resources_path.exists() {
+                        log::info!("Found chorus-mcp-server in Resources: {:?}", resources_path);
+                        return Some(resources_path);
+                    }
+                }
+            }
+        }
+    }
+
+    // Try 4: Development - look in target/debug or target/release relative to current dir
+    let current_dir = std::env::current_dir().ok()?;
+    for profile in ["debug", "release"] {
+        let dev_path = current_dir.join("target").join(profile).join(binary_name);
+        if dev_path.exists() {
+            log::info!("Found chorus-mcp-server in development target: {:?}", dev_path);
+            return Some(dev_path);
+        }
+    }
+
+    // Try 5: Look relative to the project root (for workspace builds)
+    // Go up from src-tauri/target/{profile}/chorus to find root target dir
+    if let Ok(exe_path) = std::env::current_exe() {
+        let mut path = exe_path.as_path();
+        for _ in 0..10 {
+            if let Some(parent) = path.parent() {
+                for profile in ["debug", "release"] {
+                    let workspace_path = parent.join("target").join(profile).join(binary_name);
+                    if workspace_path.exists() {
+                        log::info!("Found chorus-mcp-server in workspace target: {:?}", workspace_path);
+                        return Some(workspace_path);
+                    }
+                }
+                path = parent;
+            } else {
+                break;
+            }
+        }
+    }
+
+    log::warn!("Could not find chorus-mcp-server binary in any expected location");
+    None
 }
 
 /// Internal helper to get custom MCP servers (non-async for use within commands).
