@@ -218,13 +218,11 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
       onRehydrateStorage: () => {
         return (state) => {
           if (state) {
-            // Clear stale sessionIds - sessions don't survive app restarts
-            // This prevents session ID collision between persisted tabs and new sessions
-            state.tabs = state.tabs.map((t) => ({
-              ...t,
-              sessionIds: [],
-              sessionsLaunched: false,
-            }));
+            // Clear tabs on startup to avoid TCC permission popups
+            // macOS asks for permission each time we access protected folders (Desktop, Documents, etc.)
+            // Without Security-Scoped Bookmarks, we can't persist folder access permissions
+            // TODO: Implement Security-Scoped Bookmarks for proper folder persistence
+            state.tabs = [];
           }
         };
       },
