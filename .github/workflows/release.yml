@@ -190,12 +190,30 @@ jobs:
           echo "=== Listing target directory ==="
           find target -name "*.dmg" -o -name "*.msi" -o -name "*.exe" -o -name "*.deb" -o -name "*.AppImage" 2>/dev/null || true
 
+      # Create .app.zip for Homebrew (no DMG needed)
+      - name: Create macOS app zip for Homebrew
+        if: matrix.platform == 'macos-latest'
+        run: |
+          APP_PATH=$(find target/universal-apple-darwin/release/bundle -name "Chorus.app" -type d | head -1)
+          if [ -n "$APP_PATH" ]; then
+            cd "$(dirname "$APP_PATH")"
+            zip -r Chorus_universal.app.zip Chorus.app
+            mv Chorus_universal.app.zip $GITHUB_WORKSPACE/
+          fi
+
       - name: Upload macOS DMG
         if: matrix.platform == 'macos-latest'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.create-release.outputs.version }}-${{ github.run_number }}
           files: target/universal-apple-darwin/release/bundle/dmg/*.dmg
+
+      - name: Upload macOS app zip (for Homebrew)
+        if: matrix.platform == 'macos-latest'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.create-release.outputs.version }}-${{ github.run_number }}
+          files: Chorus_universal.app.zip
 
       - name: Upload Windows installers
         if: matrix.platform == 'windows-latest'
