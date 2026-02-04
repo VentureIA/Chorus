@@ -117,6 +117,13 @@ pub fn run() {
             commands::git::git_set_remote_url,
             commands::git::git_get_default_branch,
             commands::git::git_set_default_branch,
+            commands::git::git_working_changes,
+            commands::git::git_stage_files,
+            commands::git::git_unstage_files,
+            commands::git::git_discard_files,
+            commands::git::git_clean_files,
+            commands::git::git_create_commit,
+            commands::git::git_push,
             // Session commands (new)
             commands::session::get_sessions,
             commands::session::create_session,

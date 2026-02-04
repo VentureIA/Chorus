@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::git::{BranchInfo, CommitInfo, FileChange, Git, GitError, GitUserConfig, RemoteInfo, WorktreeInfo};
+use crate::git::{BranchInfo, CommitInfo, FileChange, Git, GitError, GitUserConfig, RemoteInfo, WorkingChange, WorktreeInfo};
 
 /// Returns `Err(GitError::NotARepo)` if the given path string is empty.
 fn validate_repo_path(repo_path: &str) -> Result<(), GitError> {
@@ -227,4 +227,68 @@ pub async fn git_set_default_branch(
     validate_repo_path(&repo_path)?;
     let git = Git::new(&repo_path);
     git.set_default_branch(&branch, global).await
+}
+
+/// Returns all working directory changes (staged and unstaged).
+#[tauri::command]
+pub async fn git_working_changes(repo_path: String) -> Result<Vec<WorkingChange>, GitError> {
+    validate_repo_path(&repo_path)?;
+    let git = Git::new(&repo_path);
+    git.get_working_changes().await
+}
+
+/// Stages the specified files for commit.
+#[tauri::command]
+pub async fn git_stage_files(repo_path: String, paths: Vec<String>) -> Result<(), GitError> {
+    validate_repo_path(&repo_path)?;
+    let git = Git::new(&repo_path);
+    git.stage_files(&paths).await
+}
+
+/// Unstages the specified files (removes from index but keeps changes).
+#[tauri::command]
+pub async fn git_unstage_files(repo_path: String, paths: Vec<String>) -> Result<(), GitError> {
+    validate_repo_path(&repo_path)?;
+    let git = Git::new(&repo_path);
+    git.unstage_files(&paths).await
+}
+
+/// Discards changes in the specified files (restores to HEAD).
+/// Warning: This is destructive!
+#[tauri::command]
+pub async fn git_discard_files(repo_path: String, paths: Vec<String>) -> Result<(), GitError> {
+    validate_repo_path(&repo_path)?;
+    let git = Git::new(&repo_path);
+    git.discard_files(&paths).await
+}
+
+/// Removes untracked files from the working directory.
+/// Warning: This is destructive!
+#[tauri::command]
+pub async fn git_clean_files(repo_path: String, paths: Vec<String>) -> Result<(), GitError> {
+    validate_repo_path(&repo_path)?;
+    let git = Git::new(&repo_path);
+    git.clean_files(&paths).await
+}
+
+/// Creates a commit with the staged changes.
+/// Returns the hash of the created commit.
+#[tauri::command]
+pub async fn git_create_commit(repo_path: String, message: String) -> Result<String, GitError> {
+    validate_repo_path(&repo_path)?;
+    let git = Git::new(&repo_path);
+    git.create_commit(&message).await
+}
+
+/// Pushes commits to the remote repository.
+#[tauri::command]
+pub async fn git_push(
+    repo_path: String,
+    remote: Option<String>,
+    branch: Option<String>,
+    set_upstream: bool,
+) -> Result<(), GitError> {
+    validate_repo_path(&repo_path)?;
+    let git = Git::new(&repo_path);
+    git.push(remote.as_deref(), branch.as_deref(), set_upstream).await
 }

@@ -7,7 +7,7 @@ const STATUS_DEFS: {
 }[] = [
   { key: "Starting", label: "Starting...", colorClass: "bg-orange-400" },
   { key: "Idle", label: "Idle", colorClass: "bg-muted-foreground" },
-  { key: "Working", label: "Working", colorClass: "bg-primary" },
+  { key: "Working", label: "Working", colorClass: "bg-violet-500" },
   { key: "NeedsInput", label: "Needs Input", colorClass: "bg-yellow-300" },
   { key: "Done", label: "Done", colorClass: "bg-green-500" },
   { key: "Error", label: "Error", colorClass: "bg-red-400" },

@@ -41,7 +41,7 @@ interface TerminalHeaderProps {
 const STATUS_COLOR: Record<SessionStatus, string> = {
   idle: "text-muted-foreground",
   starting: "text-orange-400",
-  working: "text-primary",
+  working: "text-violet-500",
   "needs-input": "text-yellow-400",
   done: "text-green-400",
   error: "text-destructive",

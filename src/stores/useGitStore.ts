@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { create } from "zustand";
+import type { WorkingChange } from "../lib/git";
 
 /** Branch info returned from the backend. */
 export interface BranchInfo {
@@ -78,6 +79,10 @@ interface GitState {
   remoteStatuses: Record<string, RemoteStatus>;
   defaultBranch: string | null;
 
+  // Working changes state
+  workingChanges: WorkingChange[];
+  isLoadingChanges: boolean;
+
   // Loading/error state
   isLoading: boolean;
   isLoadingMore: boolean;
@@ -107,6 +112,15 @@ interface GitState {
   setDefaultBranch: (repoPath: string, branch: string, global?: boolean) => Promise<void>;
   getCommitFiles: (repoPath: string, commitHash: string) => Promise<FileChange[]>;
   getRefsForCommit: (repoPath: string, commitHash: string) => Promise<string[]>;
+
+  // Working changes actions
+  fetchWorkingChanges: (repoPath: string) => Promise<void>;
+  stageFiles: (repoPath: string, paths: string[]) => Promise<void>;
+  unstageFiles: (repoPath: string, paths: string[]) => Promise<void>;
+  discardFiles: (repoPath: string, paths: string[], isUntracked?: boolean) => Promise<void>;
+  commitChanges: (repoPath: string, message: string) => Promise<string>;
+  pushChanges: (repoPath: string, remote?: string, branch?: string, setUpstream?: boolean) => Promise<void>;
+
   reset: () => void;
 }
 
@@ -123,6 +137,8 @@ export const useGitStore = create<GitState>()((set, get) => ({
   remotes: [],
   remoteStatuses: {},
   defaultBranch: null,
+  workingChanges: [],
+  isLoadingChanges: false,
   isLoading: false,
   isLoadingMore: false,
   error: null,
@@ -372,6 +388,80 @@ export const useGitStore = create<GitState>()((set, get) => ({
     }
   },
 
+  fetchWorkingChanges: async (repoPath: string) => {
+    set({ isLoadingChanges: true });
+    try {
+      const workingChanges = await invoke<WorkingChange[]>("git_working_changes", { repoPath });
+      set({ workingChanges, isLoadingChanges: false });
+    } catch (err) {
+      console.error("Failed to fetch working changes:", err);
+      set({ workingChanges: [], isLoadingChanges: false });
+    }
+  },
+
+  stageFiles: async (repoPath: string, paths: string[]) => {
+    try {
+      await invoke("git_stage_files", { repoPath, paths });
+      // Refresh working changes
+      await get().fetchWorkingChanges(repoPath);
+    } catch (err) {
+      console.error("Failed to stage files:", err);
+      throw err;
+    }
+  },
+
+  unstageFiles: async (repoPath: string, paths: string[]) => {
+    try {
+      await invoke("git_unstage_files", { repoPath, paths });
+      // Refresh working changes
+      await get().fetchWorkingChanges(repoPath);
+    } catch (err) {
+      console.error("Failed to unstage files:", err);
+      throw err;
+    }
+  },
+
+  discardFiles: async (repoPath: string, paths: string[], isUntracked = false) => {
+    try {
+      if (isUntracked) {
+        // Use git clean for untracked files
+        await invoke("git_clean_files", { repoPath, paths });
+      } else {
+        // Use git restore for tracked files
+        await invoke("git_discard_files", { repoPath, paths });
+      }
+      // Refresh working changes
+      await get().fetchWorkingChanges(repoPath);
+    } catch (err) {
+      console.error("Failed to discard files:", err);
+      throw err;
+    }
+  },
+
+  commitChanges: async (repoPath: string, message: string) => {
+    try {
+      const hash = await invoke<string>("git_create_commit", { repoPath, message });
+      // Refresh working changes and commits
+      await Promise.all([
+        get().fetchWorkingChanges(repoPath),
+        get().fetchCommits(repoPath),
+      ]);
+      return hash;
+    } catch (err) {
+      console.error("Failed to commit changes:", err);
+      throw err;
+    }
+  },
+
+  pushChanges: async (repoPath: string, remote?: string, branch?: string, setUpstream = false) => {
+    try {
+      await invoke("git_push", { repoPath, remote, branch, setUpstream });
+    } catch (err) {
+      console.error("Failed to push changes:", err);
+      throw err;
+    }
+  },
+
   reset: () => {
     set({
       currentBranch: null,
@@ -382,6 +472,8 @@ export const useGitStore = create<GitState>()((set, get) => ({
       remotes: [],
       remoteStatuses: {},
       defaultBranch: null,
+      workingChanges: [],
+      isLoadingChanges: false,
       isLoading: false,
       isLoadingMore: false,
       error: null,
