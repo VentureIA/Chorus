@@ -195,7 +195,7 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme, activeTab
   return (
     // Use a class-based width to avoid inline styles (CSP-friendly).
     <aside
-      className={`theme-transition no-select relative flex h-full flex-col border-r border-border bg-muted ${sidebarWidthClass} ${
+      className={`theme-transition no-select relative flex h-full shrink-0 flex-col border-r border-border bg-muted ${sidebarWidthClass} ${
         isDragging ? "" : "transition-all duration-200 ease-out"
       } ${collapsed ? "overflow-hidden border-r-0 opacity-0" : "opacity-100"}`}
     >
