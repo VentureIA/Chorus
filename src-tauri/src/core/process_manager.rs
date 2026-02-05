@@ -318,7 +318,10 @@ impl ProcessManager {
                                         buf.push_str(&text);
                                         // Cap at 100KB
                                         if buf.len() > 100_000 {
-                                            let drain_to = buf.len() - 80_000;
+                                            let mut drain_to = buf.len() - 80_000;
+                                            while !buf.is_char_boundary(drain_to) {
+                                                drain_to += 1;
+                                            }
                                             buf.drain(..drain_to);
                                         }
                                     }

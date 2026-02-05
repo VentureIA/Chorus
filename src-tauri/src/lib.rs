@@ -30,6 +30,40 @@ pub fn run() {
 
     log::info!("Chorus starting up...");
 
+    // Install a panic hook that writes crash info to a log file.
+    // Since panic="abort" in release, the default handler won't get a chance
+    // to print useful info. This ensures we always capture the cause.
+    std::panic::set_hook(Box::new(|info| {
+        let payload = if let Some(s) = info.payload().downcast_ref::<&str>() {
+            s.to_string()
+        } else if let Some(s) = info.payload().downcast_ref::<String>() {
+            s.clone()
+        } else {
+            "Unknown panic payload".to_string()
+        };
+
+        let location = info
+            .location()
+            .map(|l| format!("{}:{}:{}", l.file(), l.line(), l.column()))
+            .unwrap_or_else(|| "unknown location".to_string());
+
+        let backtrace = std::backtrace::Backtrace::force_capture();
+
+        let msg = format!(
+            "CHORUS PANIC at {location}\n  Message: {payload}\n  Backtrace:\n{backtrace}"
+        );
+
+        // Log to stderr + logger
+        eprintln!("{msg}");
+        log::error!("{msg}");
+
+        // Also write to a crash file in the user's home directory
+        if let Ok(home) = std::env::var("HOME") {
+            let crash_path = std::path::Path::new(&home).join(".chorus-crash.log");
+            let _ = std::fs::write(&crash_path, &msg);
+        }
+    }));
+
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
