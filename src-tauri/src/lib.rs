@@ -206,6 +206,10 @@ pub fn run() {
             // Font detection commands
             commands::fonts::get_available_fonts,
             commands::fonts::check_font_available,
+            // Explorer commands
+            commands::explorer::read_directory,
+            commands::explorer::read_file_content,
+            commands::explorer::write_file_content,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Chorus");

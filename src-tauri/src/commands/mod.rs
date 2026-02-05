@@ -1,4 +1,5 @@
 pub mod claudemd;
+pub mod explorer;
 pub mod fonts;
 pub mod git;
 pub mod marketplace;

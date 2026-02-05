@@ -10,6 +10,7 @@ import {
   Cpu,
   Edit2,
   FileText,
+  FolderTree,
   GitBranch,
   Globe,
   Home,
@@ -54,16 +55,19 @@ import { ClaudeMdEditorModal } from "@/components/claudemd";
 import { TerminalSettingsModal } from "@/components/terminal/TerminalSettingsModal";
 import { KeyboardShortcutsModal } from "@/components/shortcuts/KeyboardShortcutsModal";
 import { ThemeSettingsModal } from "@/components/settings/ThemeSettingsModal";
+import { FileExplorerTab } from "@/components/sidebar/FileExplorerTab";
 import type { McpCustomServer } from "@/lib/mcp";
 import { checkClaudeMd, type ClaudeMdStatus } from "@/lib/claudemd";
 
-type SidebarTab = "config" | "processes";
+export type SidebarTab = "config" | "processes" | "explorer";
 
 interface SidebarProps {
   collapsed?: boolean;
   onCollapse?: () => void;
   theme?: "dark" | "light";
   onToggleTheme?: () => void;
+  activeTab?: SidebarTab;
+  onActiveTabChange?: (tab: SidebarTab) => void;
 }
 
 /* ── Shared card class ── */
@@ -101,8 +105,10 @@ const STATUS_LABEL: Record<BackendSessionStatus, string> = {
 /*  SIDEBAR ROOT                                                     */
 /* ================================================================ */
 
-export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme }: SidebarProps) {
-  const [activeTab, setActiveTab] = useState<SidebarTab>("config");
+export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme, activeTab: controlledTab, onActiveTabChange }: SidebarProps) {
+  const [internalTab, setInternalTab] = useState<SidebarTab>("config");
+  const activeTab = controlledTab ?? internalTab;
+  const setActiveTab = onActiveTabChange ?? setInternalTab;
   const [width, setWidth] = useState(240);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; w: number } | null>(null);
@@ -193,38 +199,35 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme }: Sidebar
         isDragging ? "" : "transition-all duration-200 ease-out"
       } ${collapsed ? "overflow-hidden border-r-0 opacity-0" : "opacity-100"}`}
     >
-      {/* Tab switcher */}
+      {/* Tab switcher — icon-only like VS Code activity bar */}
       <div className="flex shrink-0 border-b border-border">
-        <button
-          type="button"
-          onClick={() => setActiveTab("config")}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold tracking-wide uppercase ${
-            activeTab === "config"
-              ? "border-b-2 border-primary text-primary"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Settings size={12} />
-          Config
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("processes")}
-          className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold tracking-wide uppercase ${
-            activeTab === "processes"
-              ? "border-b-2 border-primary text-primary"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Activity size={12} />
-          Processes
-        </button>
+        {([
+          { id: "config" as const, icon: Settings, label: "Config" },
+          { id: "processes" as const, icon: Activity, label: "Processes" },
+          { id: "explorer" as const, icon: FolderTree, label: "Explorer" },
+        ]).map(({ id, icon: Icon, label }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setActiveTab(id)}
+            title={label}
+            className={`flex flex-1 items-center justify-center py-2.5 ${
+              activeTab === id
+                ? "border-b-2 border-primary text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Icon size={14} />
+          </button>
+        ))}
       </div>
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-2.5 py-3">
         {activeTab === "config" ? (
           <ConfigTab theme={theme} onToggleTheme={onToggleTheme} />
+        ) : activeTab === "explorer" ? (
+          <FileExplorerTab />
         ) : (
           <ProcessesTab />
         )}
