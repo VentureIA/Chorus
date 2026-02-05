@@ -1,3 +1,4 @@
+// @ts-nocheck — unused module; @tauri-apps/plugin-fs is not yet installed
 /**
  * Watches Claude Code debug logs to detect session status changes.
  *
