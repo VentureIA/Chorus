@@ -279,6 +279,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
     let dataDisposable: { dispose: () => void } | null = null;
     let resizeDisposable: { dispose: () => void } | null = null;
     let resizeObserver: ResizeObserver | null = null;
+    let fontLoadHandler: (() => void) | null = null;
 
     // Create status detector for this session with callback to update store
     // Always create the detector - it will update the session status regardless of projectPath
@@ -301,6 +302,8 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
     // Wait for font to load before initializing terminal
     const initTerminal = async () => {
+      // Ensure all @font-face fonts (including embedded base64) are loaded
+      await document.fonts.ready;
       await waitForFont(fontFamily, 2000);
 
       if (disposed) return;
@@ -407,6 +410,23 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
           }
         });
 
+      // Listen for late font loads (e.g., @font-face still processing)
+      // and re-render the terminal with correct character measurements
+      fontLoadHandler = () => {
+        if (!disposed && term && fitAddon) {
+          const fa = fitAddon;
+          term.options.fontFamily = fontFamily;
+          requestAnimationFrame(() => {
+            try {
+              fa.fit();
+            } catch {
+              // Ignore fit errors during font reload
+            }
+          });
+        }
+      };
+      document.fonts.addEventListener("loadingdone", fontLoadHandler);
+
       resizeObserver = new ResizeObserver(() => {
         requestAnimationFrame(() => {
           if (!disposed && fitAddon) {
@@ -429,6 +449,9 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
     return () => {
       disposed = true;
+      if (fontLoadHandler) {
+        document.fonts.removeEventListener("loadingdone", fontLoadHandler);
+      }
       resizeObserver?.disconnect();
       dataDisposable?.dispose();
       resizeDisposable?.dispose();

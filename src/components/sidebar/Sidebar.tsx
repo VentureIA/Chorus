@@ -112,11 +112,13 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme, activeTab
   const [width, setWidth] = useState(240);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; w: number } | null>(null);
-  const sidebarWidthClass = collapsed ? "w-0" : `sidebar-w-${width}`;
+  const sidebarStyle = { width: collapsed ? 0 : width };
 
   const handleDragStart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
+      e.stopPropagation();
+      console.log("[SIDEBAR DRAG] start", { clientX: e.clientX, width });
       setIsDragging(true);
       dragStartRef.current = { x: e.clientX, w: width };
     },
@@ -174,7 +176,9 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme, activeTab
     const onMove = (e: MouseEvent) => {
       if (!dragStartRef.current) return;
       const raw = dragStartRef.current.w + (e.clientX - dragStartRef.current.x);
+      console.log("[SIDEBAR DRAG] move", { clientX: e.clientX, startX: dragStartRef.current.x, startW: dragStartRef.current.w, raw });
       if (raw < SIDEBAR_COLLAPSE_THRESHOLD) {
+        console.log("[SIDEBAR DRAG] COLLAPSE triggered, raw =", raw);
         setIsDragging(false);
         onCollapse?.();
         return;
@@ -195,9 +199,10 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme, activeTab
   return (
     // Use a class-based width to avoid inline styles (CSP-friendly).
     <aside
-      className={`theme-transition no-select relative flex h-full shrink-0 flex-col border-r border-border bg-muted ${sidebarWidthClass} ${
+      style={sidebarStyle}
+      className={`theme-transition no-select relative z-[1] flex h-full min-w-0 shrink-0 flex-col overflow-hidden border-r border-border bg-muted ${
         isDragging ? "" : "transition-all duration-200 ease-out"
-      } ${collapsed ? "overflow-hidden border-r-0 opacity-0" : "opacity-100"}`}
+      } ${collapsed ? "border-r-0 opacity-0" : "opacity-100"}`}
     >
       {/* Tab switcher — icon-only like VS Code activity bar */}
       <div className="flex shrink-0 border-b border-border">
@@ -223,7 +228,7 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme, activeTab
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-2.5 py-3">
+      <div className="flex-1 overflow-y-auto px-2.5 py-3 mr-1">
         {activeTab === "config" ? (
           <ConfigTab theme={theme} onToggleTheme={onToggleTheme} />
         ) : activeTab === "explorer" ? (
@@ -245,7 +250,7 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme, activeTab
           aria-valuetext={`${Math.round(width)} pixels`}
           tabIndex={0}
           aria-label="Resize sidebar"
-          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/30 active:bg-primary/40"
+          className="absolute right-0 top-0 z-10 h-full w-2 cursor-col-resize hover:bg-primary/30 active:bg-primary/40"
           onMouseDown={handleDragStart}
           onKeyDown={handleResizeKeyDown}
         />

@@ -110,7 +110,15 @@ export async function waitForFont(
   const firstFont = fontFamily.split(",")[0].trim().replace(/["']/g, "");
 
   try {
-    // Use the CSS Font Loading API
+    // Wait for all pending @font-face loads to complete first
+    await document.fonts.ready;
+
+    // Check if the font is already available (e.g., embedded @font-face)
+    if (document.fonts.check(`16px "${firstFont}"`)) {
+      return true;
+    }
+
+    // Try to explicitly trigger loading
     const font = await Promise.race([
       document.fonts.load(`16px "${firstFont}"`),
       new Promise<FontFace[]>((resolve) =>
@@ -118,7 +126,6 @@ export async function waitForFont(
       ),
     ]);
 
-    // Check if any fonts were loaded
     return font.length > 0;
   } catch (error) {
     console.warn(`Failed to wait for font "${firstFont}":`, error);
