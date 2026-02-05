@@ -8,6 +8,21 @@ use crate::core::remote_manager::{RemoteConfig, RemoteManager, RemoteStatus};
 
 const REMOTE_STORE: &str = "remote-config.json";
 
+/// Resolve the user's shell PATH (handles nvm, homebrew, etc. invisible to GUI apps).
+fn get_user_path() -> String {
+    let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/zsh".to_string());
+    std::process::Command::new(&shell)
+        .args(["-l", "-i", "-c", "echo $PATH"])
+        .stderr(std::process::Stdio::null())
+        .output()
+        .ok()
+        .and_then(|o| {
+            let path = String::from_utf8_lossy(&o.stdout).trim().to_string();
+            if path.is_empty() { None } else { Some(path) }
+        })
+        .unwrap_or_else(|| std::env::var("PATH").unwrap_or_default())
+}
+
 // Embedded chorus-remote source files (extracted to app data dir at runtime)
 const EMBEDDED_INDEX_TS: &str = include_str!("../../../chorus-remote/src/index.ts");
 const EMBEDDED_CLAUDE_TS: &str = include_str!("../../../chorus-remote/src/claude.ts");
@@ -42,15 +57,16 @@ fn get_bot_script_dir(app: &AppHandle) -> Result<String, String> {
         .app_data_dir()
         .map_err(|e| format!("Failed to get app data dir: {}", e))?;
     let remote_dir = app_data.join("chorus-remote");
+    let user_path = get_user_path();
 
-    ensure_remote_dir(&remote_dir)?;
+    ensure_remote_dir(&remote_dir, &user_path)?;
 
     Ok(remote_dir.to_string_lossy().to_string())
 }
 
 /// Ensure the chorus-remote directory exists in app data with source files installed.
 /// Writes embedded source files and runs `npm install` if node_modules is missing.
-fn ensure_remote_dir(dir: &std::path::Path) -> Result<(), String> {
+fn ensure_remote_dir(dir: &std::path::Path, user_path: &str) -> Result<(), String> {
     let src_dir = dir.join("src");
     std::fs::create_dir_all(&src_dir)
         .map_err(|e| format!("Failed to create chorus-remote dir: {}", e))?;
@@ -74,6 +90,7 @@ fn ensure_remote_dir(dir: &std::path::Path) -> Result<(), String> {
         log::info!("[RemoteManager] Installing chorus-remote dependencies...");
         let output = std::process::Command::new("npm")
             .arg("install")
+            .env("PATH", user_path)
             .current_dir(dir)
             .output()
             .map_err(|e| format!("Failed to run npm install: {}", e))?;
@@ -137,6 +154,7 @@ pub fn start_remote_bot(
 
     let pairing_code = generate_pairing_code();
     let bot_script_dir = get_bot_script_dir(&app)?;
+    let user_path = get_user_path();
 
     state.start(
         app.clone(),
@@ -145,6 +163,7 @@ pub fn start_remote_bot(
         &pairing_code,
         existing.user_id,
         &bot_script_dir,
+        &user_path,
     )?;
 
     // Save token to config
