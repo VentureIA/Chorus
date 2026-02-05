@@ -137,10 +137,15 @@ export function GitChangesSection({ onPushComplete }: GitChangesSectionProps) {
     pushChanges,
   } = useGitStore();
 
-  // Fetch working changes on mount and when repoPath changes
+  // Fetch working changes on mount and poll every 3s to stay in sync
+  // with external changes (terminal commits, CLI tools, etc.)
   useEffect(() => {
     if (!repoPath) return;
     fetchWorkingChanges(repoPath);
+    const interval = setInterval(() => {
+      fetchWorkingChanges(repoPath);
+    }, 3000);
+    return () => clearInterval(interval);
   }, [repoPath, fetchWorkingChanges]);
 
   // Categorize changes
