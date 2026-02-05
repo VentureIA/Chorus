@@ -1,8 +1,6 @@
 //! Tauri commands for managing the Telegram remote bot.
 
-use std::sync::Arc;
-
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use tauri::{AppHandle, Manager, State};
 use tauri_plugin_store::StoreExt;
 
@@ -10,31 +8,84 @@ use crate::core::remote_manager::{RemoteConfig, RemoteManager, RemoteStatus};
 
 const REMOTE_STORE: &str = "remote-config.json";
 
-/// Get the chorus-remote script directory (relative to app).
+// Embedded chorus-remote source files (extracted to app data dir at runtime)
+const EMBEDDED_INDEX_TS: &str = include_str!("../../../chorus-remote/src/index.ts");
+const EMBEDDED_CLAUDE_TS: &str = include_str!("../../../chorus-remote/src/claude.ts");
+const EMBEDDED_FORMAT_TS: &str = include_str!("../../../chorus-remote/src/format.ts");
+const EMBEDDED_PACKAGE_JSON: &str = include_str!("../../../chorus-remote/package.json");
+const EMBEDDED_TSCONFIG: &str = include_str!("../../../chorus-remote/tsconfig.json");
+
+/// Get the chorus-remote script directory.
+/// Checks bundled resources, dev path, then falls back to auto-setup in app data.
 fn get_bot_script_dir(app: &AppHandle) -> Result<String, String> {
-    // In development, it's a sibling directory
-    // Try to resolve from the app's resource path or use a known location
-    let resource_dir = app
-        .path()
-        .resource_dir()
-        .map_err(|e| format!("Failed to get resource dir: {}", e))?;
-
-    // Check a few possible locations
-    let candidates = [
-        resource_dir.join("chorus-remote"),
-        resource_dir.join("../chorus-remote"),
-        // Development: relative to the src-tauri directory
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../chorus-remote"),
-    ];
-
-    for path in &candidates {
-        if path.join("src/index.ts").exists() {
-            return Ok(path.to_string_lossy().to_string());
+    // 1. Check bundled resource locations
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        for path in [
+            resource_dir.join("chorus-remote"),
+            resource_dir.join("../chorus-remote"),
+        ] {
+            if path.join("src/index.ts").exists() {
+                return Ok(path.to_string_lossy().to_string());
+            }
         }
     }
 
-    let checked: Vec<String> = candidates.iter().map(|p| p.display().to_string()).collect();
-    Err(format!("chorus-remote not found. Checked: {:?}", checked))
+    // 2. Check development path (only valid when built locally)
+    let dev_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../chorus-remote");
+    if dev_path.join("src/index.ts").exists() {
+        return Ok(dev_path.to_string_lossy().to_string());
+    }
+
+    // 3. Auto-setup in app data directory (production fallback)
+    let app_data = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("Failed to get app data dir: {}", e))?;
+    let remote_dir = app_data.join("chorus-remote");
+
+    ensure_remote_dir(&remote_dir)?;
+
+    Ok(remote_dir.to_string_lossy().to_string())
+}
+
+/// Ensure the chorus-remote directory exists in app data with source files installed.
+/// Writes embedded source files and runs `npm install` if node_modules is missing.
+fn ensure_remote_dir(dir: &std::path::Path) -> Result<(), String> {
+    let src_dir = dir.join("src");
+    std::fs::create_dir_all(&src_dir)
+        .map_err(|e| format!("Failed to create chorus-remote dir: {}", e))?;
+
+    // Write embedded source files (always overwrite to keep in sync with app version)
+    let files: &[(&str, &str)] = &[
+        ("src/index.ts", EMBEDDED_INDEX_TS),
+        ("src/claude.ts", EMBEDDED_CLAUDE_TS),
+        ("src/format.ts", EMBEDDED_FORMAT_TS),
+        ("package.json", EMBEDDED_PACKAGE_JSON),
+        ("tsconfig.json", EMBEDDED_TSCONFIG),
+    ];
+
+    for (path, content) in files {
+        std::fs::write(dir.join(path), content)
+            .map_err(|e| format!("Failed to write {}: {}", path, e))?;
+    }
+
+    // Install npm dependencies if needed
+    if !dir.join("node_modules").exists() {
+        log::info!("[RemoteManager] Installing chorus-remote dependencies...");
+        let output = std::process::Command::new("npm")
+            .arg("install")
+            .current_dir(dir)
+            .output()
+            .map_err(|e| format!("Failed to run npm install: {}", e))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("npm install failed: {}", stderr));
+        }
+        log::info!("[RemoteManager] chorus-remote dependencies installed");
+    }
+
+    Ok(())
 }
 
 /// Generate a random 6-character pairing code using UUID.
