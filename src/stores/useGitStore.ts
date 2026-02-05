@@ -114,7 +114,7 @@ interface GitState {
   getRefsForCommit: (repoPath: string, commitHash: string) => Promise<string[]>;
 
   // Working changes actions
-  fetchWorkingChanges: (repoPath: string) => Promise<void>;
+  fetchWorkingChanges: (repoPath: string, silent?: boolean) => Promise<void>;
   stageFiles: (repoPath: string, paths: string[]) => Promise<void>;
   unstageFiles: (repoPath: string, paths: string[]) => Promise<void>;
   discardFiles: (repoPath: string, paths: string[], isUntracked?: boolean) => Promise<void>;
@@ -388,8 +388,10 @@ export const useGitStore = create<GitState>()((set, get) => ({
     }
   },
 
-  fetchWorkingChanges: async (repoPath: string) => {
-    set({ isLoadingChanges: true });
+  fetchWorkingChanges: async (repoPath: string, silent?: boolean) => {
+    if (!silent) {
+      set({ isLoadingChanges: true });
+    }
     try {
       const workingChanges = await invoke<WorkingChange[]>("git_working_changes", { repoPath });
       set({ workingChanges, isLoadingChanges: false });
