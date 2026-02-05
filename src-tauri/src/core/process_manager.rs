@@ -93,6 +93,8 @@ struct PtySession {
     shutdown: Arc<Notify>,
     /// Handle to the dedicated reader OS thread.
     reader_handle: Mutex<Option<JoinHandle<()>>>,
+    /// Buffer for session output, capped at 100KB.
+    output_buffer: Arc<Mutex<String>>,
 }
 
 struct Inner {
@@ -252,6 +254,9 @@ impl ProcessManager {
         let shutdown = Arc::new(Notify::new());
         let shutdown_clone = shutdown.clone();
 
+        let output_buffer = Arc::new(Mutex::new(String::new()));
+        let output_buffer_clone = output_buffer.clone();
+
         // Dedicated OS thread for reading PTY output.
         // Sends data through a bounded mpsc channel (~4 MB of 4 KB chunks) to a
         // tokio task that emits Tauri events.
@@ -309,6 +314,14 @@ impl ProcessManager {
                             Some(bytes) => {
                                 let text = decoder.decode(&bytes);
                                 if !text.is_empty() {
+                                    if let Ok(mut buf) = output_buffer_clone.lock() {
+                                        buf.push_str(&text);
+                                        // Cap at 100KB
+                                        if buf.len() > 100_000 {
+                                            let drain_to = buf.len() - 80_000;
+                                            buf.drain(..drain_to);
+                                        }
+                                    }
                                     let _ = app.emit(&event_name, text);
                                 }
                             }
@@ -334,6 +347,7 @@ impl ProcessManager {
             pgid,
             shutdown,
             reader_handle: Mutex::new(Some(reader_handle)),
+            output_buffer,
         };
 
         self.inner.sessions.insert(id, session);
@@ -519,6 +533,13 @@ impl ProcessManager {
             .iter()
             .map(|entry| (*entry.key(), entry.value().child_pid))
             .collect()
+    }
+
+    /// Returns the buffered output for a session, or None if session doesn't exist.
+    pub fn get_session_output(&self, session_id: u32) -> Option<String> {
+        self.inner.sessions.get(&session_id).and_then(|session| {
+            session.output_buffer.lock().ok().map(|buf| buf.clone())
+        })
     }
 
     /// Kills all active PTY sessions.

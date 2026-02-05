@@ -539,7 +539,13 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
         }
       }
 
-      // Update slot state FIRST to mount TerminalView and initialize xterm.js.
+      // Update slotsRef synchronously so callers (e.g. launchRemotePrompt)
+      // can immediately read the sessionId after launchSlotInner returns.
+      slotsRef.current = slotsRef.current.map((s) =>
+        s.id === slotId ? { ...s, sessionId, worktreePath } : s
+      );
+
+      // Update React state to mount TerminalView and initialize xterm.js.
       // This is critical because CLIs like Codex send DSR (cursor position) queries
       // on startup, and xterm.js must be mounted to respond to them.
       setSlots((prev) =>

@@ -10,6 +10,7 @@ pub mod plugin_config_writer;
 pub mod plugin_manager;
 pub mod process_manager;
 pub mod process_tree;
+pub mod remote_manager;
 pub mod session_manager;
 pub mod status_server;
 pub mod terminal_backend;
