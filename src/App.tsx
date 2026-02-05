@@ -15,7 +15,8 @@ import { BottomBar } from "./components/shared/BottomBar";
 import { MultiProjectView, type MultiProjectViewHandle } from "./components/shared/MultiProjectView";
 import { ProjectTabs } from "./components/shared/ProjectTabs";
 import { TopBar } from "./components/shared/TopBar";
-import { Sidebar } from "./components/sidebar/Sidebar";
+import { FileEditorPanel } from "./components/editor/FileEditorPanel";
+import { Sidebar, type SidebarTab } from "./components/sidebar/Sidebar";
 import { KeyboardShortcutsModal } from "./components/shortcuts/KeyboardShortcutsModal";
 
 const DEFAULT_SESSION_COUNT = 6;
@@ -40,6 +41,7 @@ function App() {
   const handleOpenProject = useOpenProject();
   const multiProjectRef = useRef<MultiProjectViewHandle>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>("config");
   const [gitPanelOpen, setGitPanelOpen] = useState(false);
   const [sessionCounts, setSessionCounts] = useState<Map<string, { slotCount: number; launchedCount: number }>>(new Map());
   const [isStoppingAll, setIsStoppingAll] = useState(false);
@@ -114,6 +116,14 @@ function App() {
     // Panels
     onToggleSidebar: () => setSidebarOpen((prev) => !prev),
     onToggleGitPanel: () => setGitPanelOpen((prev) => !prev),
+    onToggleExplorer: () => {
+      if (sidebarOpen && sidebarTab === "explorer") {
+        setSidebarOpen(false);
+      } else {
+        setSidebarTab("explorer");
+        setSidebarOpen(true);
+      }
+    },
     onToggleFullscreen: () => {
       setSidebarOpen(false);
       setGitPanelOpen(false);
@@ -300,6 +310,8 @@ function App() {
           onCollapse={() => setSidebarOpen(false)}
           theme={theme}
           onToggleTheme={toggleTheme}
+          activeTab={sidebarTab}
+          onActiveTabChange={setSidebarTab}
         />
 
         {/* Right column: top bar + content + bottom bar */}
@@ -355,7 +367,7 @@ function App() {
             )}
           </div>
 
-          {/* Content area (main + optional git panel) */}
+          {/* Content area (main + editor + optional git panel) */}
           <div className="flex flex-1 overflow-hidden">
             {/* Main content - MultiProjectView keeps all projects alive */}
             <main className="relative flex-1 overflow-hidden bg-background">
@@ -364,6 +376,9 @@ function App() {
                 onSessionCountChange={handleSessionCountChange}
               />
             </main>
+
+            {/* File editor panel (appears when files are open) */}
+            <FileEditorPanel />
 
             {/* Git graph panel (optional right side) */}
             <GitGraphPanel

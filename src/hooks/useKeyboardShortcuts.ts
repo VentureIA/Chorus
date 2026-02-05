@@ -21,6 +21,7 @@ export interface KeyboardShortcutCallbacks {
   // Panel Toggles
   onToggleSidebar?: () => void;
   onToggleGitPanel?: () => void;
+  onToggleExplorer?: () => void;
   onToggleFullscreen?: () => void;
   onMaximizeTerminal?: () => void;
 
@@ -130,6 +131,9 @@ export function useKeyboardShortcuts({
         case "toggleGitPanel":
           callbacks.onToggleGitPanel?.();
           break;
+        case "toggleExplorer":
+          callbacks.onToggleExplorer?.();
+          break;
         case "toggleFullscreen":
           callbacks.onToggleFullscreen?.();
           break;
@@ -228,6 +232,8 @@ export function useKeyboardShortcuts({
           return !!callbacks.onToggleSidebar;
         case "toggleGitPanel":
           return !!callbacks.onToggleGitPanel;
+        case "toggleExplorer":
+          return !!callbacks.onToggleExplorer;
         case "toggleFullscreen":
           return !!callbacks.onToggleFullscreen;
         case "maximizeTerminal":

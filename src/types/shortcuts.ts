@@ -33,6 +33,7 @@ export type ShortcutAction =
   // Panel Toggles
   | "toggleSidebar"
   | "toggleGitPanel"
+  | "toggleExplorer"
   | "toggleFullscreen"
   | "maximizeTerminal"
   // Quick Actions
@@ -414,6 +415,14 @@ export const DEFAULT_SHORTCUTS: ShortcutDefinition[] = [
     category: "panel",
     label: "Toggle Git Panel",
     description: "Show or hide the git panel",
+  },
+  {
+    id: "toggle-explorer",
+    action: "toggleExplorer",
+    keys: "mod+shift+e",
+    category: "panel",
+    label: "Toggle Explorer",
+    description: "Show or hide the file explorer",
   },
   {
     id: "toggle-fullscreen",
