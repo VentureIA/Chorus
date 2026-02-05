@@ -24,12 +24,10 @@ fn dirs_fallback() -> PathBuf {
         .expect("HOME environment variable must be set for worktree management")
 }
 
-/// Produces a 16-hex-char SHA-256 digest of the canonicalized repo path.
-/// Falls back to the raw path if canonicalization fails (e.g., path does not exist yet).
-async fn repo_hash(repo_path: &Path) -> String {
-    let canonical = tokio::fs::canonicalize(repo_path)
-        .await
-        .unwrap_or_else(|_| repo_path.to_path_buf());
+/// Produces a 16-hex-char SHA-256 digest of the normalized repo path.
+/// The path is normalized without filesystem access.
+fn repo_hash(repo_path: &Path) -> String {
+    let canonical = crate::core::path_utils::normalize_path_buf(repo_path);
     let digest = Sha256::digest(canonical.to_string_lossy().as_bytes());
     format!("{:x}", digest)[..16].to_string()
 }
@@ -76,7 +74,7 @@ impl WorktreeManager {
 
     /// Compute the worktree path for a given repo + branch
     async fn worktree_path(&self, repo_path: &Path, branch: &str) -> PathBuf {
-        let hash = repo_hash(repo_path).await;
+        let hash = repo_hash(repo_path);
         let sanitized = sanitize_branch(branch);
         worktree_base_dir().join(hash).join(sanitized)
     }
@@ -162,7 +160,7 @@ impl WorktreeManager {
         git.worktree_prune().await?;
 
         // Scan managed directory for orphans not in git worktree list
-        let hash = repo_hash(repo_path).await;
+        let hash = repo_hash(repo_path);
         let managed_dir = worktree_base_dir().join(&hash);
 
         let managed_exists = tokio::fs::try_exists(&managed_dir)
@@ -186,16 +184,14 @@ impl WorktreeManager {
         let mut active: HashSet<String> = HashSet::with_capacity(active_raw.len());
         for raw in &active_raw {
             let p = Path::new(raw);
-            let canonical = tokio::fs::canonicalize(p).await.unwrap_or_else(|_| p.to_path_buf());
+            let canonical = crate::core::path_utils::normalize_path_buf(p);
             active.insert(canonical.to_string_lossy().to_string());
         }
 
         if let Ok(mut entries) = tokio::fs::read_dir(&managed_dir).await {
             while let Ok(Some(entry)) = entries.next_entry().await {
                 let path = entry.path();
-                let canonical_entry = tokio::fs::canonicalize(&path)
-                    .await
-                    .unwrap_or_else(|_| path.clone());
+                let canonical_entry = crate::core::path_utils::normalize_path_buf(&path);
                 let entry_key = canonical_entry.to_string_lossy().to_string();
                 let is_dir = tokio::fs::metadata(&path)
                     .await

@@ -226,10 +226,7 @@ pub async fn get_session_marketplace_config(
     project_path: String,
     session_id: u32,
 ) -> Result<SessionMarketplaceConfig, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_session_config(&canonical, session_id))
 }
@@ -243,10 +240,7 @@ pub async fn set_marketplace_plugin_enabled(
     installed_plugin_id: String,
     enabled: bool,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     state.set_plugin_enabled_for_session(&canonical, session_id, &installed_plugin_id, enabled);
     Ok(())
@@ -259,10 +253,7 @@ pub async fn clear_session_marketplace_config(
     project_path: String,
     session_id: u32,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     state.clear_session(&canonical, session_id);
     Ok(())

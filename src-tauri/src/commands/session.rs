@@ -27,11 +27,8 @@ pub async fn create_session(
     mode: AiMode,
     project_path: String,
 ) -> Result<SessionConfig, String> {
-    // Canonicalize path for consistent storage
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    // Normalize path for consistent storage
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     state.create_session(id, mode, canonical)
         .map_err(|existing| format!("Session {} already exists", existing.id))
@@ -90,10 +87,7 @@ pub async fn get_sessions_for_project(
     state: State<'_, SessionManager>,
     project_path: String,
 ) -> Result<Vec<SessionConfig>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_sessions_for_project(&canonical))
 }
@@ -109,10 +103,7 @@ pub async fn remove_sessions_for_project(
     plugin_manager: State<'_, PluginManager>,
     project_path: String,
 ) -> Result<Vec<SessionConfig>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     let removed = state.remove_sessions_for_project(&canonical);
 

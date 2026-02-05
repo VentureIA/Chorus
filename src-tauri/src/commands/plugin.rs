@@ -30,16 +30,13 @@ fn hash_project_path(path: &str) -> String {
 
 /// Discovers and returns plugins/skills configured in the project's `.plugins.json`.
 ///
-/// The project path is canonicalized before lookup. Results are cached.
+/// The project path is normalized before lookup. Results are cached.
 #[tauri::command]
 pub async fn get_project_plugins(
     state: State<'_, PluginManager>,
     project_path: String,
 ) -> Result<ProjectPlugins, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_project_plugins(&canonical))
 }
@@ -50,10 +47,7 @@ pub async fn refresh_project_plugins(
     state: State<'_, PluginManager>,
     project_path: String,
 ) -> Result<ProjectPlugins, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.refresh_project_plugins(&canonical))
 }
@@ -67,10 +61,7 @@ pub async fn get_session_skills(
     project_path: String,
     session_id: u32,
 ) -> Result<Vec<String>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_session_skills(&canonical, session_id))
 }
@@ -83,10 +74,7 @@ pub async fn set_session_skills(
     session_id: u32,
     enabled: Vec<String>,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     state.set_session_skills(&canonical, session_id, enabled);
     Ok(())
@@ -101,10 +89,7 @@ pub async fn get_session_plugins(
     project_path: String,
     session_id: u32,
 ) -> Result<Vec<String>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_session_plugins(&canonical, session_id))
 }
@@ -117,10 +102,7 @@ pub async fn set_session_plugins(
     session_id: u32,
     enabled: Vec<String>,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     state.set_session_plugins(&canonical, session_id, enabled);
     Ok(())
@@ -133,10 +115,7 @@ pub async fn get_session_skills_count(
     project_path: String,
     session_id: u32,
 ) -> Result<usize, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_skills_count(&canonical, session_id))
 }
@@ -148,10 +127,7 @@ pub async fn get_session_plugins_count(
     project_path: String,
     session_id: u32,
 ) -> Result<usize, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_plugins_count(&canonical, session_id))
 }
@@ -166,10 +142,7 @@ pub async fn save_project_skill_defaults(
     project_path: String,
     enabled_skills: Vec<String>,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
@@ -189,10 +162,7 @@ pub async fn load_project_skill_defaults(
     app: AppHandle,
     project_path: String,
 ) -> Result<Option<Vec<String>>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
@@ -219,10 +189,7 @@ pub async fn save_project_plugin_defaults(
     project_path: String,
     enabled_plugins: Vec<String>,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
@@ -242,10 +209,7 @@ pub async fn load_project_plugin_defaults(
     app: AppHandle,
     project_path: String,
 ) -> Result<Option<Vec<String>>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
@@ -296,10 +260,8 @@ pub async fn delete_skill(skill_path: String) -> Result<(), String> {
 
     let skill_path = PathBuf::from(&skill_path);
 
-    // Canonicalize the path to resolve symlinks and relative paths
-    let canonical_path = skill_path
-        .canonicalize()
-        .map_err(|e| format!("Invalid skill path '{}': {}", skill_path.display(), e))?;
+    // Normalize the path to resolve relative components
+    let canonical_path = crate::core::path_utils::normalize_path_buf(&skill_path);
 
     // Get the user's home directory
     let base_dirs = BaseDirs::new()
@@ -354,10 +316,8 @@ pub async fn delete_plugin(plugin_path: String) -> Result<(), String> {
 
     let plugin_path = PathBuf::from(&plugin_path);
 
-    // Canonicalize the path to resolve symlinks and relative paths
-    let canonical_path = plugin_path
-        .canonicalize()
-        .map_err(|e| format!("Invalid plugin path '{}': {}", plugin_path.display(), e))?;
+    // Normalize the path to resolve relative components
+    let canonical_path = crate::core::path_utils::normalize_path_buf(&plugin_path);
 
     // Get the user's home directory
     let base_dirs = BaseDirs::new()
@@ -414,10 +374,7 @@ pub async fn save_branch_config(
     enabled_skills: Vec<String>,
     enabled_mcp_servers: Vec<String>,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
@@ -445,10 +402,7 @@ pub async fn load_branch_config(
     project_path: String,
     branch: String,
 ) -> Result<Option<BranchConfig>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;

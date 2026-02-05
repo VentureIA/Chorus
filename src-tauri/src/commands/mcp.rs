@@ -60,16 +60,13 @@ fn hash_project_path(path: &str) -> String {
 
 /// Discovers and returns MCP servers configured in the project's `.mcp.json`.
 ///
-/// The project path is canonicalized before lookup. Results are cached.
+/// The project path is normalized before lookup. Results are cached.
 #[tauri::command]
 pub async fn get_project_mcp_servers(
     state: State<'_, McpManager>,
     project_path: String,
 ) -> Result<Vec<McpServerConfig>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_project_servers(&canonical))
 }
@@ -80,10 +77,7 @@ pub async fn refresh_project_mcp_servers(
     state: State<'_, McpManager>,
     project_path: String,
 ) -> Result<Vec<McpServerConfig>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.refresh_project_servers(&canonical))
 }
@@ -97,10 +91,7 @@ pub async fn get_session_mcp_servers(
     project_path: String,
     session_id: u32,
 ) -> Result<Vec<String>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_session_enabled(&canonical, session_id))
 }
@@ -113,10 +104,7 @@ pub async fn set_session_mcp_servers(
     session_id: u32,
     enabled: Vec<String>,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     state.set_session_enabled(&canonical, session_id, enabled);
     Ok(())
@@ -129,10 +117,7 @@ pub async fn get_session_mcp_count(
     project_path: String,
     session_id: u32,
 ) -> Result<usize, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(state.get_enabled_count(&canonical, session_id))
 }
@@ -147,10 +132,7 @@ pub async fn save_project_mcp_defaults(
     project_path: String,
     enabled_servers: Vec<String>,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
@@ -170,10 +152,7 @@ pub async fn load_project_mcp_defaults(
     app: AppHandle,
     project_path: String,
 ) -> Result<Option<Vec<String>>, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     let store_name = format!("chorus-{}.json", hash_project_path(&canonical));
     let store = app.store(&store_name).map_err(|e| e.to_string())?;
@@ -196,10 +175,7 @@ pub async fn load_project_mcp_defaults(
 /// file-based monitoring anymore. Kept for backwards compatibility.
 #[tauri::command]
 pub async fn add_mcp_project(project_path: String) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     log::debug!(
         "add_mcp_project called for '{}' (no-op in HTTP architecture)",
@@ -214,10 +190,7 @@ pub async fn add_mcp_project(project_path: String) -> Result<(), String> {
 /// file-based monitoring anymore. Kept for backwards compatibility.
 #[tauri::command]
 pub async fn remove_mcp_project(project_path: String) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     log::debug!(
         "remove_mcp_project called for '{}' (no-op in HTTP architecture)",
@@ -283,10 +256,7 @@ pub async fn write_session_mcp_config(
     project_path: String,
     enabled_server_names: Vec<String>,
 ) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     // Register this session with the status server (for cleanup tracking)
     status_server
@@ -470,10 +440,7 @@ pub async fn remove_session_mcp_config(working_dir: String, session_id: u32) -> 
 /// and potential future use.
 #[tauri::command]
 pub async fn generate_project_hash(project_path: String) -> Result<String, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?
-        .to_string_lossy()
-        .into_owned();
+    let canonical = crate::core::path_utils::normalize_path(&project_path);
 
     Ok(StatusServer::generate_project_hash(&canonical))
 }

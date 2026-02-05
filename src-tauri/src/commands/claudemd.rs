@@ -1,7 +1,7 @@
 //! IPC commands for CLAUDE.md file detection and editing.
 
 use serde::Serialize;
-use std::path::PathBuf;
+use std::path::Path;
 
 /// Status of CLAUDE.md file at project root.
 #[derive(Debug, Clone, Serialize)]
@@ -15,8 +15,7 @@ pub struct ClaudeMdStatus {
 /// Check if CLAUDE.md exists at project root and optionally return its content.
 #[tauri::command]
 pub async fn check_claude_md(project_path: String) -> Result<ClaudeMdStatus, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?;
+    let canonical = crate::core::path_utils::normalize_path_buf(Path::new(&project_path));
 
     let claude_md_path = canonical.join("CLAUDE.md");
     let path_str = claude_md_path.to_string_lossy().into_owned();
@@ -44,8 +43,7 @@ pub async fn check_claude_md(project_path: String) -> Result<ClaudeMdStatus, Str
 /// Read CLAUDE.md content from project root.
 #[tauri::command]
 pub async fn read_claude_md(project_path: String) -> Result<String, String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?;
+    let canonical = crate::core::path_utils::normalize_path_buf(Path::new(&project_path));
 
     let claude_md_path = canonical.join("CLAUDE.md");
 
@@ -57,8 +55,7 @@ pub async fn read_claude_md(project_path: String) -> Result<String, String> {
 /// Write content to CLAUDE.md at project root (creates if doesn't exist).
 #[tauri::command]
 pub async fn write_claude_md(project_path: String, content: String) -> Result<(), String> {
-    let canonical = std::fs::canonicalize(&project_path)
-        .map_err(|e| format!("Invalid project path '{}': {}", project_path, e))?;
+    let canonical = crate::core::path_utils::normalize_path_buf(Path::new(&project_path));
 
     let claude_md_path = canonical.join("CLAUDE.md");
 
