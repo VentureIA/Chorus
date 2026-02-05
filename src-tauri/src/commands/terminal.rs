@@ -93,10 +93,7 @@ pub async fn spawn_shell(
 ) -> Result<u32, PtyError> {
     // Validate cwd if provided: must exist and be a directory
     let canonical_cwd = if let Some(ref dir) = cwd {
-        let path = std::path::Path::new(dir);
-        let canonical = path
-            .canonicalize()
-            .map_err(|e| PtyError::spawn_failed(format!("Invalid cwd '{dir}': {e}")))?;
+        let canonical = crate::core::path_utils::normalize_path_buf(std::path::Path::new(dir));
         if !canonical.is_dir() {
             return Err(PtyError::spawn_failed(format!(
                 "cwd '{dir}' is not a directory"

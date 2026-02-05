@@ -63,7 +63,7 @@ type SessionKey = (String, u32); // (project_path, session_id)
 ///
 /// Thread-safe via `DashMap` — can be accessed from multiple async tasks.
 pub struct McpManager {
-    /// Cached MCP servers per project path (canonicalized).
+    /// Cached MCP servers per project path (normalized).
     project_servers: DashMap<String, Vec<McpServerConfig>>,
     /// Enabled server names per (project_path, session_id).
     session_enabled: DashMap<SessionKey, Vec<String>>,
@@ -127,7 +127,7 @@ impl McpManager {
 
     /// Gets the MCP servers for a project, parsing `.mcp.json` if not cached.
     ///
-    /// The project_path should be canonicalized for consistent caching.
+    /// The project_path should be normalized for consistent caching.
     pub fn get_project_servers(&self, project_path: &str) -> Vec<McpServerConfig> {
         // Return cached if available
         if let Some(servers) = self.project_servers.get(project_path) {

@@ -1,4 +1,5 @@
 pub mod error;
+pub mod path_utils;
 pub mod font_detector;
 pub mod marketplace_error;
 pub mod marketplace_manager;

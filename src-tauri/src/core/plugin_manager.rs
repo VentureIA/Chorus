@@ -541,7 +541,7 @@ type SessionKey = (String, u32); // (project_path, session_id)
 ///
 /// Thread-safe via `DashMap` — can be accessed from multiple async tasks.
 pub struct PluginManager {
-    /// Cached plugins/skills per project path (canonicalized).
+    /// Cached plugins/skills per project path (normalized).
     project_plugins: DashMap<String, ProjectPlugins>,
     /// Enabled skill IDs per (project_path, session_id).
     session_enabled_skills: DashMap<SessionKey, Vec<String>>,
