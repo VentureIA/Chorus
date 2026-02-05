@@ -99,6 +99,7 @@ impl RemoteManager {
         pairing_code: &str,
         user_id: Option<i64>,
         bot_script_dir: &str,
+        user_path: &str,
     ) -> Result<(), String> {
         // Stop existing process if running
         self.stop()?;
@@ -109,6 +110,7 @@ impl RemoteManager {
             .arg(format!("--token={}", token))
             .arg(format!("--project={}", project_dir))
             .arg(format!("--pairing-code={}", pairing_code))
+            .env("PATH", user_path)
             .current_dir(bot_script_dir)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
