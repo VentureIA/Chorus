@@ -9,6 +9,7 @@ use tauri::Manager;
 use core::marketplace_manager::MarketplaceManager;
 use core::mcp_manager::McpManager;
 use core::plugin_manager::PluginManager;
+use core::remote_manager::RemoteManager;
 use core::status_server::StatusServer;
 use core::ProcessManager;
 use core::session_manager::SessionManager;
@@ -36,6 +37,7 @@ pub fn run() {
         .manage(McpManager::new())
         .manage(PluginManager::new())
         .manage(ProcessManager::new())
+        .manage(RemoteManager::new())
         .manage(SessionManager::new())
         .manage(WorktreeManager::new())
         .setup(|app| {
@@ -189,6 +191,14 @@ pub fn run() {
             commands::marketplace::get_session_marketplace_config,
             commands::marketplace::set_marketplace_plugin_enabled,
             commands::marketplace::clear_session_marketplace_config,
+            // Remote commands
+            commands::remote::get_remote_config,
+            commands::remote::save_remote_config,
+            commands::remote::start_remote_bot,
+            commands::remote::stop_remote_bot,
+            commands::remote::get_remote_status,
+            commands::remote::save_remote_pairing,
+            commands::remote::clear_remote_config,
             // ClaudeMd commands
             commands::claudemd::check_claude_md,
             commands::claudemd::read_claude_md,

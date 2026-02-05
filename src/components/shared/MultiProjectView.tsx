@@ -22,6 +22,8 @@ export interface MultiProjectViewHandle {
   restartSession: () => Promise<void>;
   maximizeTerminal: () => void;
   handoffSession: () => void;
+  /** Get the TerminalGrid handle for a specific tab (used by remote prompt). */
+  getGridHandle: (tabId: string) => TerminalGridHandle | undefined;
 }
 
 /**
@@ -85,6 +87,9 @@ export const MultiProjectView = forwardRef<MultiProjectViewHandle, MultiProjectV
     },
     handoffSession: () => {
       getActiveGridRef()?.handoffSession();
+    },
+    getGridHandle: (tabId: string) => {
+      return gridRefs.current.get(tabId);
     },
   }), [tabs]);
 
