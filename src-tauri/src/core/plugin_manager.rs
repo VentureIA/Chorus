@@ -17,6 +17,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
+use std::time::Instant;
 
 /// The source/origin of a skill.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -537,12 +538,26 @@ fn deduplicate_skills(skills: Vec<SkillConfig>) -> Vec<SkillConfig> {
 /// Session-specific key for enabled items lookup.
 type SessionKey = (String, u32); // (project_path, session_id)
 
+/// How long cached plugin discovery results are considered fresh.
+/// During this window, `get_project_plugins` returns cached data without touching the filesystem.
+const CACHE_TTL_SECS: u64 = 30;
+
+/// Minimum interval between filesystem re-scans, even for explicit refresh requests.
+/// Prevents rapid-fire TCC permission dialogs on macOS when projects live in protected folders.
+const REFRESH_MIN_INTERVAL_SECS: u64 = 5;
+
+/// Cached discovery result with a timestamp.
+struct CachedPlugins {
+    data: ProjectPlugins,
+    discovered_at: Instant,
+}
+
 /// Manages plugin/skill discovery and per-session enabled state.
 ///
 /// Thread-safe via `DashMap` — can be accessed from multiple async tasks.
 pub struct PluginManager {
-    /// Cached plugins/skills per project path (normalized).
-    project_plugins: DashMap<String, ProjectPlugins>,
+    /// Cached plugins/skills per project path (normalized), with discovery timestamp.
+    project_plugins: DashMap<String, CachedPlugins>,
     /// Enabled skill IDs per (project_path, session_id).
     session_enabled_skills: DashMap<SessionKey, Vec<String>>,
     /// Enabled plugin IDs per (project_path, session_id).
@@ -749,25 +764,47 @@ impl PluginManager {
         }
     }
 
-    /// Gets the plugins/skills for a project, discovering from all sources if not cached.
+    /// Gets the plugins/skills for a project, discovering from all sources if not cached or stale.
     pub fn get_project_plugins(&self, project_path: &str) -> ProjectPlugins {
-        // Return cached if available
-        if let Some(plugins) = self.project_plugins.get(project_path) {
-            return plugins.clone();
+        // Return cached if fresh (within TTL)
+        if let Some(cached) = self.project_plugins.get(project_path) {
+            if cached.discovered_at.elapsed().as_secs() < CACHE_TTL_SECS {
+                return cached.data.clone();
+            }
         }
 
-        // Discover and cache
+        // Discover and cache with timestamp
         let plugins = Self::discover_all(project_path);
-        self.project_plugins
-            .insert(project_path.to_string(), plugins.clone());
+        self.project_plugins.insert(
+            project_path.to_string(),
+            CachedPlugins {
+                data: plugins.clone(),
+                discovered_at: Instant::now(),
+            },
+        );
         plugins
     }
 
     /// Refreshes the cached plugins for a project by re-discovering from all sources.
+    ///
+    /// Respects a minimum interval to avoid hammering the filesystem
+    /// (which triggers macOS TCC permission dialogs on protected folders).
     pub fn refresh_project_plugins(&self, project_path: &str) -> ProjectPlugins {
+        // If recently discovered, return cached to avoid TCC spam
+        if let Some(cached) = self.project_plugins.get(project_path) {
+            if cached.discovered_at.elapsed().as_secs() < REFRESH_MIN_INTERVAL_SECS {
+                return cached.data.clone();
+            }
+        }
+
         let plugins = Self::discover_all(project_path);
-        self.project_plugins
-            .insert(project_path.to_string(), plugins.clone());
+        self.project_plugins.insert(
+            project_path.to_string(),
+            CachedPlugins {
+                data: plugins.clone(),
+                discovered_at: Instant::now(),
+            },
+        );
         plugins
     }
 

@@ -5,7 +5,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useSta
 import "@xterm/xterm/css/xterm.css";
 
 import { QuickActionsManager } from "@/components/quickactions/QuickActionsManager";
-import { buildFontFamily, waitForFont } from "@/lib/fonts";
+import { buildFontFamily, EMBEDDED_FONT, waitForFont } from "@/lib/fonts";
 import { StatusDetector } from "@/lib/statusDetector";
 import { getBackendInfo, killSession, onPtyOutput, resizePty, writeStdin, type BackendInfo } from "@/lib/terminal";
 import { DEFAULT_THEME, LIGHT_THEME, toXtermTheme } from "@/lib/terminalTheme";
@@ -270,7 +270,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
     // Get current settings at initialization time (not reactive)
     const currentSettings = useTerminalSettingsStore.getState();
     const effectiveFont = currentSettings.getEffectiveFontFamily();
-    const fontFamily = buildFontFamily(effectiveFont);
+    let fontFamily = buildFontFamily(effectiveFont);
 
     let disposed = false;
     let term: Terminal | null = null;
@@ -304,7 +304,14 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
     const initTerminal = async () => {
       // Ensure all @font-face fonts (including embedded base64) are loaded
       await document.fonts.ready;
-      await waitForFont(fontFamily, 2000);
+      const fontLoaded = await waitForFont(fontFamily, 2000);
+
+      // If the preferred font didn't load in the browser (font-kit name mismatch),
+      // fall back to the embedded JetBrains Mono which is always available via base64
+      if (!fontLoaded) {
+        console.warn(`Font "${fontFamily}" not available in browser, falling back to embedded font`);
+        fontFamily = buildFontFamily(EMBEDDED_FONT);
+      }
 
       if (disposed) return;
 

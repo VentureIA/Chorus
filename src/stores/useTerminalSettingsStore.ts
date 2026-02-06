@@ -38,7 +38,7 @@ type TerminalSettingsActions = {
     value: TerminalSettings[K]
   ) => void;
   /** Reset all settings to defaults. */
-  resetToDefaults: () => void;
+  resetToDefaults: () => Promise<void>;
   /** Get the current font family, falling back to embedded if needed. */
   getEffectiveFontFamily: () => string;
 };
@@ -122,7 +122,7 @@ export const useTerminalSettingsStore = create<
 
           // If user hasn't set a custom font, auto-select the best one
           const shouldAutoSelect = currentSettings.fontFamily === EMBEDDED_FONT;
-          const bestFont = shouldAutoSelect ? selectBestFont(fonts) : currentSettings.fontFamily;
+          const bestFont = shouldAutoSelect ? await selectBestFont(fonts) : currentSettings.fontFamily;
 
           // Check if the currently selected font is still available
           const currentFontAvailable =
@@ -159,11 +159,11 @@ export const useTerminalSettingsStore = create<
         });
       },
 
-      resetToDefaults: () => {
+      resetToDefaults: async () => {
         const { availableFonts } = get();
         // When resetting, auto-select the best font if we have detected fonts
         const fontFamily = availableFonts.length > 0
-          ? selectBestFont(availableFonts)
+          ? await selectBestFont(availableFonts)
           : DEFAULT_SETTINGS.fontFamily;
 
         set({

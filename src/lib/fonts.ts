@@ -141,20 +141,26 @@ export async function waitForFont(
  * 2. First available monospace font
  * 3. Embedded JetBrains Mono
  *
- * @param fonts - List of available fonts
- * @returns The best available font family name
+ * Uses the CSS Font Loading API to verify each candidate actually renders
+ * in the browser — font-kit (Rust) may detect fonts whose family names
+ * don't match what the browser/Canvas recognises on macOS.
+ *
+ * @param fonts - List of available fonts from the Rust backend
+ * @returns The best available font family name (browser-validated)
  */
-export function selectBestFont(fonts: AvailableFont[]): string {
-  // First, try to find a Nerd Font
-  const nerdFont = fonts.find((f) => f.is_nerd_font);
-  if (nerdFont) {
-    return nerdFont.family;
-  }
+export async function selectBestFont(fonts: AvailableFont[]): Promise<string> {
+  await document.fonts.ready;
 
-  // Otherwise, use the first monospace font
-  const monoFont = fonts.find((f) => f.is_monospace);
-  if (monoFont) {
-    return monoFont.family;
+  // Nerd Fonts first, then standard monospace — preserve detection order within each group
+  const candidates = [
+    ...fonts.filter((f) => f.is_nerd_font),
+    ...fonts.filter((f) => f.is_monospace && !f.is_nerd_font),
+  ];
+
+  for (const font of candidates) {
+    if (document.fonts.check(`16px "${font.family}"`)) {
+      return font.family;
+    }
   }
 
   // Fall back to embedded font
