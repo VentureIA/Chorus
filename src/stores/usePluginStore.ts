@@ -170,6 +170,9 @@ export const usePluginStore = create<PluginState>()((set, get) => ({
   deletingPluginId: null,
 
   fetchProjectPlugins: async (projectPath: string) => {
+    // Skip if already fetching for this project (dedup concurrent calls from Sidebar + TerminalGrid)
+    if (get().isLoading[projectPath]) return;
+
     set((state) => ({
       isLoading: { ...state.isLoading, [projectPath]: true },
       errors: { ...state.errors, [projectPath]: null },
