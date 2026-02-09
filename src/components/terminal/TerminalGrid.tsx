@@ -1,6 +1,6 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/transport";
 
 import { getBranchesWithWorktreeStatus, type BranchWithWorktreeStatus } from "@/lib/git";
 import { removeSessionMcpConfig, setSessionMcpServers, writeSessionMcpConfig, type McpServerConfig } from "@/lib/mcp";
@@ -77,15 +77,20 @@ async function withProjectLock<T>(projectPath: string, fn: () => Promise<T>): Pr
  * Returns Tailwind grid-cols/grid-rows classes that produce a compact layout
  * for the given session count (1x1, 2x1, 3x1, 2x2, 3x2, etc.).
  */
+/**
+ * Returns Tailwind grid classes for responsive layout:
+ * - Mobile (< md): single column, auto rows
+ * - Desktop (>= md): compact grid (2x1, 3x1, 2x2, 3x2, etc.)
+ */
 function gridClass(count: number): string {
   if (count <= 1) return "grid-cols-1 grid-rows-1";
-  if (count === 2) return "grid-cols-2 grid-rows-1";
-  if (count === 3) return "grid-cols-3 grid-rows-1";
-  if (count === 4) return "grid-cols-2 grid-rows-2";
-  if (count <= 6) return "grid-cols-3 grid-rows-2";
-  if (count <= 9) return "grid-cols-3 grid-rows-3";
-  if (count <= 12) return "grid-cols-4 grid-rows-3";
-  return "grid-cols-4";
+  if (count === 2) return "grid-cols-1 md:grid-cols-2 grid-rows-2 md:grid-rows-1";
+  if (count === 3) return "grid-cols-1 md:grid-cols-3 grid-rows-3 md:grid-rows-1";
+  if (count === 4) return "grid-cols-1 md:grid-cols-2 grid-rows-4 md:grid-rows-2";
+  if (count <= 6) return "grid-cols-1 md:grid-cols-3 auto-rows-fr md:grid-rows-2";
+  if (count <= 9) return "grid-cols-1 md:grid-cols-3 auto-rows-fr md:grid-rows-3";
+  if (count <= 12) return "grid-cols-1 md:grid-cols-4 auto-rows-fr md:grid-rows-3";
+  return "grid-cols-1 md:grid-cols-4 auto-rows-fr";
 }
 
 /** Generates a unique ID for a new session slot. */

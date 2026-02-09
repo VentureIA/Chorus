@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/transport";
 import { listWorktrees } from "./worktreeManager";
 
 /** Branch info from the backend. */

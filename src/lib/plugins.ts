@@ -4,7 +4,7 @@
  * Each function maps 1:1 to a Rust `#[tauri::command]` handler.
  */
 
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/transport";
 
 /**
  * Source of a skill - where it was discovered from.

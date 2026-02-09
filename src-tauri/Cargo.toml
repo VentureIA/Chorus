@@ -39,8 +39,14 @@ hex = "0.4"
 directories = "5"
 sysinfo = "0.32"
 reqwest = { version = "0.12", features = ["json"] }
-# HTTP server for MCP status endpoint
-axum = "0.8"
+# HTTP server for MCP status endpoint + web access
+axum = { version = "0.8", features = ["ws"] }
+# Static file serving for web access
+tower-http = { version = "0.6", features = ["fs"] }
+# WebSocket stream utilities
+futures-util = "0.3"
+# Local IP detection for QR code URL
+local-ip-address = "0.6"
 # UUID generation for instance isolation
 uuid = { version = "1", features = ["v4"] }
 # VT sequence parsing (used by Alacritty)

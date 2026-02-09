@@ -1,5 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
-import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { invoke, listen, type UnlistenFn } from "@/lib/transport";
 import { create } from "zustand";
 
 /** AI provider variants supported by the backend orchestrator. */
@@ -286,8 +285,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     try {
       if (!activeUnlisten) {
         if (!pendingInit) {
-          pendingInit = listen<SessionStatusPayload>("session-status-changed", (event) => {
-            const { session_id, project_path, status, message, needs_input_prompt } = event.payload;
+          pendingInit = listen<SessionStatusPayload>("session-status-changed", (payload) => {
+            const { session_id, project_path, status, message, needs_input_prompt } = payload;
 
             // Check if session exists in store
             const sessionExists = get().sessions.some(
@@ -298,7 +297,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
               // Buffer this status update - it will be applied when the session is added
               const bufferKey = statusBufferKey(session_id, project_path);
               console.log(`[SessionStore] Buffering status for non-existent session. Key: '${bufferKey}'`);
-              pendingStatusUpdates.set(bufferKey, event.payload);
+              pendingStatusUpdates.set(bufferKey, payload);
               return;
             }
 

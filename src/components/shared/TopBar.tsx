@@ -1,4 +1,3 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   ChevronDown,
   GitBranch,
@@ -9,7 +8,8 @@ import {
   Square,
   X,
 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { isTauri } from "@/lib/transport";
 import { useGitStore } from "../../stores/useGitStore";
 import { BranchDropdown } from "./BranchDropdown";
 import { StatusLegend } from "./StatusLegend";
@@ -27,6 +27,25 @@ interface TopBarProps {
   onBranchChanged?: (newBranch: string) => void;
 }
 
+/** Lazy-loaded window handle — null in browser mode. */
+let windowHandle: { minimize(): Promise<void>; toggleMaximize(): Promise<void>; close(): Promise<void> } | null = null;
+let windowHandleLoaded = false;
+
+function useWindowHandle() {
+  const [handle, setHandle] = useState(windowHandle);
+
+  useEffect(() => {
+    if (windowHandleLoaded || !isTauri()) return;
+    windowHandleLoaded = true;
+    import("@tauri-apps/api/window").then((mod) => {
+      windowHandle = mod.getCurrentWindow();
+      setHandle(windowHandle);
+    });
+  }, []);
+
+  return handle;
+}
+
 export function TopBar({
   sidebarOpen,
   onToggleSidebar,
@@ -37,7 +56,8 @@ export function TopBar({
   hideWindowControls = false,
   onBranchChanged,
 }: TopBarProps) {
-  const appWindow = useMemo(() => getCurrentWindow(), []);
+  const appWindow = useWindowHandle();
+  const showWindowControls = !hideWindowControls && isTauri();
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
 
@@ -160,8 +180,8 @@ export function TopBar({
         </button>
       </div>
 
-      {/* Window controls (scaled down ~15%) - only shown when not hidden */}
-      {!hideWindowControls && (
+      {/* Window controls (scaled down ~15%) - only shown in Tauri */}
+      {showWindowControls && appWindow && (
         <div className="flex items-center border-l border-border">
           <button
             type="button"

@@ -1,6 +1,6 @@
-import { LazyStore } from "@tauri-apps/plugin-store";
 import { create } from "zustand";
-import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { createStorage } from "@/lib/storage";
 import { killSession } from "@/lib/terminal";
 
 // --- Types ---
@@ -41,51 +41,6 @@ type WorkspaceActions = {
   removeSessionFromProject: (tabId: string, sessionId: number) => void;
   setSessionsLaunched: (tabId: string, launched: boolean) => void;
   getTabByPath: (projectPath: string) => WorkspaceTab | undefined;
-};
-
-// --- Tauri LazyStore-backed StateStorage adapter ---
-
-/**
- * Singleton LazyStore instance pointing to `store.json` in the Tauri app-data dir.
- * LazyStore lazily initialises the underlying file on first read/write.
- */
-const lazyStore = new LazyStore("store.json");
-
-/**
- * Zustand-compatible {@link StateStorage} adapter backed by the Tauri plugin-store.
- *
- * Each `setItem`/`removeItem` call issues an explicit `save()` to flush to disk,
- * because LazyStore only writes on shutdown by default and data would be lost
- * if the app is force-quit.
- */
-const tauriStorage: StateStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    try {
-      const value = await lazyStore.get<string>(name);
-      return value ?? null;
-    } catch (err) {
-      console.error(`tauriStorage.getItem("${name}") failed:`, err);
-      return null;
-    }
-  },
-  setItem: async (name: string, value: string): Promise<void> => {
-    try {
-      await lazyStore.set(name, value);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.setItem("${name}") failed:`, err);
-      throw err; // Let Zustand persist middleware handle it
-    }
-  },
-  removeItem: async (name: string): Promise<void> => {
-    try {
-      await lazyStore.delete(name);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.removeItem("${name}") failed:`, err);
-      throw err; // Re-throw for consistency with setItem
-    }
-  },
 };
 
 // --- Helpers ---
@@ -212,7 +167,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
     }),
     {
       name: "chorus-workspace",
-      storage: createJSONStorage(() => tauriStorage),
+      storage: createJSONStorage(() => createStorage("store.json")),
       partialize: (state) => ({ tabs: state.tabs }),
       version: 2,
       onRehydrateStorage: () => {

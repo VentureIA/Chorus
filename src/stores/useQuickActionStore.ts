@@ -1,6 +1,6 @@
-import { LazyStore } from "@tauri-apps/plugin-store";
 import { create } from "zustand";
-import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { createStorage } from "@/lib/storage";
 import type { QuickAction } from "@/types/quickAction";
 
 // --- Default Quick Actions ---
@@ -234,40 +234,6 @@ Go:
   },
 ];
 
-// --- Tauri LazyStore-backed StateStorage adapter ---
-
-const lazyStore = new LazyStore("quick-actions.json");
-
-const tauriStorage: StateStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    try {
-      const value = await lazyStore.get<string>(name);
-      return value ?? null;
-    } catch (err) {
-      console.error(`tauriStorage.getItem("${name}") failed:`, err);
-      return null;
-    }
-  },
-  setItem: async (name: string, value: string): Promise<void> => {
-    try {
-      await lazyStore.set(name, value);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.setItem("${name}") failed:`, err);
-      throw err;
-    }
-  },
-  removeItem: async (name: string): Promise<void> => {
-    try {
-      await lazyStore.delete(name);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.removeItem("${name}") failed:`, err);
-      throw err;
-    }
-  },
-};
-
 // --- Store Types ---
 
 type QuickActionState = {
@@ -354,7 +320,7 @@ export const useQuickActionStore = create<QuickActionState & QuickActionActions>
     }),
     {
       name: "chorus-quick-actions",
-      storage: createJSONStorage(() => tauriStorage),
+      storage: createJSONStorage(() => createStorage("quick-actions.json")),
       partialize: (state) => ({ actions: state.actions, hasInitialized: state.hasInitialized }),
       version: 1,
       onRehydrateStorage: () => (state) => {

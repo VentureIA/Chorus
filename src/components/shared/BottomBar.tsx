@@ -29,7 +29,7 @@ export function BottomBar({
   const unlaunchedCount = slotCount - launchedCount;
 
   return (
-    <div className="no-select flex h-11 items-center justify-center gap-3 px-4">
+    <div className="no-select flex h-11 md:h-11 items-center justify-center gap-2 md:gap-3 px-2 md:px-4 flex-wrap">
       <Button
         variant="outline"
         size="sm"

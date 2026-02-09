@@ -16,7 +16,7 @@ use std::sync::{Arc, Mutex, RwLock};
 use std::thread::JoinHandle;
 
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::Notify;
 use vte::{Parser, Perform};
 
@@ -410,7 +410,11 @@ impl TerminalBackend for VteBackend {
                                 // Forward to frontend with proper UTF-8 decoding
                                 let text = decoder.decode(&bytes);
                                 if !text.is_empty() {
-                                    let _ = app.emit(&event_name, text);
+                                    let _ = app.emit(&event_name, text.clone());
+                                    // Forward to event bus for WebSocket clients
+                                    if let Some(bus) = app.try_state::<std::sync::Arc<super::event_bus::EventBus>>() {
+                                        bus.send(event_name.clone(), serde_json::Value::String(text));
+                                    }
                                 }
 
                                 // Parse for state (in a real impl, we'd update shared state here)

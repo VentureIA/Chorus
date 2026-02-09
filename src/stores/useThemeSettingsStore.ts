@@ -1,6 +1,6 @@
-import { LazyStore } from "@tauri-apps/plugin-store";
 import { create } from "zustand";
-import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { createStorage } from "@/lib/storage";
 import {
   type ThemeColors,
   DEFAULT_DARK_COLORS,
@@ -56,40 +56,6 @@ const DEFAULT_SETTINGS: ThemeSettings = {
   lightColors: DEFAULT_LIGHT_COLORS,
   fontFamily: "system-ui",
   isCustomThemeEnabled: false,
-};
-
-// --- Tauri LazyStore-backed StateStorage adapter ---
-
-const lazyStore = new LazyStore("theme-settings.json");
-
-const tauriStorage: StateStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    try {
-      const value = await lazyStore.get<string>(name);
-      return value ?? null;
-    } catch (err) {
-      console.error(`tauriStorage.getItem("${name}") failed:`, err);
-      return null;
-    }
-  },
-  setItem: async (name: string, value: string): Promise<void> => {
-    try {
-      await lazyStore.set(name, value);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.setItem("${name}") failed:`, err);
-      throw err;
-    }
-  },
-  removeItem: async (name: string): Promise<void> => {
-    try {
-      await lazyStore.delete(name);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.removeItem("${name}") failed:`, err);
-      throw err;
-    }
-  },
 };
 
 // --- Store ---
@@ -180,7 +146,7 @@ export const useThemeSettingsStore = create<
     }),
     {
       name: "chorus-theme-settings",
-      storage: createJSONStorage(() => tauriStorage),
+      storage: createJSONStorage(() => createStorage("theme-settings.json")),
       partialize: (state) => ({ settings: state.settings }),
       version: 1,
     }

@@ -5,7 +5,7 @@
  * processes spawned by each session's shell.
  */
 
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/transport";
 import { create } from "zustand";
 
 /** Information about a single process. */

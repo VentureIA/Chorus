@@ -1,6 +1,6 @@
-import { LazyStore } from "@tauri-apps/plugin-store";
 import { create } from "zustand";
-import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { createStorage } from "@/lib/storage";
 import {
   type AvailableFont,
   EMBEDDED_FONT,
@@ -49,47 +49,6 @@ const DEFAULT_SETTINGS: TerminalSettings = {
   fontFamily: EMBEDDED_FONT,
   fontSize: 12,
   lineHeight: 1.2,
-};
-
-// --- Tauri LazyStore-backed StateStorage adapter ---
-
-/**
- * Singleton LazyStore instance for terminal settings.
- * Stored separately from the main store.json to keep concerns separate.
- */
-const lazyStore = new LazyStore("terminal-settings.json");
-
-/**
- * Zustand-compatible StateStorage adapter backed by the Tauri plugin-store.
- */
-const tauriStorage: StateStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    try {
-      const value = await lazyStore.get<string>(name);
-      return value ?? null;
-    } catch (err) {
-      console.error(`tauriStorage.getItem("${name}") failed:`, err);
-      return null;
-    }
-  },
-  setItem: async (name: string, value: string): Promise<void> => {
-    try {
-      await lazyStore.set(name, value);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.setItem("${name}") failed:`, err);
-      throw err;
-    }
-  },
-  removeItem: async (name: string): Promise<void> => {
-    try {
-      await lazyStore.delete(name);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.removeItem("${name}") failed:`, err);
-      throw err;
-    }
-  },
 };
 
 // --- Store ---
@@ -192,7 +151,7 @@ export const useTerminalSettingsStore = create<
     }),
     {
       name: "chorus-terminal-settings",
-      storage: createJSONStorage(() => tauriStorage),
+      storage: createJSONStorage(() => createStorage("terminal-settings.json")),
       partialize: (state) => ({ settings: state.settings }),
       version: 1,
     }
