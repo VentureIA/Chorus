@@ -7,7 +7,6 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { useMcpStore } from "@/stores/useMcpStore";
 import type { McpCustomServer } from "@/lib/mcp";
 
@@ -77,6 +76,7 @@ export function McpServerEditorModal({
 
   const handleBrowseWorkingDir = async () => {
     try {
+      const { open: openDialog } = await import("@tauri-apps/plugin-dialog");
       const selected = await openDialog({
         directory: true,
         title: "Select Working Directory",

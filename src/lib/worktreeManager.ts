@@ -1,5 +1,4 @@
 import { invoke } from "@/lib/transport";
-import { homeDir } from "@tauri-apps/api/path";
 
 /** Worktree info from the backend. */
 export interface WorktreeInfo {
@@ -46,6 +45,7 @@ function sanitizeBranch(branch: string): string {
  * Uses ~/.claude-chorus/worktrees/
  */
 async function getWorktreeBaseDir(): Promise<string> {
+  const { homeDir } = await import("@tauri-apps/api/path");
   const home = await homeDir();
   return `${home}.claude-chorus/worktrees`;
 }

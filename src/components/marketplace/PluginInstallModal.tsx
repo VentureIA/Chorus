@@ -1,6 +1,5 @@
 import { useMarketplaceStore } from "@/stores/useMarketplaceStore";
 import type { InstallScope, MarketplacePlugin } from "@/types/marketplace";
-import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { Check, Folder, Package, User, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -50,6 +49,7 @@ export function PluginInstallModal({
 
   const handleBrowseProject = async () => {
     try {
+      const { open: openDialog } = await import("@tauri-apps/plugin-dialog");
       const selected = await openDialog({
         directory: true,
         title: "Select Project Directory",
