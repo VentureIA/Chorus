@@ -1,6 +1,9 @@
 import { FitAddon } from "@xterm/addon-fit";
+import { SearchAddon } from "@xterm/addon-search";
+import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { Terminal } from "@xterm/xterm";
+import * as ContextMenu from "@radix-ui/react-context-menu";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import "@xterm/xterm/css/xterm.css";
 
@@ -16,6 +19,7 @@ import { useMcpStore } from "@/stores/useMcpStore";
 import { type AiMode, type BackendSessionStatus, useSessionStore } from "@/stores/useSessionStore";
 import { useTerminalSettingsStore } from "@/stores/useTerminalSettingsStore";
 import { QuickActionPills } from "./QuickActionPills";
+import { TerminalFindWidget } from "./TerminalFindWidget";
 import { type AIProvider, type SessionStatus, TerminalHeader } from "./TerminalHeader";
 
 /**
@@ -136,6 +140,10 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
+  const searchAddonRef = useRef<SearchAddon | null>(null);
+
+  // Find widget state
+  const [showFind, setShowFind] = useState(false);
 
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
@@ -354,13 +362,21 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
       fitAddon = new FitAddon();
       const webLinksAddon = new WebLinksAddon();
+      const searchAddon = new SearchAddon();
+      const unicode11Addon = new Unicode11Addon();
 
       term.loadAddon(fitAddon);
       term.loadAddon(webLinksAddon);
+      term.loadAddon(searchAddon);
+      term.loadAddon(unicode11Addon);
       term.open(container);
+
+      // Activate Unicode 11 for better emoji/CJK rendering
+      term.unicode.activeVersion = "11";
 
       termRef.current = term;
       fitAddonRef.current = fitAddon;
+      searchAddonRef.current = searchAddon;
 
       requestAnimationFrame(() => {
         try {
@@ -403,28 +419,65 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
       // Handle special keyboard shortcuts
       term.attachCustomKeyEventHandler((event) => {
-        // Shift+Enter: insert newline without submitting
-        if (event.key === "Enter" && event.shiftKey && event.type === "keydown") {
-          // Use bracketed paste to tell the shell/CLI "this is pasted text,
-          // don't execute on newline". Works with zsh, bash 5+, fish, etc.
-          if (term?.modes.bracketedPasteMode) {
-            writeStdin(sessionId, "\x1b[200~\n\x1b[201~").catch(console.error);
-          } else {
-            writeStdin(sessionId, "\n").catch(console.error);
+        // Shift+Enter: block BOTH keydown and keyup to prevent xterm from sending \r
+        if (event.key === "Enter" && event.shiftKey) {
+          if (event.type === "keydown") {
+            if (term?.modes.bracketedPasteMode) {
+              writeStdin(sessionId, "\x1b[200~\n\x1b[201~").catch(console.error);
+            } else {
+              writeStdin(sessionId, "\n").catch(console.error);
+            }
           }
-          return false; // Don't let xterm process it
+          return false; // Block both keydown AND keyup from xterm
         }
 
-        // Cmd+C (Mac) or Ctrl+C (Linux/Windows): copy selection to clipboard
-        // Only intercept if there's a selection, otherwise let SIGINT go through
-        const isCopy = event.key === "c" && (event.metaKey || event.ctrlKey) && event.type === "keydown";
-        if (isCopy && term?.hasSelection()) {
+        if (event.type !== "keydown") return true;
+
+        const mod = event.metaKey || event.ctrlKey;
+
+        // Cmd/Ctrl+F: toggle find widget
+        if (event.key === "f" && mod) {
+          event.preventDefault();
+          setShowFind((v) => !v);
+          return false;
+        }
+
+        // Cmd/Ctrl+K: clear terminal
+        if (event.key === "k" && mod) {
+          event.preventDefault();
+          term?.clear();
+          return false;
+        }
+
+        // Cmd/Ctrl+V: paste from clipboard
+        if (event.key === "v" && mod) {
+          navigator.clipboard.readText().then((text) => {
+            if (text) writeStdin(sessionId, text).catch(console.error);
+          }).catch(console.error);
+          return false;
+        }
+
+        // Escape: close find widget if open
+        if (event.key === "Escape") {
+          setShowFind((prev) => {
+            if (prev) {
+              searchAddon.clearDecorations();
+              return false;
+            }
+            return prev;
+          });
+          // Always let Escape propagate to the terminal too
+          return true;
+        }
+
+        // Cmd/Ctrl+C: copy selection to clipboard (if there's a selection)
+        if (event.key === "c" && mod && term?.hasSelection()) {
           const selection = term.getSelection();
           navigator.clipboard.writeText(selection).catch(console.error);
-          return false; // Don't send to PTY
+          return false;
         }
 
-        return true; // Let xterm handle all other keys
+        return true;
       });
 
       const listenerReady = onPtyOutput(sessionId, (data) => {
@@ -498,6 +551,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       term?.dispose();
       termRef.current = null;
       fitAddonRef.current = null;
+      searchAddonRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps -- Font settings are read once at init, dynamic updates via separate effect
   }, [sessionId]);
@@ -535,8 +589,76 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
         mobileConnected={mobileConnected}
       />
 
-      {/* xterm.js container */}
-      <div ref={containerRef} className="flex-1 overflow-hidden px-4 py-2" style={{ backgroundColor: "#1e1e1e" }} />
+      {/* xterm.js container with context menu */}
+      <ContextMenu.Root>
+        <ContextMenu.Trigger asChild>
+          <div className="relative flex-1 overflow-hidden">
+            {showFind && searchAddonRef.current && (
+              <TerminalFindWidget
+                searchAddon={searchAddonRef.current}
+                onClose={() => setShowFind(false)}
+              />
+            )}
+            <div ref={containerRef} className="h-full px-4 py-2" style={{ backgroundColor: "#1e1e1e" }} />
+          </div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Content
+            className="min-w-[180px] overflow-hidden rounded-md border border-[#3c3c3c] bg-[#252526] p-1 shadow-xl"
+          >
+            <ContextMenu.Item
+              className="flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-xs text-[#cccccc] outline-none data-[highlighted]:bg-[#094771] data-[highlighted]:text-white"
+              onSelect={() => {
+                const sel = termRef.current?.getSelection();
+                if (sel) navigator.clipboard.writeText(sel).catch(console.error);
+              }}
+              disabled={!termRef.current?.hasSelection()}
+            >
+              Copy
+              <span className="ml-4 text-[10px] text-[#777]">{navigator.platform.includes("Mac") ? "⌘C" : "Ctrl+C"}</span>
+            </ContextMenu.Item>
+            <ContextMenu.Item
+              className="flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-xs text-[#cccccc] outline-none data-[highlighted]:bg-[#094771] data-[highlighted]:text-white"
+              onSelect={() => {
+                navigator.clipboard.readText().then((text) => {
+                  if (text) writeStdin(sessionId, text).catch(console.error);
+                }).catch(console.error);
+              }}
+            >
+              Paste
+              <span className="ml-4 text-[10px] text-[#777]">{navigator.platform.includes("Mac") ? "⌘V" : "Ctrl+V"}</span>
+            </ContextMenu.Item>
+            <ContextMenu.Item
+              className="flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-xs text-[#cccccc] outline-none data-[highlighted]:bg-[#094771] data-[highlighted]:text-white"
+              onSelect={() => termRef.current?.selectAll()}
+            >
+              Select All
+              <span className="ml-4 text-[10px] text-[#777]">{navigator.platform.includes("Mac") ? "⌘A" : "Ctrl+A"}</span>
+            </ContextMenu.Item>
+            <ContextMenu.Item
+              className="flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-xs text-[#cccccc] outline-none data-[highlighted]:bg-[#094771] data-[highlighted]:text-white"
+              onSelect={() => setShowFind(true)}
+            >
+              Find
+              <span className="ml-4 text-[10px] text-[#777]">{navigator.platform.includes("Mac") ? "⌘F" : "Ctrl+F"}</span>
+            </ContextMenu.Item>
+            <ContextMenu.Separator className="my-1 h-px bg-[#3c3c3c]" />
+            <ContextMenu.Item
+              className="flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-xs text-[#cccccc] outline-none data-[highlighted]:bg-[#094771] data-[highlighted]:text-white"
+              onSelect={() => termRef.current?.clear()}
+            >
+              Clear Terminal
+              <span className="ml-4 text-[10px] text-[#777]">{navigator.platform.includes("Mac") ? "⌘K" : "Ctrl+K"}</span>
+            </ContextMenu.Item>
+            <ContextMenu.Item
+              className="flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-xs text-[#cccccc] outline-none data-[highlighted]:bg-[#094771] data-[highlighted]:text-red-400"
+              onSelect={() => handleKill(sessionId)}
+            >
+              Kill Session
+            </ContextMenu.Item>
+          </ContextMenu.Content>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>
 
       {/* Quick action pills */}
       <QuickActionPills
