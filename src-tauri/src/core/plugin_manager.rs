@@ -540,7 +540,7 @@ type SessionKey = (String, u32); // (project_path, session_id)
 
 /// How long cached plugin discovery results are considered fresh.
 /// During this window, `get_project_plugins` returns cached data without touching the filesystem.
-const CACHE_TTL_SECS: u64 = 30;
+const CACHE_TTL_SECS: u64 = 300;
 
 /// Minimum interval between filesystem re-scans, even for explicit refresh requests.
 /// Prevents rapid-fire TCC permission dialogs on macOS when projects live in protected folders.

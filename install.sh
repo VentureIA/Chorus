@@ -54,6 +54,12 @@ install_from_release() {
         # Remove quarantine attribute (bypass Gatekeeper)
         xattr -rd com.apple.quarantine /Applications/Chorus.app 2>/dev/null || true
 
+        # Ad-hoc code sign so macOS TCC remembers folder permissions.
+        # Without this, macOS asks for Desktop/Documents access on every launch.
+        # With ad-hoc signing, permissions persist until the next app update.
+        echo -e "${BLUE}Signing app for macOS permissions...${NC}"
+        codesign --force --deep --sign - /Applications/Chorus.app 2>/dev/null || true
+
         # Cleanup
         rm -rf "$TEMP_DIR"
 
@@ -122,6 +128,7 @@ install_from_source() {
         [ -d "/Applications/Chorus.app" ] && rm -rf "/Applications/Chorus.app"
         cp -R "$APP_PATH" /Applications/
         xattr -rd com.apple.quarantine /Applications/Chorus.app 2>/dev/null || true
+        codesign --force --deep --sign - /Applications/Chorus.app 2>/dev/null || true
         echo -e "${GREEN}✓ Chorus installed to /Applications${NC}"
     else
         echo -e "${RED}Error: Could not find built app${NC}"

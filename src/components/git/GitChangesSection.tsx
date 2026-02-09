@@ -143,7 +143,7 @@ export function GitChangesSection({ onPushComplete }: GitChangesSectionProps) {
     fetchWorkingChanges(repoPath);
     const interval = setInterval(() => {
       fetchWorkingChanges(repoPath, true);
-    }, 3000);
+    }, 15000);
     return () => clearInterval(interval);
   }, [repoPath, fetchWorkingChanges]);
 

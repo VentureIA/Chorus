@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- TCC usage descriptions: macOS shows these in the permission dialog.
+         Once the user clicks "Allow", macOS remembers the choice permanently
+         (tied to the app's code signature). Required for Desktop/Documents/Downloads. -->
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>Chorus needs access to your Desktop to open and manage projects located there.</string>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>Chorus needs access to Documents to open and manage projects located there.</string>
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>Chorus needs access to Downloads to open and manage projects located there.</string>
+</dict>
+</plist>

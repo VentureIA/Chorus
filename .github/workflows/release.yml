@@ -170,6 +170,21 @@ jobs:
         with:
           args: --target universal-apple-darwin
 
+      # macOS: Ad-hoc sign when no Developer ID is available.
+      # This gives a stable code signature so macOS TCC remembers folder
+      # permissions between app launches (until the next app update).
+      - name: Ad-hoc sign macOS app
+        if: matrix.platform == 'macos-latest' && steps.signing.outputs.enabled != 'true'
+        run: |
+          APP_PATH=$(find target/universal-apple-darwin/release/bundle -name "Chorus.app" -type d | head -1)
+          if [ -n "$APP_PATH" ]; then
+            echo "Ad-hoc signing $APP_PATH..."
+            # Sign embedded binaries first (chorus-mcp-server), then the app
+            find "$APP_PATH/Contents/Resources" -type f -perm +111 -exec codesign --force --sign - {} \; 2>/dev/null || true
+            codesign --force --sign - "$APP_PATH"
+            echo "Ad-hoc signing complete"
+          fi
+
       # macOS: Notarize the DMG (only if signing was enabled)
       - name: Notarize macOS DMG
         if: matrix.platform == 'macos-latest' && steps.signing.outputs.enabled == 'true'
