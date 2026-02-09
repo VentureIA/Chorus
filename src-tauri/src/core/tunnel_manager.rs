@@ -171,7 +171,8 @@ fn chorus_bin_dir() -> PathBuf {
 }
 
 /// Ensure cloudflared is available — find it on the system or download it.
-async fn ensure_cloudflared() -> Result<String, String> {
+/// Public so it can be called at app startup to pre-download the binary.
+pub async fn ensure_cloudflared() -> Result<String, String> {
     if let Some(path) = find_cloudflared() {
         return Ok(path);
     }

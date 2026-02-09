@@ -31,6 +31,8 @@ interface TerminalHeaderProps {
   fontSize?: number;
   /** Auto-generated title from first user message. */
   sessionTitle?: string;
+  /** Number of active file conflicts for this session. */
+  conflictCount?: number;
   onKill: (sessionId: number) => void;
   onHandoff?: () => void;
   onLaunch?: () => void;
@@ -80,6 +82,7 @@ export function TerminalHeader({
   isWorktree = false,
   fontSize,
   sessionTitle,
+  conflictCount = 0,
   onKill,
   onHandoff,
   onLaunch,
@@ -124,6 +127,13 @@ export function TerminalHeader({
         <span className="shrink-0 rounded-full bg-primary/15 px-1.5 py-px text-[9px] font-medium text-primary">
           {mcpCount} MCP
         </span>
+
+        {/* Conflict badge */}
+        {conflictCount > 0 && (
+          <span className="shrink-0 rounded-full bg-orange-500/15 px-1.5 py-px text-[9px] font-medium text-orange-500 animate-pulse">
+            {conflictCount} Conflict{conflictCount !== 1 && "s"}
+          </span>
+        )}
 
         {/* Terminal count badge */}
         {/* TODO: Replace hardcoded "1" with actual terminal count prop */}

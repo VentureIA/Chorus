@@ -4,6 +4,7 @@
 //! providing the `chorus_status` tool that reports agent status to
 //! the Chorus application via HTTP POST.
 
+mod intel_client;
 mod mcp_protocol;
 mod status_reporter;
 

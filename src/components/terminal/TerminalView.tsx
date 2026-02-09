@@ -449,13 +449,9 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
           return false;
         }
 
-        // Cmd/Ctrl+V: paste from clipboard
-        if (event.key === "v" && mod) {
-          navigator.clipboard.readText().then((text) => {
-            if (text) writeStdin(sessionId, text).catch(console.error);
-          }).catch(console.error);
-          return false;
-        }
+        // Cmd/Ctrl+V: let the browser handle paste natively.
+        // xterm.js will receive the paste event and fire onData automatically.
+        // Using navigator.clipboard.readText() shows a permission popup in Chromium webviews.
 
         // Escape: close find widget if open
         if (event.key === "Escape") {

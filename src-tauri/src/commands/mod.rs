@@ -2,6 +2,7 @@ pub mod claudemd;
 pub mod explorer;
 pub mod fonts;
 pub mod git;
+pub mod intel;
 pub mod marketplace;
 pub mod mcp;
 pub mod plugin;

@@ -96,6 +96,15 @@ pub fn run() {
                 }
             });
 
+            // Pre-download cloudflared in the background so it's ready
+            // when the user opens the mobile access QR modal
+            tauri::async_runtime::spawn(async {
+                match core::tunnel_manager::ensure_cloudflared().await {
+                    Ok(path) => log::info!("cloudflared ready at {path}"),
+                    Err(e) => log::warn!("Failed to pre-download cloudflared: {e}"),
+                }
+            });
+
             // Start the HTTP status server for MCP status reporting
             // IMPORTANT: This must be done synchronously so the server is ready
             // before any commands try to use it
@@ -257,6 +266,12 @@ pub fn run() {
             commands::explorer::read_directory,
             commands::explorer::read_file_content,
             commands::explorer::write_file_content,
+            // Intel commands (inter-session intelligence)
+            commands::intel::get_intel_broadcasts,
+            commands::intel::get_intel_conflicts,
+            commands::intel::get_intel_scratchpad,
+            commands::intel::write_intel_scratchpad,
+            commands::intel::clear_intel_scratchpad,
             // Web access commands
             commands::web_access::generate_web_access_token,
             commands::web_access::get_web_access_status,

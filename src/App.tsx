@@ -3,6 +3,7 @@ import { GitFork, RefreshCw, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { killSession, writeStdin } from "@/lib/terminal";
 import { useOpenProject } from "@/lib/useOpenProject";
+import { useIntelStore } from "@/stores/useIntelStore";
 import { useSessionStore } from "@/stores/useSessionStore";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { useQuickActionStore } from "@/stores/useQuickActionStore";
@@ -49,6 +50,7 @@ function DesktopApp() {
   const setSessionsLaunched = useWorkspaceStore((s) => s.setSessionsLaunched);
   const fetchSessions = useSessionStore((s) => s.fetchSessions);
   const initListeners = useSessionStore((s) => s.initListeners);
+  const initIntelListeners = useIntelStore((s) => s.initListeners);
   const handleOpenProject = useOpenProject();
   const multiProjectRef = useRef<MultiProjectViewHandle>(null);
   const isMobile = useIsMobile();
@@ -238,6 +240,18 @@ function DesktopApp() {
       unlistenPromise.then((unlisten) => unlisten());
     };
   }, [fetchSessions, initListeners]);
+
+  // Initialize inter-session intelligence listeners
+  useEffect(() => {
+    const unlistenPromise = initIntelListeners().catch((err) => {
+      console.error("Failed to initialize intel listeners:", err);
+      return () => {};
+    });
+
+    return () => {
+      unlistenPromise.then((unlisten) => unlisten());
+    };
+  }, [initIntelListeners]);
 
   // Initialize terminal settings store (detects available fonts)
   const initializeTerminalSettings = useTerminalSettingsStore((s) => s.initialize);

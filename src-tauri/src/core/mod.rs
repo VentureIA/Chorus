@@ -1,5 +1,6 @@
 pub mod error;
 pub mod event_bus;
+pub mod intel_hub;
 pub mod path_utils;
 pub mod font_detector;
 pub mod marketplace_error;

@@ -183,36 +183,47 @@ pub async fn write_session_mcp_config(
 ) -> Result<(), String> {
     let mut mcp_servers: HashMap<String, Value> = HashMap::new();
 
-    // Add the Chorus status server for real-time status reporting
-    if let Some(config) = chorus_status {
-        let chorus_server = json!({
-            "type": "stdio",
-            "command": config.binary_path.to_string_lossy(),
-            "args": [],
-            "env": {
-                "CHORUS_STATUS_URL": &config.status_url,
-                "CHORUS_SESSION_ID": session_id.to_string(),
-                "CHORUS_INSTANCE_ID": &config.instance_id
-            }
-        });
-        mcp_servers.insert("chorus-status".to_string(), chorus_server);
-        log::info!(
-            "Added chorus-status MCP server: binary={:?}, url={}, session_id={}, instance_id={}",
-            config.binary_path,
-            config.status_url,
-            session_id,
-            config.instance_id
-        );
-    }
-
     // Add enabled discovered servers from project .mcp.json
+    // Skip any chorus-managed entries — they get re-discovered from our own .mcp.json
+    // writes and would carry stale env vars. We'll add the correct chorus-status below.
     for server in enabled_servers {
+        if should_remove_server(&server.name, &Value::Null, session_id) {
+            log::info!(
+                "Skipping discovered server '{}' (Chorus-managed, will be replaced)",
+                server.name
+            );
+            continue;
+        }
         mcp_servers.insert(server.name.clone(), server_config_to_json(server));
     }
 
     // Add enabled custom servers (user-defined, global)
     for server in custom_servers {
         mcp_servers.insert(server.name.clone(), custom_server_to_json(server));
+    }
+
+    // Add the Chorus status server LAST so it always wins over any re-discovered version.
+    // All three env vars must be explicit here because Claude CLI only passes env vars
+    // listed in .mcp.json to MCP server processes (shell env is NOT inherited).
+    // The "skip discovered chorus servers" logic above prevents stale re-discovered
+    // entries from overwriting these fresh values.
+    if let Some(config) = chorus_status {
+        let chorus_server = json!({
+            "type": "stdio",
+            "command": config.binary_path.to_string_lossy(),
+            "args": [],
+            "env": {
+                "CHORUS_SESSION_ID": session_id.to_string(),
+                "CHORUS_STATUS_URL": config.status_url,
+                "CHORUS_INSTANCE_ID": config.instance_id
+            }
+        });
+        mcp_servers.insert("chorus-status".to_string(), chorus_server);
+        log::info!(
+            "Added chorus-status MCP server: binary={:?}, session_id={} (URL and instance_id inherited from shell env)",
+            config.binary_path,
+            session_id,
+        );
     }
 
     // Merge with existing .mcp.json if present (preserve user servers AND other sessions)
@@ -223,15 +234,32 @@ pub async fn write_session_mcp_config(
     let content = serde_json::to_string_pretty(&final_config)
         .map_err(|e| format!("Failed to serialize MCP config: {}", e))?;
 
-    tokio::fs::write(&mcp_path, content)
-        .await
-        .map_err(|e| format!("Failed to write .mcp.json: {}", e))?;
-
-    log::debug!(
-        "Wrote session {} MCP config to {:?}",
-        session_id,
-        mcp_path
+    log::info!(
+        "[MCP] Writing .mcp.json to {:?} ({} bytes)",
+        mcp_path,
+        content.len()
     );
+
+    tokio::fs::write(&mcp_path, &content)
+        .await
+        .map_err(|e| format!("Failed to write .mcp.json to {:?}: {}", mcp_path, e))?;
+
+    // Verify the write by reading back
+    match tokio::fs::read_to_string(&mcp_path).await {
+        Ok(readback) => {
+            if readback == content {
+                log::info!("[MCP] Verified .mcp.json write for session {} at {:?}", session_id, mcp_path);
+            } else {
+                log::error!(
+                    "[MCP] WRITE VERIFICATION FAILED for session {} at {:?}! Written {} bytes, read back {} bytes",
+                    session_id, mcp_path, content.len(), readback.len()
+                );
+            }
+        }
+        Err(e) => {
+            log::error!("[MCP] Failed to read back .mcp.json at {:?}: {}", mcp_path, e);
+        }
+    }
 
     Ok(())
 }
@@ -405,9 +433,7 @@ mod tests {
                 "command": "/usr/bin/new-chorus-status",
                 "args": [],
                 "env": {
-                    "CHORUS_SESSION_ID": "3",
-                    "CHORUS_STATUS_URL": "http://127.0.0.1:9900/status",
-                    "CHORUS_INSTANCE_ID": "test-instance"
+                    "CHORUS_SESSION_ID": "3"
                 }
             }),
         );
@@ -432,6 +458,16 @@ mod tests {
             servers["chorus-status"]["env"]["CHORUS_SESSION_ID"],
             "3",
             "chorus-status should have session ID 3 in env"
+        );
+        // CHORUS_STATUS_URL and CHORUS_INSTANCE_ID should NOT be in .mcp.json
+        // (they are inherited from the shell environment)
+        assert!(
+            servers["chorus-status"]["env"].get("CHORUS_STATUS_URL").is_none(),
+            "CHORUS_STATUS_URL should not be in .mcp.json env"
+        );
+        assert!(
+            servers["chorus-status"]["env"].get("CHORUS_INSTANCE_ID").is_none(),
+            "CHORUS_INSTANCE_ID should not be in .mcp.json env"
         );
     }
 

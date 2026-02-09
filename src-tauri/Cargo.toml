@@ -50,6 +50,8 @@ futures-util = "0.3"
 local-ip-address = "0.6"
 # UUID generation for instance isolation
 uuid = { version = "1", features = ["v4"] }
+# Timestamp generation for intel hub
+chrono = "0.4"
 # VT sequence parsing (used by Alacritty)
 vte = { version = "0.14", optional = true }
 # Cross-platform font detection

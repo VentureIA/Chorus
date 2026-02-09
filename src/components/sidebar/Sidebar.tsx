@@ -36,6 +36,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { type AiMode, type BackendSessionStatus, useSessionStore } from "@/stores/useSessionStore";
 import { useGitStore } from "@/stores/useGitStore";
 import { useMcpStore } from "@/stores/useMcpStore";
@@ -52,6 +53,7 @@ import { TerminalSettingsModal } from "@/components/terminal/TerminalSettingsMod
 import { KeyboardShortcutsModal } from "@/components/shortcuts/KeyboardShortcutsModal";
 import { ThemeSettingsModal } from "@/components/settings/ThemeSettingsModal";
 import { FileExplorerTab } from "@/components/sidebar/FileExplorerTab";
+import { IntelligenceSection } from "@/components/sidebar/IntelligenceSection";
 import type { McpCustomServer } from "@/lib/mcp";
 import { checkClaudeMd, type ClaudeMdStatus } from "@/lib/claudemd";
 import { invoke } from "@/lib/transport";
@@ -1288,12 +1290,13 @@ function PluginsSection() {
         </div>
       )}
 
-      {/* Marketplace Browser Modal */}
-      {showMarketplace && (
+      {/* Marketplace Browser Modal — portaled to body to escape Sidebar stacking context */}
+      {showMarketplace && createPortal(
         <MarketplaceBrowser
           onClose={() => setShowMarketplace(false)}
           currentProjectPath={projectPath}
-        />
+        />,
+        document.body,
       )}
     </div>
   );
@@ -1487,6 +1490,8 @@ function ProcessesTab() {
   return (
     <>
       <AgentSessionsSection />
+      {divider}
+      <IntelligenceSection />
       {divider}
       <ProcessTreeSection />
       {divider}

@@ -8,9 +8,9 @@ use std::net::TcpListener;
 use std::sync::Arc;
 
 use axum::{
-    extract::State,
+    extract::{Path, State},
     http::StatusCode,
-    routing::post,
+    routing::{get, post},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
@@ -19,6 +19,10 @@ use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::RwLock;
 
 use super::event_bus::EventBus;
+use super::intel_hub::{
+    BroadcastMessage, BroadcastRequest, FileActivityRequest, FileConflict, IntelHub,
+    ScratchpadEntry, ScratchpadWriteRequest,
+};
 
 /// Status payload received from MCP server.
 #[derive(Debug, Deserialize)]
@@ -48,6 +52,8 @@ struct ServerState {
     instance_id: String,
     /// Maps session_id -> project_path for routing status updates
     session_projects: Arc<RwLock<std::collections::HashMap<u32, String>>>,
+    /// Inter-session intelligence hub
+    intel_hub: Arc<IntelHub>,
 }
 
 /// HTTP status server that receives status updates from MCP servers.
@@ -55,6 +61,7 @@ pub struct StatusServer {
     port: u16,
     instance_id: String,
     session_projects: Arc<RwLock<std::collections::HashMap<u32, String>>>,
+    intel_hub: Arc<IntelHub>,
 }
 
 impl StatusServer {
@@ -83,15 +90,22 @@ impl StatusServer {
     pub async fn start(app_handle: AppHandle, instance_id: String) -> Option<Self> {
         let port = Self::find_available_port(9900, 9999)?;
         let session_projects = Arc::new(RwLock::new(std::collections::HashMap::new()));
+        let intel_hub = IntelHub::new();
 
         let state = Arc::new(ServerState {
             app_handle,
             instance_id: instance_id.clone(),
             session_projects: session_projects.clone(),
+            intel_hub: intel_hub.clone(),
         });
 
         let app = Router::new()
             .route("/status", post(handle_status))
+            .route("/broadcast", post(handle_broadcast))
+            .route("/messages/{session_id}", get(handle_get_messages))
+            .route("/scratchpad", post(handle_scratchpad_write))
+            .route("/scratchpad", get(handle_scratchpad_read))
+            .route("/file-activity", post(handle_file_activity))
             .with_state(state);
 
         let addr = format!("127.0.0.1:{}", port);
@@ -117,6 +131,7 @@ impl StatusServer {
             port,
             instance_id,
             session_projects,
+            intel_hub,
         })
     }
 
@@ -133,6 +148,16 @@ impl StatusServer {
     /// Get the status URL for MCP servers to report to.
     pub fn status_url(&self) -> String {
         format!("http://127.0.0.1:{}/status", self.port)
+    }
+
+    /// Get the base URL for inter-session intelligence endpoints.
+    pub fn base_url(&self) -> String {
+        format!("http://127.0.0.1:{}", self.port)
+    }
+
+    /// Get a reference to the Intel Hub for inter-session intelligence.
+    pub fn intel_hub(&self) -> &Arc<IntelHub> {
+        &self.intel_hub
     }
 
     /// Register a session with its project path.
@@ -181,7 +206,7 @@ async fn handle_status(
             state.instance_id,
             payload.instance_id
         );
-        return StatusCode::OK;
+        return StatusCode::FORBIDDEN;
     }
 
     // Get the project path for this session
@@ -201,7 +226,7 @@ async fn handle_status(
                 "[STATUS] REJECTED - unknown session {}",
                 payload.session_id
             );
-            return StatusCode::OK;
+            return StatusCode::NOT_FOUND;
         }
     };
 
@@ -242,13 +267,165 @@ async fn handle_status(
 
     // Forward to event bus for WebSocket clients
     if let Some(bus) = state.app_handle.try_state::<std::sync::Arc<EventBus>>() {
-        bus.send(
-            "session-status-changed".to_string(),
-            serde_json::to_value(&event_payload).unwrap_or_default(),
-        );
+        match serde_json::to_value(&event_payload) {
+            Ok(v) => bus.send("session-status-changed".to_string(), v),
+            Err(e) => log::error!("[STATUS] Failed to serialize event payload: {}", e),
+        }
     }
 
     StatusCode::OK
+}
+
+/// Handle broadcast POST from MCP servers.
+async fn handle_broadcast(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<BroadcastRequest>,
+) -> (StatusCode, Json<BroadcastMessage>) {
+    if payload.instance_id != state.instance_id {
+        // Return empty message for wrong instance
+        let empty = BroadcastMessage {
+            id: String::new(),
+            session_id: 0,
+            instance_id: String::new(),
+            category: String::new(),
+            message: "rejected: wrong instance".to_string(),
+            metadata: None,
+            timestamp: String::new(),
+        };
+        return (StatusCode::FORBIDDEN, Json(empty));
+    }
+
+    let msg = match state.intel_hub.add_broadcast(payload).await {
+        Ok(msg) => msg,
+        Err(e) => {
+            log::warn!("[INTEL] Broadcast validation failed: {}", e);
+            let empty = BroadcastMessage {
+                id: String::new(),
+                session_id: 0,
+                instance_id: String::new(),
+                category: String::new(),
+                message: format!("validation error: {}", e),
+                metadata: None,
+                timestamp: String::new(),
+            };
+            return (StatusCode::BAD_REQUEST, Json(empty));
+        }
+    };
+
+    // Emit Tauri event for frontend
+    let _ = state.app_handle.emit("intel-broadcast", &msg);
+
+    // Forward to EventBus for WebSocket clients
+    if let Some(bus) = state.app_handle.try_state::<std::sync::Arc<EventBus>>() {
+        match serde_json::to_value(&msg) {
+            Ok(v) => bus.send("intel-broadcast".to_string(), v),
+            Err(e) => log::error!("[INTEL] Failed to serialize broadcast: {}", e),
+        }
+    }
+
+    (StatusCode::OK, Json(msg))
+}
+
+/// Handle GET messages for a session.
+async fn handle_get_messages(
+    State(state): State<Arc<ServerState>>,
+    Path(session_id): Path<u32>,
+) -> Json<Vec<BroadcastMessage>> {
+    let messages = state.intel_hub.get_messages_for(session_id).await;
+    Json(messages)
+}
+
+/// Handle scratchpad write POST.
+async fn handle_scratchpad_write(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<ScratchpadWriteRequest>,
+) -> (StatusCode, Json<ScratchpadEntry>) {
+    if payload.instance_id != state.instance_id {
+        let empty = ScratchpadEntry {
+            id: String::new(),
+            session_id: 0,
+            category: String::new(),
+            title: String::new(),
+            content: "rejected: wrong instance".to_string(),
+            timestamp: String::new(),
+        };
+        return (StatusCode::FORBIDDEN, Json(empty));
+    }
+
+    let entry = match state.intel_hub.write_scratchpad(payload).await {
+        Ok(entry) => entry,
+        Err(e) => {
+            log::warn!("[INTEL] Scratchpad validation failed: {}", e);
+            let empty = ScratchpadEntry {
+                id: String::new(),
+                session_id: 0,
+                category: String::new(),
+                title: String::new(),
+                content: format!("validation error: {}", e),
+                timestamp: String::new(),
+            };
+            return (StatusCode::BAD_REQUEST, Json(empty));
+        }
+    };
+
+    // Emit Tauri event for frontend
+    let _ = state.app_handle.emit("intel-scratchpad", &entry);
+
+    if let Some(bus) = state.app_handle.try_state::<std::sync::Arc<EventBus>>() {
+        match serde_json::to_value(&entry) {
+            Ok(v) => bus.send("intel-scratchpad".to_string(), v),
+            Err(e) => log::error!("[INTEL] Failed to serialize scratchpad: {}", e),
+        }
+    }
+
+    (StatusCode::OK, Json(entry))
+}
+
+/// Handle scratchpad read GET.
+async fn handle_scratchpad_read(
+    State(state): State<Arc<ServerState>>,
+) -> Json<Vec<ScratchpadEntry>> {
+    let entries = state.intel_hub.read_scratchpad().await;
+    Json(entries)
+}
+
+/// Handle file activity POST — returns conflicts if any.
+async fn handle_file_activity(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<FileActivityRequest>,
+) -> (StatusCode, Json<Vec<FileConflict>>) {
+    if payload.instance_id != state.instance_id {
+        return (StatusCode::FORBIDDEN, Json(Vec::new()));
+    }
+
+    let session_id = payload.session_id;
+    let conflicts = match state.intel_hub.report_file(payload).await {
+        Ok(conflicts) => conflicts,
+        Err(e) => {
+            log::warn!("[INTEL] File activity validation failed: {}", e);
+            return (StatusCode::BAD_REQUEST, Json(Vec::new()));
+        }
+    };
+
+    // Emit conflict event if any detected
+    if !conflicts.is_empty() {
+        let _ = state.app_handle.emit("intel-conflict", &conflicts);
+
+        if let Some(bus) = state.app_handle.try_state::<std::sync::Arc<EventBus>>() {
+            match serde_json::to_value(&conflicts) {
+                Ok(v) => bus.send("intel-conflict".to_string(), v),
+                Err(e) => log::error!("[INTEL] Failed to serialize conflicts: {}", e),
+            }
+        }
+
+        eprintln!(
+            "[INTEL] Conflict detected for session {}: {} file(s)",
+            session_id,
+            conflicts.len()
+        );
+    }
+
+    (StatusCode::OK, Json(conflicts))
 }
 
 #[cfg(test)]
