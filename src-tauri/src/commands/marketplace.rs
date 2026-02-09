@@ -2,8 +2,10 @@
 //!
 //! These commands expose the MarketplaceManager functionality to the frontend.
 
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_store::StoreExt;
+
+use crate::core::event_bus::EventBus;
 
 use crate::core::marketplace_manager::MarketplaceManager;
 use crate::core::marketplace_models::*;
@@ -122,6 +124,9 @@ pub async fn refresh_marketplace(
 
     // Emit event
     let _ = app.emit("marketplace:refresh-complete", &source_id);
+    if let Some(bus) = app.try_state::<std::sync::Arc<EventBus>>() {
+        bus.send("marketplace:refresh-complete".to_string(), serde_json::json!(source_id));
+    }
 
     Ok(plugins)
 }
@@ -144,6 +149,9 @@ pub async fn refresh_all_marketplaces(
 
     // Emit event
     let _ = app.emit("marketplace:refresh-complete", "all");
+    if let Some(bus) = app.try_state::<std::sync::Arc<EventBus>>() {
+        bus.send("marketplace:refresh-complete".to_string(), serde_json::json!("all"));
+    }
 
     Ok(())
 }
@@ -184,6 +192,9 @@ pub async fn install_marketplace_plugin(
 
     // Emit event
     let _ = app.emit("marketplace:plugin-installed", &installed);
+    if let Some(bus) = app.try_state::<std::sync::Arc<EventBus>>() {
+        bus.send("marketplace:plugin-installed".to_string(), serde_json::to_value(&installed).unwrap_or_default());
+    }
 
     Ok(installed)
 }
@@ -204,6 +215,9 @@ pub async fn uninstall_plugin(
 
     // Emit event
     let _ = app.emit("marketplace:plugin-uninstalled", &installed_plugin_id);
+    if let Some(bus) = app.try_state::<std::sync::Arc<EventBus>>() {
+        bus.send("marketplace:plugin-uninstalled".to_string(), serde_json::json!(installed_plugin_id));
+    }
 
     Ok(())
 }

@@ -6,11 +6,13 @@ use std::sync::Arc;
 
 use tauri::Manager;
 
+use core::event_bus::EventBus;
 use core::marketplace_manager::MarketplaceManager;
 use core::mcp_manager::McpManager;
 use core::plugin_manager::PluginManager;
-use core::remote_manager::RemoteManager;
 use core::status_server::StatusServer;
+use core::tunnel_manager::TunnelManager;
+use core::web_access_server::WebAccessServer;
 use core::ProcessManager;
 use core::session_manager::SessionManager;
 use core::worktree_manager::WorktreeManager;
@@ -71,8 +73,8 @@ pub fn run() {
         .manage(McpManager::new())
         .manage(PluginManager::new())
         .manage(ProcessManager::new())
-        .manage(RemoteManager::new())
         .manage(SessionManager::new())
+        .manage(TunnelManager::new())
         .manage(WorktreeManager::new())
         .setup(|app| {
             // Generate a unique instance ID for this Chorus run
@@ -117,6 +119,25 @@ pub fn run() {
                     return Err("Failed to start status server".into());
                 }
             }
+
+            // Create the EventBus for forwarding events to WebSocket clients
+            let event_bus = Arc::new(EventBus::new());
+            app.manage(event_bus.clone());
+
+            // Start the web access server for mobile browser connections
+            let web_app_handle = app.handle().clone();
+            let web_event_bus = event_bus.clone();
+            tauri::async_runtime::spawn(async move {
+                match WebAccessServer::start(web_app_handle.clone(), web_event_bus) {
+                    Some(server) => {
+                        log::info!("Web access server started on port {}", server.get_status().await.port);
+                        web_app_handle.manage(server);
+                    }
+                    None => {
+                        log::warn!("Failed to start web access server - mobile access will not work");
+                    }
+                }
+            });
 
             Ok(())
         })
@@ -225,14 +246,6 @@ pub fn run() {
             commands::marketplace::get_session_marketplace_config,
             commands::marketplace::set_marketplace_plugin_enabled,
             commands::marketplace::clear_session_marketplace_config,
-            // Remote commands
-            commands::remote::get_remote_config,
-            commands::remote::save_remote_config,
-            commands::remote::start_remote_bot,
-            commands::remote::stop_remote_bot,
-            commands::remote::get_remote_status,
-            commands::remote::save_remote_pairing,
-            commands::remote::clear_remote_config,
             // ClaudeMd commands
             commands::claudemd::check_claude_md,
             commands::claudemd::read_claude_md,
@@ -244,6 +257,14 @@ pub fn run() {
             commands::explorer::read_directory,
             commands::explorer::read_file_content,
             commands::explorer::write_file_content,
+            // Web access commands
+            commands::web_access::generate_web_access_token,
+            commands::web_access::get_web_access_status,
+            commands::web_access::revoke_web_access,
+            commands::web_access::start_web_tunnel,
+            commands::web_access::stop_web_tunnel,
+            commands::web_access::get_web_tunnel_status,
+            commands::web_access::push_session_to_mobile,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Chorus");

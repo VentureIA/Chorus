@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/transport";
 import { homeDir } from "@tauri-apps/api/path";
 
 /** Worktree info from the backend. */

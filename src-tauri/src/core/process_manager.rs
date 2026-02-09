@@ -6,7 +6,7 @@ use std::thread::JoinHandle;
 
 use dashmap::DashMap;
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::Notify;
 
 #[cfg(unix)]
@@ -325,7 +325,11 @@ impl ProcessManager {
                                             buf.drain(..drain_to);
                                         }
                                     }
-                                    let _ = app.emit(&event_name, text);
+                                    let _ = app.emit(&event_name, text.clone());
+                                    // Forward to event bus for WebSocket clients
+                                    if let Some(bus) = app.try_state::<std::sync::Arc<super::event_bus::EventBus>>() {
+                                        bus.send(event_name.clone(), serde_json::Value::String(text));
+                                    }
                                 }
                             }
                             None => break, // Channel closed

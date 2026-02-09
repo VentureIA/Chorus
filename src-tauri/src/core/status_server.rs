@@ -15,8 +15,10 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::RwLock;
+
+use super::event_bus::EventBus;
 
 /// Status payload received from MCP server.
 #[derive(Debug, Deserialize)]
@@ -236,6 +238,14 @@ async fn handle_status(
         eprintln!("[STATUS] EMIT FAILED: {}", e);
     } else {
         eprintln!("[STATUS] EMIT SUCCESS");
+    }
+
+    // Forward to event bus for WebSocket clients
+    if let Some(bus) = state.app_handle.try_state::<std::sync::Arc<EventBus>>() {
+        bus.send(
+            "session-status-changed".to_string(),
+            serde_json::to_value(&event_payload).unwrap_or_default(),
+        );
     }
 
     StatusCode::OK

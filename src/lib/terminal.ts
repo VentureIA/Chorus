@@ -5,8 +5,7 @@
  * propagated as rejected promises; callers are responsible for catch/logging.
  */
 
-import { invoke } from "@tauri-apps/api/core";
-import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { invoke, listen, type UnlistenFn } from "@/lib/transport";
 import type { BackendCapabilities, BackendType } from "./terminalTheme";
 
 /**
@@ -109,8 +108,8 @@ export function onPtyOutput(
   sessionId: number,
   callback: (data: string) => void,
 ): Promise<UnlistenFn> {
-  return listen<string>(`pty-output-${sessionId}`, (event) => {
-    callback(event.payload);
+  return listen<string>(`pty-output-${sessionId}`, (payload) => {
+    callback(payload);
   });
 }
 

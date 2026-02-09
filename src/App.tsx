@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@/lib/transport";
 import { GitFork, RefreshCw, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { killSession, writeStdin } from "@/lib/terminal";
@@ -17,7 +17,10 @@ import { ProjectTabs } from "./components/shared/ProjectTabs";
 import { TopBar } from "./components/shared/TopBar";
 import { FileEditorPanel } from "./components/editor/FileEditorPanel";
 import { Sidebar, type SidebarTab } from "./components/sidebar/Sidebar";
+import { MobileSidebarDrawer } from "./components/mobile/MobileSidebarDrawer";
+import { MobileTerminalView } from "./components/mobile/MobileTerminalView";
 import { KeyboardShortcutsModal } from "./components/shortcuts/KeyboardShortcutsModal";
+import { useIsMobile } from "./hooks/useIsMobile";
 
 const DEFAULT_SESSION_COUNT = 6;
 const ZOOM_STEP = 0.1;
@@ -32,6 +35,14 @@ function isValidTheme(value: string | null): value is Theme {
 }
 
 function App() {
+  // Browser (mobile web access) renders only the push-to-mobile terminal view
+  if (!isTauri()) {
+    return <MobileTerminalView />;
+  }
+  return <DesktopApp />;
+}
+
+function DesktopApp() {
   const tabs = useWorkspaceStore((s) => s.tabs);
   const selectTab = useWorkspaceStore((s) => s.selectTab);
   const closeTab = useWorkspaceStore((s) => s.closeTab);
@@ -40,6 +51,7 @@ function App() {
   const initListeners = useSessionStore((s) => s.initListeners);
   const handleOpenProject = useOpenProject();
   const multiProjectRef = useRef<MultiProjectViewHandle>(null);
+  const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("config");
   const [gitPanelOpen, setGitPanelOpen] = useState(false);
@@ -195,8 +207,11 @@ function App() {
   });
 
   // Clean up orphaned PTY sessions on mount (e.g., after page reload)
-  // This ensures no stale processes remain from the previous frontend state
+  // This ensures no stale processes remain from the previous frontend state.
+  // IMPORTANT: Only do this in the Tauri desktop webview — the mobile browser
+  // must NOT kill sessions that are running on the desktop.
   useEffect(() => {
+    if (!isTauri()) return;
     invoke<number>("kill_all_sessions")
       .then((count) => {
         if (count > 0) {
@@ -302,17 +317,31 @@ function App() {
         sidebarOpen={sidebarOpen}
       />
 
-      {/* Main area: sidebar + content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar — below project tabs */}
-        <Sidebar
-          collapsed={!sidebarOpen}
-          onCollapse={() => setSidebarOpen(false)}
+      {/* Mobile sidebar drawer */}
+      {isMobile && (
+        <MobileSidebarDrawer
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
           theme={theme}
           onToggleTheme={toggleTheme}
           activeTab={sidebarTab}
           onActiveTabChange={setSidebarTab}
         />
+      )}
+
+      {/* Main area: sidebar + content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar — desktop only (mobile uses drawer above) */}
+        {!isMobile && (
+          <Sidebar
+            collapsed={!sidebarOpen}
+            onCollapse={() => setSidebarOpen(false)}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            activeTab={sidebarTab}
+            onActiveTabChange={setSidebarTab}
+          />
+        )}
 
         {/* Right column: top bar + content + bottom bar */}
         <div className="flex flex-1 flex-col overflow-hidden">
@@ -377,16 +406,18 @@ function App() {
               />
             </main>
 
-            {/* File editor panel (appears when files are open) */}
-            <FileEditorPanel />
+            {/* File editor panel — desktop only */}
+            {!isMobile && <FileEditorPanel />}
 
-            {/* Git graph panel (optional right side) */}
-            <GitGraphPanel
-              open={gitPanelOpen}
-              onClose={() => setGitPanelOpen(false)}
-              repoPath={activeProjectPath ?? null}
-              currentBranch={currentBranch ?? null}
-            />
+            {/* Git graph panel — desktop only */}
+            {!isMobile && (
+              <GitGraphPanel
+                open={gitPanelOpen}
+                onClose={() => setGitPanelOpen(false)}
+                repoPath={activeProjectPath ?? null}
+                currentBranch={currentBranch ?? null}
+              />
+            )}
           </div>
 
           {/* Bottom action bar */}

@@ -5,10 +5,13 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useSta
 import "@xterm/xterm/css/xterm.css";
 
 import { QuickActionsManager } from "@/components/quickactions/QuickActionsManager";
+import { TerminalSpecialKeys } from "@/components/mobile/TerminalSpecialKeys";
 import { buildFontFamily, EMBEDDED_FONT, waitForFont } from "@/lib/fonts";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { StatusDetector } from "@/lib/statusDetector";
 import { getBackendInfo, killSession, onPtyOutput, resizePty, writeStdin, type BackendInfo } from "@/lib/terminal";
 import { DEFAULT_THEME, LIGHT_THEME, toXtermTheme } from "@/lib/terminalTheme";
+import { invoke } from "@/lib/transport";
 import { useMcpStore } from "@/stores/useMcpStore";
 import { type AiMode, type BackendSessionStatus, useSessionStore } from "@/stores/useSessionStore";
 import { useTerminalSettingsStore } from "@/stores/useTerminalSettingsStore";
@@ -111,6 +114,8 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
   { sessionId, status = "idle", isFocused = false, onFocus, onKill, onHandoff },
   ref,
 ) {
+  const isMobile = useIsMobile();
+
   const sessionConfig = useSessionStore((s) => s.sessions.find((sess) => sess.id === sessionId));
   const effectiveStatus = sessionConfig ? mapStatus(sessionConfig.status) : status;
   const effectiveProvider = sessionConfig ? mapAiMode(sessionConfig.mode) : "claude";
@@ -182,6 +187,26 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
   const [appTheme, setAppTheme] = useState<"dark" | "light">(() => {
     return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
   });
+
+  // Track whether a mobile device is connected
+  const [mobileConnected, setMobileConnected] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    const check = () => {
+      invoke<{ connectedClients: number }>("get_web_access_status")
+        .then((status) => { if (!cancelled) setMobileConnected(status.connectedClients > 0); })
+        .catch(() => {});
+    };
+    check();
+    const interval = setInterval(check, 5000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
+
+  const handlePushToMobile = useCallback(() => {
+    invoke("push_session_to_mobile", { sessionId }).catch((err) =>
+      console.error("Failed to push session to mobile:", err)
+    );
+  }, [sessionId]);
 
   // Fetch backend info on mount (cached after first call)
   useEffect(() => {
@@ -500,6 +525,8 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
         onZoomIn={() => setLocalFontSize((prev) => Math.min(32, (prev ?? terminalSettings.fontSize) + 1))}
         onZoomOut={() => setLocalFontSize((prev) => Math.max(8, (prev ?? terminalSettings.fontSize) - 1))}
         onZoomReset={() => setLocalFontSize(null)}
+        onPushToMobile={handlePushToMobile}
+        mobileConnected={mobileConnected}
       />
 
       {/* xterm.js container */}
@@ -515,6 +542,9 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       {showQuickActionsManager && (
         <QuickActionsManager onClose={() => setShowQuickActionsManager(false)} />
       )}
+
+      {/* Mobile special keys bar */}
+      {isMobile && <TerminalSpecialKeys sessionId={sessionId} />}
     </div>
   );
 });

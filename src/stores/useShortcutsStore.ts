@@ -1,6 +1,6 @@
-import { LazyStore } from "@tauri-apps/plugin-store";
 import { create } from "zustand";
-import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { createStorage } from "@/lib/storage";
 import {
   type ShortcutDefinition,
   type ShortcutAction,
@@ -31,40 +31,6 @@ type ShortcutsActions = {
   findConflicts: (keys: string, excludeId?: string) => ShortcutDefinition[];
   /** Check if shortcuts have been modified from defaults. */
   hasModifications: () => boolean;
-};
-
-// --- Tauri LazyStore-backed StateStorage adapter ---
-
-const lazyStore = new LazyStore("shortcuts.json");
-
-const tauriStorage: StateStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    try {
-      const value = await lazyStore.get<string>(name);
-      return value ?? null;
-    } catch (err) {
-      console.error(`tauriStorage.getItem("${name}") failed:`, err);
-      return null;
-    }
-  },
-  setItem: async (name: string, value: string): Promise<void> => {
-    try {
-      await lazyStore.set(name, value);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.setItem("${name}") failed:`, err);
-      throw err;
-    }
-  },
-  removeItem: async (name: string): Promise<void> => {
-    try {
-      await lazyStore.delete(name);
-      await lazyStore.save();
-    } catch (err) {
-      console.error(`tauriStorage.removeItem("${name}") failed:`, err);
-      throw err;
-    }
-  },
 };
 
 // --- Store ---
@@ -136,7 +102,7 @@ export const useShortcutsStore = create<ShortcutsState & ShortcutsActions>()(
     }),
     {
       name: "chorus-shortcuts",
-      storage: createJSONStorage(() => tauriStorage),
+      storage: createJSONStorage(() => createStorage("shortcuts.json")),
       partialize: (state) => ({ shortcuts: state.shortcuts }),
       version: 1,
       onRehydrateStorage: () => (state) => {

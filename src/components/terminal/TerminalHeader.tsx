@@ -8,6 +8,7 @@ import {
   GitCompareArrows,
   Minus,
   Plus,
+  Smartphone,
   Sparkles,
   Terminal,
   X,
@@ -36,6 +37,8 @@ interface TerminalHeaderProps {
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onZoomReset?: () => void;
+  onPushToMobile?: () => void;
+  mobileConnected?: boolean;
 }
 
 const STATUS_COLOR: Record<SessionStatus, string> = {
@@ -83,6 +86,8 @@ export function TerminalHeader({
   onZoomIn,
   onZoomOut,
   onZoomReset,
+  onPushToMobile,
+  mobileConnected,
 }: TerminalHeaderProps) {
   const { icon: ProviderIcon, label: providerLabel } = providerConfig[provider];
   const displayTitle = sessionTitle || `${providerLabel} #${sessionId}`;
@@ -193,6 +198,19 @@ export function TerminalHeader({
         <span className={`text-[10px] font-medium ${STATUS_COLOR[status]}`}>
           {STATUS_LABEL[status]}
         </span>
+
+        {/* Push to mobile */}
+        {onPushToMobile && mobileConnected && (
+          <button
+            type="button"
+            onClick={onPushToMobile}
+            className="rounded p-0.5 text-green-400 transition-colors hover:bg-card hover:text-green-300"
+            title="Push to mobile"
+            aria-label="Push session to connected mobile device"
+          >
+            <Smartphone size={11} />
+          </button>
+        )}
 
         {/* Zoom controls */}
         {onZoomOut && onZoomIn && (

@@ -10,7 +10,7 @@ use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::Notify;
 
 #[cfg(unix)]
@@ -244,7 +244,11 @@ impl TerminalBackend for XtermPassthroughBackend {
                             Some(bytes) => {
                                 let text = decoder.decode(&bytes);
                                 if !text.is_empty() {
-                                    let _ = app.emit(&event_name, text);
+                                    let _ = app.emit(&event_name, text.clone());
+                                    // Forward to event bus for WebSocket clients
+                                    if let Some(bus) = app.try_state::<std::sync::Arc<super::event_bus::EventBus>>() {
+                                        bus.send(event_name.clone(), serde_json::Value::String(text));
+                                    }
                                 }
                             }
                             None => break,

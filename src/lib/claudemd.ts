@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/transport";
 
 /** Status of CLAUDE.md file at project root */
 export interface ClaudeMdStatus {

@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   Bot,
   Check,
-  CheckCircle2,
   ChevronDown,
   ChevronRight,
   Circle,
@@ -34,7 +33,6 @@ import {
   User,
   Wrench,
   X,
-  XCircle,
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -44,13 +42,11 @@ import { useMcpStore } from "@/stores/useMcpStore";
 import { usePluginStore } from "@/stores/usePluginStore";
 import { useMarketplaceStore } from "@/stores/useMarketplaceStore";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
-import { useRemoteStore } from "@/stores/useRemoteStore";
 import { useProcessTreeStore, type ProcessInfo, type SessionProcessTree } from "@/stores/useProcessTreeStore";
 import { GitChangesSection, GitSettingsModal, RemoteStatusIndicator } from "@/components/git";
 import { QuickActionsManager } from "@/components/quickactions/QuickActionsManager";
 import { MarketplaceBrowser } from "@/components/marketplace";
 import { McpServerEditorModal } from "@/components/mcp";
-import { RemoteSetupModal } from "@/components/remote";
 import { ClaudeMdEditorModal } from "@/components/claudemd";
 import { TerminalSettingsModal } from "@/components/terminal/TerminalSettingsModal";
 import { KeyboardShortcutsModal } from "@/components/shortcuts/KeyboardShortcutsModal";
@@ -58,6 +54,8 @@ import { ThemeSettingsModal } from "@/components/settings/ThemeSettingsModal";
 import { FileExplorerTab } from "@/components/sidebar/FileExplorerTab";
 import type { McpCustomServer } from "@/lib/mcp";
 import { checkClaudeMd, type ClaudeMdStatus } from "@/lib/claudemd";
+import { invoke } from "@/lib/transport";
+import { WebAccessModal } from "@/components/webaccess/WebAccessModal";
 
 export type SidebarTab = "config" | "processes" | "explorer";
 
@@ -322,7 +320,7 @@ function ConfigTab({
       {divider}
       <QuickActionsSection />
       {divider}
-      <RemoteAccessSection />
+      <MobileAccessSection />
       {divider}
       <AppearanceSection theme={theme} onToggle={onToggleTheme} />
     </>
@@ -1358,137 +1356,52 @@ function QuickActionsSection() {
 
 /* ── 9. Appearance ── */
 
-/* ── Remote Access ── */
+/* ── Mobile Access ── */
 
-function RemoteAccessSection() {
-  const [showSetup, setShowSetup] = useState(false);
-  const { status, history, initialize, initListeners, stopBot, disconnect } = useRemoteStore();
+function MobileAccessSection() {
+  const [showModal, setShowModal] = useState(false);
+  const [status, setStatus] = useState<{ running: boolean; connectedClients: number } | null>(null);
 
   useEffect(() => {
-    initialize();
-    let unlisten: (() => void) | undefined;
-    initListeners().then((fn) => {
-      unlisten = fn;
-    });
-    return () => {
-      unlisten?.();
-    };
-  }, [initialize, initListeners]);
+    let cancelled = false;
+    invoke<{ running: boolean; connectedClients: number }>("get_web_access_status")
+      .then((s) => { if (!cancelled) setStatus(s); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [showModal]); // Re-check when modal closes
 
-  const isRunning = status?.running ?? false;
-  const isPaired = status?.paired ?? false;
+  const isConnected = (status?.connectedClients ?? 0) > 0;
 
   return (
     <>
       <div className={cardClass}>
-        <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          <Smartphone size={13} className={isRunning ? "text-green-500" : "text-muted-foreground/80"} />
-          <span className="flex-1">Remote</span>
-          {isRunning && (
-            <span className="flex items-center gap-1 text-[10px] font-normal normal-case text-green-500">
+        <SectionHeader
+          icon={Smartphone}
+          label="Mobile"
+          iconColor={isConnected ? "text-green-500" : "text-muted-foreground/80"}
+        />
+        <button
+          type="button"
+          onClick={() => setShowModal(true)}
+          className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-muted/40"
+        >
+          {isConnected ? (
+            <>
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-              Live
-            </span>
+              <span className="text-green-500 font-medium">
+                {status!.connectedClients} device{status!.connectedClients !== 1 ? "s" : ""} connected
+              </span>
+            </>
+          ) : (
+            <>
+              <Zap size={14} className="text-primary" />
+              <span>Connect Mobile</span>
+            </>
           )}
-        </div>
-
-        {!isRunning && !isPaired && (
-          <button
-            type="button"
-            onClick={() => setShowSetup(true)}
-            className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-muted/40"
-          >
-            <Zap size={14} className="text-primary" />
-            <span>Connect Telegram</span>
-          </button>
-        )}
-
-        {isRunning && isPaired && status?.bot_username && (
-          <>
-            <div className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-muted-foreground">
-              <Bot size={14} className="text-primary" />
-              <span className="flex-1">@{status.bot_username}</span>
-            </div>
-            {status.username && (
-              <div className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-muted-foreground">
-                <User size={14} className="text-muted-foreground/60" />
-                <span className="flex-1">{status.username}</span>
-              </div>
-            )}
-            <div className="mt-1 flex gap-1">
-              <button
-                type="button"
-                onClick={() => stopBot()}
-                className="flex-1 rounded-md px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-              >
-                Stop
-              </button>
-              <button
-                type="button"
-                onClick={() => disconnect()}
-                className="flex-1 rounded-md px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-              >
-                Disconnect
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Remote History */}
-        {history.length > 0 && (
-          <div className="mt-2 space-y-1 max-h-48 overflow-y-auto">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-2">
-              History
-            </div>
-            {history.slice(0, 10).map((entry) => (
-              <div
-                key={entry.id}
-                className="rounded-md px-2 py-1.5 text-[11px] bg-muted/20 hover:bg-muted/40 transition-colors"
-              >
-                <div className="flex items-center gap-1.5">
-                  {entry.status === "running" ? (
-                    <Loader2 size={10} className="animate-spin text-primary shrink-0" />
-                  ) : entry.status === "error" ? (
-                    <XCircle size={10} className="text-destructive shrink-0" />
-                  ) : (
-                    <CheckCircle2 size={10} className="text-green-500 shrink-0" />
-                  )}
-                  <span className="text-foreground truncate">{entry.prompt}</span>
-                </div>
-                {entry.result && (
-                  <div className="mt-0.5 pl-4 text-[10px] text-muted-foreground line-clamp-2">
-                    {entry.result.slice(0, 200)}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {isRunning && !isPaired && (
-          <button
-            type="button"
-            onClick={() => setShowSetup(true)}
-            className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-muted/40"
-          >
-            <Loader2 size={14} className="animate-spin text-primary" />
-            <span>Waiting for pairing...</span>
-          </button>
-        )}
-
-        {!isRunning && isPaired && (
-          <button
-            type="button"
-            onClick={() => setShowSetup(true)}
-            className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-muted/40"
-          >
-            <Play size={14} className="text-green-500" />
-            <span>Restart Bot</span>
-          </button>
-        )}
+        </button>
       </div>
 
-      {showSetup && <RemoteSetupModal onClose={() => setShowSetup(false)} />}
+      {showModal && <WebAccessModal onClose={() => setShowModal(false)} />}
     </>
   );
 }

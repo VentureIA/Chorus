@@ -1,4 +1,5 @@
 pub mod error;
+pub mod event_bus;
 pub mod path_utils;
 pub mod font_detector;
 pub mod marketplace_error;
@@ -10,10 +11,12 @@ pub mod plugin_config_writer;
 pub mod plugin_manager;
 pub mod process_manager;
 pub mod process_tree;
-pub mod remote_manager;
 pub mod session_manager;
 pub mod status_server;
 pub mod terminal_backend;
+pub mod tunnel_manager;
+pub mod web_access_server;
+pub mod web_dispatch;
 pub mod windows_process;
 pub mod worktree_manager;
 pub mod xterm_backend;
@@ -22,6 +25,7 @@ pub mod xterm_backend;
 pub mod vte_backend;
 
 pub use error::PtyError;
+pub use event_bus::EventBus;
 pub use font_detector::{detect_available_fonts, is_font_available, AvailableFont};
 pub use marketplace_manager::MarketplaceManager;
 pub use mcp_manager::McpManager;
@@ -33,6 +37,8 @@ pub use terminal_backend::{
     BackendCapabilities, BackendType, SubscriptionHandle, TerminalBackend, TerminalConfig,
     TerminalError, TerminalState,
 };
+pub use tunnel_manager::TunnelManager;
+pub use web_access_server::WebAccessServer;
 pub use worktree_manager::WorktreeManager;
 pub use xterm_backend::XtermPassthroughBackend;
 pub use process_tree::{ProcessError, ProcessInfo, SessionProcessTree};

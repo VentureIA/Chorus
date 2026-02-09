@@ -5,7 +5,7 @@
  * and build CSS font-family strings with appropriate fallbacks.
  */
 
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/transport";
 
 /** Information about an available font on the system. */
 export interface AvailableFont {

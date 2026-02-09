@@ -1,6 +1,6 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Minus, PanelLeft, Plus, Square, X } from "lucide-react";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { isTauri } from "@/lib/transport";
 import { useProjectStatus, STATUS_COLORS } from "@/hooks/useProjectStatus";
 
 export type ProjectTab = {
@@ -16,6 +16,25 @@ interface ProjectTabsProps {
   onNewTab: () => void;
   onToggleSidebar: () => void;
   sidebarOpen: boolean;
+}
+
+/** Lazy-loaded window handle — null in browser mode. */
+let windowHandle: { minimize(): Promise<void>; toggleMaximize(): Promise<void>; close(): Promise<void> } | null = null;
+let windowHandleLoaded = false;
+
+function useWindowHandle() {
+  const [handle, setHandle] = useState(windowHandle);
+
+  useEffect(() => {
+    if (windowHandleLoaded || !isTauri()) return;
+    windowHandleLoaded = true;
+    import("@tauri-apps/api/window").then((mod) => {
+      windowHandle = mod.getCurrentWindow();
+      setHandle(windowHandle);
+    });
+  }, []);
+
+  return handle;
 }
 
 /**
@@ -98,7 +117,8 @@ export function ProjectTabs({
   onToggleSidebar,
   sidebarOpen,
 }: ProjectTabsProps) {
-  const appWindow = useMemo(() => getCurrentWindow(), []);
+  const appWindow = useWindowHandle();
+  const showWindowControls = isTauri();
   const tabRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const setTabRef = useCallback((id: string, el: HTMLDivElement | null) => {
@@ -180,33 +200,35 @@ export function ProjectTabs({
       {/* Center: drag region fills remaining space */}
       <div data-tauri-drag-region className="flex-1" />
 
-      {/* Right: window controls */}
-      <div className="flex items-center">
-        <button
-          type="button"
-          onClick={() => appWindow.minimize()}
-          className="flex h-9 w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-muted-foreground/10 hover:text-foreground"
-          aria-label="Minimize"
-        >
-          <Minus size={14} />
-        </button>
-        <button
-          type="button"
-          onClick={() => appWindow.toggleMaximize()}
-          className="flex h-9 w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-muted-foreground/10 hover:text-foreground"
-          aria-label="Maximize"
-        >
-          <Square size={12} />
-        </button>
-        <button
-          type="button"
-          onClick={() => appWindow.close()}
-          className="flex h-9 w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-destructive/80 hover:text-white"
-          aria-label="Close"
-        >
-          <X size={14} />
-        </button>
-      </div>
+      {/* Right: window controls — only in Tauri */}
+      {showWindowControls && appWindow && (
+        <div className="flex items-center">
+          <button
+            type="button"
+            onClick={() => appWindow.minimize()}
+            className="flex h-9 w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-muted-foreground/10 hover:text-foreground"
+            aria-label="Minimize"
+          >
+            <Minus size={14} />
+          </button>
+          <button
+            type="button"
+            onClick={() => appWindow.toggleMaximize()}
+            className="flex h-9 w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-muted-foreground/10 hover:text-foreground"
+            aria-label="Maximize"
+          >
+            <Square size={12} />
+          </button>
+          <button
+            type="button"
+            onClick={() => appWindow.close()}
+            className="flex h-9 w-11 items-center justify-center text-muted-foreground transition-colors hover:bg-destructive/80 hover:text-white"
+            aria-label="Close"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
