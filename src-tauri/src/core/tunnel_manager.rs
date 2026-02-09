@@ -1,6 +1,9 @@
 //! Manages a Cloudflare Quick Tunnel to expose the web access server
 //! to the public internet via a `https://*.trycloudflare.com` URL.
+//!
+//! Auto-downloads `cloudflared` to `~/.chorus/bin/` if not already installed.
 
+use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
@@ -27,6 +30,7 @@ impl TunnelManager {
 
     /// Start a Cloudflare Quick Tunnel pointing to the given local port.
     /// Returns the public HTTPS URL.
+    /// Auto-downloads cloudflared if not found on the system.
     pub async fn start(&self, port: u16) -> Result<String, String> {
         // Hold write lock for the entire operation to prevent race conditions.
         let mut guard = self.state.write().await;
@@ -45,9 +49,7 @@ impl TunnelManager {
         }
         guard.url = None;
 
-        let cloudflared = find_cloudflared().ok_or(
-            "cloudflared not found. Install it with: brew install cloudflared"
-        )?;
+        let cloudflared = ensure_cloudflared().await?;
 
         log::info!("Starting cloudflared tunnel for port {}", port);
 
@@ -144,10 +146,8 @@ impl TunnelManager {
     pub async fn is_running(&self) -> bool {
         let mut guard = self.state.write().await;
         if let Some(ref mut child) = guard.child {
-            // try_wait returns Ok(Some(status)) if exited, Ok(None) if still running
             match child.try_wait() {
                 Ok(Some(_status)) => {
-                    // Process exited — clean up stale state
                     log::warn!("cloudflared process has exited unexpectedly");
                     guard.child = None;
                     guard.url = None;
@@ -162,13 +162,30 @@ impl TunnelManager {
     }
 }
 
-/// Find the cloudflared binary.
+/// Directory where Chorus stores its own binaries.
+fn chorus_bin_dir() -> PathBuf {
+    dirs::home_dir()
+        .unwrap_or_else(|| PathBuf::from("/tmp"))
+        .join(".chorus")
+        .join("bin")
+}
+
+/// Ensure cloudflared is available — find it on the system or download it.
+async fn ensure_cloudflared() -> Result<String, String> {
+    if let Some(path) = find_cloudflared() {
+        return Ok(path);
+    }
+
+    log::info!("cloudflared not found on system, downloading...");
+    download_cloudflared().await
+}
+
+/// Find the cloudflared binary on the system.
 fn find_cloudflared() -> Option<String> {
-    // Check project-local binary first
-    let local = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../.local/bin/cloudflared");
-    if local.exists() {
-        return Some(local.to_string_lossy().to_string());
+    // Check Chorus bin dir first
+    let chorus_bin = chorus_bin_dir().join("cloudflared");
+    if chorus_bin.exists() {
+        return Some(chorus_bin.to_string_lossy().to_string());
     }
 
     // Check PATH
@@ -197,3 +214,79 @@ fn find_cloudflared() -> Option<String> {
     None
 }
 
+/// Download the cloudflared binary for the current platform.
+async fn download_cloudflared() -> Result<String, String> {
+    let bin_dir = chorus_bin_dir();
+    std::fs::create_dir_all(&bin_dir)
+        .map_err(|e| format!("Failed to create bin dir: {}", e))?;
+
+    let dest = bin_dir.join("cloudflared");
+    let url = download_url()?;
+
+    log::info!("Downloading cloudflared from {}", url);
+
+    if url.ends_with(".tgz") {
+        // macOS: download tgz, extract, move binary
+        let tgz_path = bin_dir.join("cloudflared.tgz");
+        let status = Command::new("curl")
+            .args(["-fsSL", "-o", &tgz_path.to_string_lossy(), &url])
+            .status()
+            .await
+            .map_err(|e| format!("Failed to run curl: {}", e))?;
+        if !status.success() {
+            return Err("Failed to download cloudflared".to_string());
+        }
+
+        let status = Command::new("tar")
+            .args(["-xzf", &tgz_path.to_string_lossy(), "-C", &bin_dir.to_string_lossy()])
+            .status()
+            .await
+            .map_err(|e| format!("Failed to extract cloudflared: {}", e))?;
+        if !status.success() {
+            return Err("Failed to extract cloudflared archive".to_string());
+        }
+
+        // Clean up the archive
+        let _ = std::fs::remove_file(&tgz_path);
+    } else {
+        // Linux: direct binary download
+        let status = Command::new("curl")
+            .args(["-fsSL", "-o", &dest.to_string_lossy(), &url])
+            .status()
+            .await
+            .map_err(|e| format!("Failed to run curl: {}", e))?;
+        if !status.success() {
+            return Err("Failed to download cloudflared".to_string());
+        }
+    }
+
+    // Make executable
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&dest, std::fs::Permissions::from_mode(0o755))
+            .map_err(|e| format!("Failed to chmod cloudflared: {}", e))?;
+    }
+
+    if !dest.exists() {
+        return Err("cloudflared binary not found after download".to_string());
+    }
+
+    log::info!("cloudflared downloaded to {}", dest.display());
+    Ok(dest.to_string_lossy().to_string())
+}
+
+/// Get the download URL for the current OS/arch.
+fn download_url() -> Result<String, String> {
+    let base = "https://github.com/cloudflare/cloudflared/releases/latest/download";
+
+    let url = match (std::env::consts::OS, std::env::consts::ARCH) {
+        ("macos", "aarch64") => format!("{}/cloudflared-darwin-arm64.tgz", base),
+        ("macos", "x86_64") => format!("{}/cloudflared-darwin-amd64.tgz", base),
+        ("linux", "x86_64") => format!("{}/cloudflared-linux-amd64", base),
+        ("linux", "aarch64") => format!("{}/cloudflared-linux-arm64", base),
+        (os, arch) => return Err(format!("Unsupported platform: {}-{}", os, arch)),
+    };
+
+    Ok(url)
+}
