@@ -403,9 +403,15 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
       // Handle special keyboard shortcuts
       term.attachCustomKeyEventHandler((event) => {
-        // Shift+Enter: insert literal newline without submitting
+        // Shift+Enter: insert newline without submitting
         if (event.key === "Enter" && event.shiftKey && event.type === "keydown") {
-          writeStdin(sessionId, "\n").catch(console.error);
+          // Use bracketed paste to tell the shell/CLI "this is pasted text,
+          // don't execute on newline". Works with zsh, bash 5+, fish, etc.
+          if (term?.modes.bracketedPasteMode) {
+            writeStdin(sessionId, "\x1b[200~\n\x1b[201~").catch(console.error);
+          } else {
+            writeStdin(sessionId, "\n").catch(console.error);
+          }
           return false; // Don't let xterm process it
         }
 
