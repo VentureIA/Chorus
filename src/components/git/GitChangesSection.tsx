@@ -13,7 +13,6 @@ import {
   RotateCcw,
   Send,
 } from "lucide-react";
-import { ask } from "@tauri-apps/plugin-dialog";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useGitStore, type FileChangeStatus } from "@/stores/useGitStore";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
@@ -208,6 +207,7 @@ export function GitChangesSection({ onPushComplete }: GitChangesSectionProps) {
   const handleDiscardFile = useCallback(
     async (path: string, isUntracked: boolean) => {
       if (!repoPath) return;
+      const { ask } = await import("@tauri-apps/plugin-dialog");
       const confirmed = await ask(
         `Are you sure you want to discard changes to "${path}"? This cannot be undone.`,
         { title: "Discard Changes", kind: "warning" }
