@@ -588,7 +588,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       {/* xterm.js container with context menu */}
       <ContextMenu.Root>
         <ContextMenu.Trigger asChild>
-          <div className="relative flex-1 overflow-hidden px-4 py-2" style={{ backgroundColor: "#1e1e1e" }}>
+          <div className="relative flex-1 overflow-hidden px-4 pt-2" style={{ backgroundColor: "#1e1e1e" }}>
             {showFind && searchAddonRef.current && (
               <TerminalFindWidget
                 searchAddon={searchAddonRef.current}
