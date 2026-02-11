@@ -200,7 +200,7 @@
 
 /* ── Terminal Cell Styling ── */
 .terminal-cell {
-  border-radius: 8px;
+  border-radius: 0px;
   overflow: hidden;
   border: 1px solid #333333;
   box-shadow: none;
