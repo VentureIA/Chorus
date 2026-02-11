@@ -52,7 +52,7 @@ export interface TerminalTheme {
 export const DEFAULT_THEME: TerminalTheme = {
   background: "#1e1e1e",
   foreground: "#cccccc",
-  cursor: "#ffffff",
+  cursor: "#1e1e1e",
   cursorAccent: "#1e1e1e",
   selectionBackground: "#264f78",
   selectionForeground: undefined,
@@ -84,7 +84,7 @@ export const DEFAULT_THEME: TerminalTheme = {
 export const LIGHT_THEME: TerminalTheme = {
   background: "#ffffff",
   foreground: "#24292f",
-  cursor: "#0969da",
+  cursor: "#ffffff",
   cursorAccent: "#ffffff",
   selectionBackground: "#0969da33",
   selectionForeground: undefined,

@@ -366,7 +366,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
       const initialTheme = document.documentElement.getAttribute("data-theme") === "light" ? LIGHT_THEME : DEFAULT_THEME;
       term = new Terminal({
-        cursorBlink: true,
+        cursorBlink: false,
         fontSize: currentSettings.settings.fontSize,
         fontFamily: fontFamily,
         lineHeight: currentSettings.settings.lineHeight,
