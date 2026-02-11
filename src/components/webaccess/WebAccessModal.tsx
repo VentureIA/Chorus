@@ -92,19 +92,16 @@ export function WebAccessModal({ onClose }: WebAccessModalProps) {
 
   // Start tunnel + generate token on mount
   useEffect(() => {
-    // Check tunnel status first
     invoke<TunnelStatus>("get_web_tunnel_status")
       .then((ts) => {
         setTunnelStatus(ts);
         if (!ts.running) {
-          // Start tunnel, then generate token
           startTunnel().then(() => generateToken());
         } else {
           generateToken();
         }
       })
       .catch(() => {
-        // Fallback: just generate token with LAN URL
         generateToken();
       });
     pollStatus();
@@ -196,12 +193,12 @@ export function WebAccessModal({ onClose }: WebAccessModalProps) {
           </div>
         )}
 
-        {/* Loading state: tunnel starting */}
+        {/* Loading state */}
         {isLoading ? (
           <div className="flex h-52 flex-col items-center justify-center gap-3">
             <Loader2 size={24} className="animate-spin text-primary" />
             <span className="text-xs text-muted-foreground">
-              {isStartingTunnel ? "Starting secure tunnel..." : "Generating access token..."}
+              {isStartingTunnel ? "Connecting tunnel..." : "Generating access token..."}
             </span>
           </div>
         ) : tokenResult ? (
@@ -210,7 +207,7 @@ export function WebAccessModal({ onClose }: WebAccessModalProps) {
             {isTunnelReady && (
               <div className="flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 text-[11px] font-medium text-green-500">
                 <Globe size={12} />
-                Public HTTPS tunnel active
+                Secure tunnel active
               </div>
             )}
 

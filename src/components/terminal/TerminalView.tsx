@@ -23,6 +23,22 @@ import { TerminalFindWidget } from "./TerminalFindWidget";
 import { type AIProvider, type SessionStatus, TerminalHeader } from "./TerminalHeader";
 
 /**
+ * Custom fit that subtracts 1 row to prevent a phantom cursor below
+ * the CLI status-line. The empty row gap uses the same background color
+ * as the terminal so it is invisible.
+ */
+function fitTerminal(fitAddon: FitAddon, term: Terminal): void {
+  const dims = fitAddon.proposeDimensions();
+  if (!dims || isNaN(dims.cols) || isNaN(dims.rows)) return;
+  const rows = Math.max(1, dims.rows - 1);
+  if (term.rows !== rows || term.cols !== dims.cols) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (term as any)._core._renderService.clear();
+    term.resize(dims.cols, rows);
+  }
+}
+
+/**
  * Props for {@link TerminalView}.
  * @property sessionId - Backend PTY session ID used to route stdin/stdout and resize events.
  * @property status - Fallback status used only when the session store has no entry yet.
@@ -259,7 +275,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       // Refit terminal to recalculate cell dimensions
       requestAnimationFrame(() => {
         try {
-          fitAddonRef.current?.fit();
+          if (fitAddonRef.current && termRef.current) fitTerminal(fitAddonRef.current, termRef.current);
         } catch {
           // Ignore fit errors during transition
         }
@@ -380,7 +396,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
       requestAnimationFrame(() => {
         try {
-          fitAddon?.fit();
+          if (fitAddon && term) fitTerminal(fitAddon, term);
         } catch {
           // Container may not be sized yet
         }
@@ -501,11 +517,10 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       // and re-render the terminal with correct character measurements
       fontLoadHandler = () => {
         if (!disposed && term && fitAddon) {
-          const fa = fitAddon;
           term.options.fontFamily = fontFamily;
           requestAnimationFrame(() => {
             try {
-              fa.fit();
+              fitTerminal(fitAddon!, term!);
             } catch {
               // Ignore fit errors during font reload
             }
@@ -516,9 +531,9 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
 
       resizeObserver = new ResizeObserver(() => {
         requestAnimationFrame(() => {
-          if (!disposed && fitAddon) {
+          if (!disposed && fitAddon && term) {
             try {
-              fitAddon.fit();
+              fitTerminal(fitAddon, term);
             } catch {
               // Container may have zero dimensions during layout transitions
             }

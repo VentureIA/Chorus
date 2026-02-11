@@ -77,7 +77,7 @@ pub struct TunnelStatus {
     pub url: Option<String>,
 }
 
-/// Start a Cloudflare Quick Tunnel for the web access server.
+/// Start an SSH tunnel for the web access server.
 /// Returns the public HTTPS URL.
 #[tauri::command]
 pub async fn start_web_tunnel(
@@ -92,7 +92,7 @@ pub async fn start_web_tunnel(
     tunnel.start(port).await
 }
 
-/// Stop the Cloudflare tunnel.
+/// Stop the SSH tunnel.
 #[tauri::command]
 pub async fn stop_web_tunnel(
     app: AppHandle,
