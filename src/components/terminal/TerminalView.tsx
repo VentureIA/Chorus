@@ -353,13 +353,16 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
     const initTerminal = async () => {
       // Ensure all @font-face fonts (including embedded base64) are loaded
       await document.fonts.ready;
-      const fontLoaded = await waitForFont(fontFamily, 2000);
 
-      // If the preferred font didn't load in the browser (font-kit name mismatch),
-      // fall back to the embedded JetBrains Mono which is always available via base64
-      if (!fontLoaded) {
-        console.warn(`Font "${fontFamily}" not available in browser, falling back to embedded font`);
-        fontFamily = buildFontFamily(EMBEDDED_FONT);
+      // Only verify custom user-selected fonts; skip for default/embedded
+      // since the font chain includes VS Code platform fonts (Menlo, Consolas, etc.)
+      // that CSS resolves natively but document.fonts.check may not detect in webviews
+      if (effectiveFont !== EMBEDDED_FONT) {
+        const fontLoaded = await waitForFont(effectiveFont, 2000);
+        if (!fontLoaded) {
+          console.warn(`Font "${effectiveFont}" not available in browser, falling back to default chain`);
+          fontFamily = buildFontFamily(EMBEDDED_FONT);
+        }
       }
 
       if (disposed) return;

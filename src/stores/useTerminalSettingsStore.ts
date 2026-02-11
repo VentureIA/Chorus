@@ -47,8 +47,8 @@ type TerminalSettingsActions = {
 
 const DEFAULT_SETTINGS: TerminalSettings = {
   fontFamily: EMBEDDED_FONT,
-  fontSize: 12,
-  lineHeight: 1.2,
+  fontSize: 13,
+  lineHeight: 1.0,
 };
 
 // --- Store ---
@@ -79,10 +79,6 @@ export const useTerminalSettingsStore = create<
           const fonts = await getAvailableFonts();
           const currentSettings = get().settings;
 
-          // If user hasn't set a custom font, auto-select the best one
-          const shouldAutoSelect = currentSettings.fontFamily === EMBEDDED_FONT;
-          const bestFont = shouldAutoSelect ? await selectBestFont(fonts) : currentSettings.fontFamily;
-
           // Check if the currently selected font is still available
           const currentFontAvailable =
             currentSettings.fontFamily === EMBEDDED_FONT ||
@@ -94,9 +90,9 @@ export const useTerminalSettingsStore = create<
             isInitialized: true,
             settings: {
               ...currentSettings,
-              fontFamily: currentFontAvailable ?
-                (shouldAutoSelect ? bestFont : currentSettings.fontFamily) :
-                EMBEDDED_FONT,
+              fontFamily: currentFontAvailable
+                ? currentSettings.fontFamily
+                : EMBEDDED_FONT,
             },
           });
         } catch (err) {
@@ -153,7 +149,7 @@ export const useTerminalSettingsStore = create<
       name: "chorus-terminal-settings",
       storage: createJSONStorage(() => createStorage("terminal-settings.json")),
       partialize: (state) => ({ settings: state.settings }),
-      version: 1,
+      version: 4,
     }
   )
 );

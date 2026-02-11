@@ -934,13 +934,14 @@ function MCPServersSection() {
         )}
       </div>
 
-      {/* Editor Modal */}
-      {showEditorModal && (
+      {/* Editor Modal — portaled to body to escape Sidebar stacking context */}
+      {showEditorModal && createPortal(
         <McpServerEditorModal
           server={editingServer}
           onClose={() => setShowEditorModal(false)}
           onSaved={() => fetchCustomServers()}
-        />
+        />,
+        document.body,
       )}
     </>
   );

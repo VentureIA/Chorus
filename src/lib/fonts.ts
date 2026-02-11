@@ -20,7 +20,10 @@ export interface AvailableFont {
 /** The embedded fallback font bundled with the app. */
 export const EMBEDDED_FONT = "JetBrains Mono";
 
-/** Default fallback fonts for CSS font-family. */
+/** VS Code's default terminal font chain (platform-specific). */
+export const VSCODE_FONTS = 'Menlo, Monaco, Consolas, "Liberation Mono", "Courier New"';
+
+/** Generic monospace fallback. */
 export const FALLBACK_FONTS = "monospace";
 
 /** Cached list of available fonts. */
@@ -61,13 +64,11 @@ export async function checkFontAvailable(family: string): Promise<boolean> {
 /**
  * Builds a CSS font-family string with appropriate fallbacks.
  *
- * The resulting string will include:
- * 1. The preferred font (if provided and different from embedded)
- * 2. The embedded JetBrains Mono font
- * 3. Generic monospace fallback
- *
- * @param preferredFont - The user's preferred font family
- * @returns CSS font-family value string
+ * Priority order:
+ * 1. User's preferred font (if set and not embedded)
+ * 2. VS Code platform fonts (Menlo/Monaco/Consolas)
+ * 3. Embedded JetBrains Mono (always available via @font-face)
+ * 4. Generic monospace
  */
 export function buildFontFamily(preferredFont?: string): string {
   const fonts: string[] = [];
@@ -76,6 +77,7 @@ export function buildFontFamily(preferredFont?: string): string {
     fonts.push(quoteFont(preferredFont));
   }
 
+  fonts.push(VSCODE_FONTS);
   fonts.push(quoteFont(EMBEDDED_FONT));
   fonts.push(FALLBACK_FONTS);
 
