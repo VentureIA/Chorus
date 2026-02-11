@@ -221,10 +221,17 @@ impl WebAccessServer {
     fn resolve_dist_dir(app_handle: &AppHandle) -> String {
         use tauri::Manager;
 
-        // Try Tauri resource dir first (production)
+        // Try Tauri resource dir first (production).
+        // Resources bundled from "../dist" land under "_up_/dist/" in the bundle.
         if let Ok(resource_dir) = app_handle.path().resource_dir() {
+            let dist = resource_dir.join("_up_").join("dist");
+            if dist.exists() {
+                log::info!("Serving web access from bundled dist: {}", dist.display());
+                return dist.to_string_lossy().to_string();
+            }
             let dist = resource_dir.join("dist");
             if dist.exists() {
+                log::info!("Serving web access from resource dist: {}", dist.display());
                 return dist.to_string_lossy().to_string();
             }
         }
@@ -233,6 +240,7 @@ impl WebAccessServer {
         let dev_dist = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../dist");
         if dev_dist.exists() {
+            log::info!("Serving web access from dev dist: {}", dev_dist.display());
             return dev_dist.to_string_lossy().to_string();
         }
 

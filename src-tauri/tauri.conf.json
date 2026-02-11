@@ -37,7 +37,8 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "../target/release/chorus-mcp-server*"
+      "../target/release/chorus-mcp-server*",
+      "../dist"
     ],
     "linux": {
       "deb": {
