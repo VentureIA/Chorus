@@ -150,6 +150,7 @@ export const useTerminalSettingsStore = create<
       storage: createJSONStorage(() => createStorage("terminal-settings.json")),
       partialize: (state) => ({ settings: state.settings }),
       version: 4,
+      migrate: () => ({ settings: DEFAULT_SETTINGS }),
     }
   )
 );
