@@ -1114,22 +1114,22 @@ function PluginsSection() {
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 hover:text-foreground"
+          className="flex flex-1 min-w-0 items-center gap-2 hover:text-foreground"
         >
           {expanded ? (
-            <ChevronDown size={13} className="text-muted-foreground/80" />
+            <ChevronDown size={13} className="shrink-0 text-muted-foreground/80" />
           ) : (
-            <ChevronRight size={13} className="text-muted-foreground/80" />
+            <ChevronRight size={13} className="shrink-0 text-muted-foreground/80" />
+          )}
+          <Store size={13} className={`shrink-0 ${totalCount > 0 ? "text-purple-400" : "text-muted-foreground/80"}`} />
+          <span className="flex-1 truncate text-left">Plugins & Skills</span>
+          {totalCount > 0 && (
+            <span className="bg-purple-400/20 text-purple-400 text-[10px] px-1.5 rounded-full font-bold">
+              {totalCount}
+            </span>
           )}
         </button>
-        <Store size={13} className={totalCount > 0 ? "text-purple-400" : "text-muted-foreground/80"} />
-        <span className="flex-1">Plugins & Skills</span>
-        {totalCount > 0 && (
-          <span className="bg-purple-400/20 text-purple-400 text-[10px] px-1.5 rounded-full font-bold">
-            {totalCount}
-          </span>
-        )}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           <button
             type="button"
             onClick={handleRefresh}
@@ -1142,38 +1142,46 @@ function PluginsSection() {
             type="button"
             onClick={() => setShowMarketplace(true)}
             className="rounded p-0.5 hover:bg-muted/40"
-            title="Add plugin"
+            title="Browse marketplace"
           >
-            <PlusCircle size={12} className="text-primary" />
+            <PlusCircle size={12} className="text-purple-400" />
           </button>
         </div>
       </div>
 
       {expanded && (
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {!projectPath ? (
-            <div className="px-2 py-1 text-[11px] text-muted-foreground/60">No project selected</div>
+            <div className="flex items-center gap-2 rounded-md bg-muted/30 px-2.5 py-2 text-[11px] text-muted-foreground/60">
+              <Store size={14} className="shrink-0 text-muted-foreground/30" />
+              <span>No project selected</span>
+            </div>
           ) : totalCount === 0 ? (
-            <>
-              <div className="px-2 py-1 text-[11px] text-muted-foreground/60">
-                No skills found
-              </div>
-              <div className="px-2 text-[10px] text-muted-foreground/40">
-                Add skills to .claude/skills/ or ~/.claude/skills/
-              </div>
-            </>
+            <div className="flex flex-col items-center gap-1.5 rounded-md bg-muted/20 px-3 py-3">
+              <Store size={18} className="text-muted-foreground/25" />
+              <span className="text-[11px] text-muted-foreground/50">No plugins or skills</span>
+              <button
+                type="button"
+                onClick={() => setShowMarketplace(true)}
+                className="mt-0.5 flex items-center gap-1 rounded-md bg-purple-400/10 px-2.5 py-1 text-[10px] font-medium text-purple-400 hover:bg-purple-400/20 transition-colors"
+              >
+                <PlusCircle size={10} />
+                Browse marketplace
+              </button>
+            </div>
           ) : (
             <>
               {/* Plugins with their skills */}
               {plugins.length > 0 && (
-                <>
-                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/60">
-                    Plugins ({plugins.length})
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2 px-1 py-0.5">
+                    <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground/50">Plugins</span>
+                    <span className="text-[9px] text-muted-foreground/30">{plugins.length}</span>
+                    <div className="h-px flex-1 bg-border/30" />
                   </div>
                   {plugins.map((plugin) => {
                     const pluginSkills = pluginSkillsMap.get(plugin.name) ?? [];
                     const isPluginExpanded = expandedPlugins.has(plugin.id);
-                    // Check if plugin is being uninstalled/deleted
                     const matchingInstalled = installedPlugins.find(
                       (p) => p.path === plugin.path || p.plugin_id === plugin.id || p.id === plugin.id
                     );
@@ -1183,21 +1191,20 @@ function PluginsSection() {
 
                     return (
                       <div key={plugin.id}>
-                        {/* Plugin row - clickable to expand */}
                         <div
-                          className="group flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
+                          className="group flex w-full items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/30"
                           title={plugin.description || plugin.path || undefined}
                         >
                           <button
                             type="button"
                             onClick={() => togglePlugin(plugin.id)}
-                            className="flex items-center gap-2 flex-1 min-w-0"
+                            className="flex flex-1 items-center gap-2 min-w-0"
                           >
                             {pluginSkills.length > 0 ? (
                               isPluginExpanded ? (
-                                <ChevronDown size={10} className="shrink-0 text-muted-foreground" />
+                                <ChevronDown size={10} className="shrink-0 text-muted-foreground/60" />
                               ) : (
-                                <ChevronRight size={10} className="shrink-0 text-muted-foreground" />
+                                <ChevronRight size={10} className="shrink-0 text-muted-foreground/60" />
                               )
                             ) : (
                               <span className="w-[10px]" />
@@ -1206,9 +1213,9 @@ function PluginsSection() {
                             <span className="flex-1 truncate font-medium text-left">{plugin.name}</span>
                           </button>
                           {pluginSkills.length > 0 && (
-                            <span className="text-[10px] text-muted-foreground">{pluginSkills.length}</span>
+                            <span className="rounded bg-muted/50 px-1 text-[9px] text-muted-foreground/70">{pluginSkills.length} skills</span>
                           )}
-                          <span className="text-[10px] text-muted-foreground">v{plugin.version}</span>
+                          <span className="text-[9px] text-muted-foreground/40">v{plugin.version}</span>
                           {canUninstallPlugin(plugin) && (
                             <button
                               type="button"
@@ -1225,16 +1232,15 @@ function PluginsSection() {
                           )}
                         </div>
 
-                        {/* Expanded skills */}
                         {isPluginExpanded && pluginSkills.length > 0 && (
-                          <div className="ml-4 border-l border-border/40 pl-2">
+                          <div className="ml-5 space-y-px border-l border-purple-400/20 pl-2">
                             {pluginSkills.map((skill) => (
                               <div
                                 key={skill.id}
-                                className="flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
+                                className="flex items-center gap-2 rounded px-2 py-0.5 text-xs text-foreground/80 hover:bg-muted/30 hover:text-foreground"
                                 title={skill.description || skill.path || undefined}
                               >
-                                <Zap size={11} className="shrink-0 text-orange-400" />
+                                <Zap size={10} className="shrink-0 text-orange-400/70" />
                                 <span className="flex-1 truncate">{skill.name}</span>
                               </div>
                             ))}
@@ -1243,14 +1249,16 @@ function PluginsSection() {
                       </div>
                     );
                   })}
-                </>
+                </div>
               )}
 
               {/* Standalone Skills */}
               {standaloneSkills.length > 0 && (
-                <>
-                  <div className="px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/60">
-                    Skills ({standaloneSkills.length})
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2 px-1 py-0.5">
+                    <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground/50">Skills</span>
+                    <span className="text-[9px] text-muted-foreground/30">{standaloneSkills.length}</span>
+                    <div className="h-px flex-1 bg-border/30" />
                   </div>
                   {standaloneSkills.map((skill) => {
                     const badge = getSkillSourceBadge(skill.source);
@@ -1258,12 +1266,12 @@ function PluginsSection() {
                     return (
                       <div
                         key={skill.id}
-                        className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/40"
+                        className="group flex items-center gap-2 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted/30"
                         title={skill.description || skill.path || undefined}
                       >
-                        <Zap size={12} className="shrink-0 text-orange-400" />
-                        <span className="flex-1 truncate font-medium">{skill.name}</span>
-                        <span className={`shrink-0 rounded px-1 text-[9px] ${badge.className}`}>
+                        <Zap size={11} className="shrink-0 text-orange-400" />
+                        <span className="flex-1 truncate">{skill.name}</span>
+                        <span className={`shrink-0 rounded-sm px-1 py-px text-[8px] font-medium ${badge.className}`}>
                           {badge.text}
                         </span>
                         {canDeleteSkill(skill) && (
@@ -1283,7 +1291,7 @@ function PluginsSection() {
                       </div>
                     );
                   })}
-                </>
+                </div>
               )}
             </>
           )}
