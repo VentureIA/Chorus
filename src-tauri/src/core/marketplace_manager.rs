@@ -465,8 +465,10 @@ impl MarketplaceManager {
 
     /// Discovers plugin components from an installed directory.
     fn discover_plugin_components(plugin_dir: &Path) -> (Vec<String>, Vec<String>, Vec<String>, Vec<String>, Vec<String>) {
-        let mut skills = Vec::new();
-        let mut commands = Vec::new();
+        use std::collections::HashSet;
+
+        let mut skills_set: HashSet<String> = HashSet::new();
+        let mut commands_set: HashSet<String> = HashSet::new();
         let mut mcp_servers = Vec::new();
         let mut agents = Vec::new();
         let mut hooks = Vec::new();
@@ -478,11 +480,34 @@ impl MarketplaceManager {
                 for entry in entries.flatten() {
                     if entry.path().is_dir() {
                         if let Some(name) = entry.file_name().to_str() {
-                            skills.push(name.to_string());
+                            skills_set.insert(name.to_string());
                         }
                     }
                 }
             }
+        }
+
+        // Also scan .claude/skills/ directory (alternative layout)
+        let claude_skills_dir = plugin_dir.join(".claude").join("skills");
+        if claude_skills_dir.exists() {
+            if let Ok(entries) = std::fs::read_dir(&claude_skills_dir) {
+                for entry in entries.flatten() {
+                    if entry.path().is_dir() {
+                        if let Some(name) = entry.file_name().to_str() {
+                            skills_set.insert(name.to_string());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fallback: check for root-level SKILL.md (marketplace single-skill plugins)
+        if skills_set.is_empty() && plugin_dir.join("SKILL.md").exists() {
+            let dir_name = plugin_dir
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown");
+            skills_set.insert(dir_name.to_string());
         }
 
         // Scan commands/ directory
@@ -493,12 +518,52 @@ impl MarketplaceManager {
                     let path = entry.path();
                     if path.is_file() && path.extension().map_or(false, |e| e == "md") {
                         if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
-                            commands.push(stem.to_string());
+                            commands_set.insert(stem.to_string());
                         }
                     }
                 }
             }
         }
+
+        // Also scan .claude/commands/ directory (alternative layout)
+        let claude_commands_dir = plugin_dir.join(".claude").join("commands");
+        if claude_commands_dir.exists() {
+            if let Ok(entries) = std::fs::read_dir(&claude_commands_dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.is_file() && path.extension().map_or(false, |e| e == "md") {
+                        if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
+                            commands_set.insert(stem.to_string());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fallback: check for root-level .md command files (marketplace command plugins)
+        if commands_set.is_empty() {
+            if let Ok(entries) = std::fs::read_dir(plugin_dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.is_file() && path.extension().map_or(false, |e| e == "md") {
+                        let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+                        // Skip non-command files
+                        if matches!(
+                            file_name.to_uppercase().as_str(),
+                            "SKILL.MD" | "README.MD" | "CHANGELOG.MD" | "LICENSE.MD" | "CONTRIBUTING.MD"
+                        ) {
+                            continue;
+                        }
+                        if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
+                            commands_set.insert(stem.to_string());
+                        }
+                    }
+                }
+            }
+        }
+
+        let skills: Vec<String> = skills_set.into_iter().collect();
+        let commands: Vec<String> = commands_set.into_iter().collect();
 
         // Check for .mcp.json
         let mcp_json = plugin_dir.join(".mcp.json");

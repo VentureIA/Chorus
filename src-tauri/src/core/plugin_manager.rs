@@ -471,10 +471,115 @@ fn scan_plugins_directory(dir: &Path) -> Vec<(PluginConfig, Vec<SkillConfig>)> {
             plugin_skills.extend(scan_skills_directory(&skills_dir, source.clone()));
         }
 
+        // Scan .claude/skills/ subdirectory (alternative layout)
+        let claude_skills_dir = plugin_dir.join(".claude").join("skills");
+        if claude_skills_dir.exists() {
+            plugin_skills.extend(scan_skills_directory(&claude_skills_dir, source.clone()));
+        }
+
+        // Fallback: check for root-level SKILL.md (marketplace single-skill plugins)
+        if plugin_skills.is_empty() {
+            let root_skill = plugin_dir.join("SKILL.md");
+            if root_skill.exists() {
+                if let Ok(content) = fs::read_to_string(&root_skill) {
+                    let fm = Frontmatter::parse(&content);
+                    let skill_name = fm
+                        .name
+                        .clone()
+                        .unwrap_or_else(|| plugin_name.clone());
+                    let skill_id = format!("{}:{}", source_prefix(&source), plugin_name);
+
+                    plugin_skills.push(SkillConfig {
+                        id: skill_id,
+                        name: skill_name,
+                        description: fm.description.unwrap_or_default(),
+                        icon: None,
+                        skill_type: SkillType::File {
+                            path: root_skill.to_string_lossy().to_string(),
+                        },
+                        plugin_id: Some(plugin_name.clone()),
+                        source: source.clone(),
+                        path: Some(root_skill.to_string_lossy().to_string()),
+                        argument_hint: fm.argument_hint,
+                        disable_model_invocation: fm.disable_model_invocation,
+                        user_invocable: fm.user_invocable,
+                        allowed_tools: fm.allowed_tools,
+                        model: fm.model,
+                        context: fm.context,
+                        agent: fm.agent,
+                    });
+                }
+            }
+        }
+
         // Scan commands/ subdirectory
         let commands_dir = plugin_dir.join("commands");
         if commands_dir.exists() {
             plugin_skills.extend(scan_commands_directory(&commands_dir, source.clone()));
+        }
+
+        // Scan .claude/commands/ subdirectory (alternative layout)
+        let claude_commands_dir = plugin_dir.join(".claude").join("commands");
+        if claude_commands_dir.exists() {
+            plugin_skills.extend(scan_commands_directory(&claude_commands_dir, source.clone()));
+        }
+
+        // Fallback: check for root-level .md command files (marketplace command plugins)
+        if !plugin_skills.iter().any(|s| matches!(s.skill_type, SkillType::File { ref path } if path.contains("/commands/"))) {
+            if let Ok(entries) = fs::read_dir(&plugin_dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if !path.is_file() {
+                        continue;
+                    }
+                    let Some(ext) = path.extension() else {
+                        continue;
+                    };
+                    if ext != "md" {
+                        continue;
+                    }
+                    // Skip SKILL.md (already handled above) and common non-command files
+                    let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+                    if matches!(
+                        file_name.to_uppercase().as_str(),
+                        "SKILL.MD" | "README.MD" | "CHANGELOG.MD" | "LICENSE.MD" | "CONTRIBUTING.MD"
+                    ) {
+                        continue;
+                    }
+
+                    if let Ok(content) = fs::read_to_string(&path) {
+                        let fm = Frontmatter::parse(&content);
+                        let file_stem = path
+                            .file_stem()
+                            .and_then(|n| n.to_str())
+                            .unwrap_or("unknown");
+                        let cmd_name =
+                            fm.name.clone().unwrap_or_else(|| file_stem.to_string());
+                        let cmd_id =
+                            format!("{}:{}", source_prefix(&source), file_stem);
+
+                        plugin_skills.push(SkillConfig {
+                            id: cmd_id,
+                            name: cmd_name,
+                            description: fm.description.unwrap_or_default(),
+                            icon: None,
+                            skill_type: SkillType::File {
+                                path: path.to_string_lossy().to_string(),
+                            },
+                            plugin_id: Some(plugin_name.clone()),
+                            source: source.clone(),
+                            path: Some(path.to_string_lossy().to_string()),
+                            argument_hint: fm.argument_hint,
+                            disable_model_invocation: fm.disable_model_invocation,
+                            user_invocable: fm.user_invocable,
+                            allowed_tools: fm.allowed_tools,
+                            model: fm.model,
+                            context: fm.context,
+                            agent: fm.agent,
+                        });
+                    }
+                }
+            }
         }
 
         let skill_ids: Vec<String> = plugin_skills.iter().map(|s| s.id.clone()).collect();
