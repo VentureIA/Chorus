@@ -580,7 +580,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
   return (
     <div
       className={`terminal-cell flex h-full flex-col ${cellStatusClass(effectiveStatus)}`}
-      style={{ backgroundColor: "#0a0a0a" }}
+      style={{ backgroundColor: "#000000" }}
       onClick={onFocus}
     >
       {/* Rich header bar */}
@@ -606,7 +606,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       {/* xterm.js container with context menu */}
       <ContextMenu.Root>
         <ContextMenu.Trigger asChild>
-          <div className="relative flex-1 overflow-hidden px-4 pt-2" style={{ backgroundColor: "#0a0a0a" }}>
+          <div className="relative flex-1 overflow-hidden px-4 pt-2" style={{ backgroundColor: "#000000" }}>
             {showFind && searchAddonRef.current && (
               <TerminalFindWidget
                 searchAddon={searchAddonRef.current}
@@ -618,7 +618,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
         </ContextMenu.Trigger>
         <ContextMenu.Portal>
           <ContextMenu.Content
-            className="min-w-[180px] overflow-hidden rounded-md border border-[#1a1a1a] bg-[#0f0f0f] p-1 shadow-xl"
+            className="min-w-[180px] overflow-hidden rounded-md border border-border bg-background p-1 shadow-xl"
           >
             <ContextMenu.Item
               className="flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-xs text-[#cccccc] outline-none data-[highlighted]:bg-[#094771] data-[highlighted]:text-white"

@@ -149,7 +149,7 @@ export function FileEditorPanel() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden border-l border-border bg-background">
       {/* Tab bar */}
-      <div className="flex shrink-0 overflow-x-auto border-b border-border bg-muted/40">
+      <div className="flex shrink-0 overflow-x-auto border-b border-border bg-background">
         {openFiles.map((file, i) => (
           <FileTab key={file.path} file={file} index={i} isActive={i === activeFileIndex} />
         ))}

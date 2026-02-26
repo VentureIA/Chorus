@@ -96,7 +96,7 @@ export function TerminalHeader({
   const displayTitle = sessionTitle || `${providerLabel} #${sessionId}`;
 
   return (
-    <div className="no-select flex h-7 shrink-0 items-center gap-1.5 border-b border-border bg-muted px-2">
+    <div className="no-select flex h-7 shrink-0 items-center gap-1.5 border-b border-border bg-background px-2">
       {/* Left cluster */}
       <div className="flex min-w-0 flex-1 items-center gap-1.5">
         {/* AI provider icon + dropdown */}

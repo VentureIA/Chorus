@@ -77,7 +77,7 @@ export function GitGraphPanel({
       aria-hidden={!open}
       tabIndex={open ? undefined : -1}
       {...(!open ? ({ inert: "" } as { inert: "" }) : {})}
-      className={`relative z-30 flex flex-row border-l border-border bg-muted transition-all duration-200 overflow-hidden ${
+      className={`relative z-30 flex flex-row border-l border-border bg-background transition-all duration-200 overflow-hidden ${
         open ? "w-[560px]" : "w-0 border-l-0"
       }`}
     >

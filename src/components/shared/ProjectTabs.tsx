@@ -132,7 +132,7 @@ export function ProjectTabs({
   return (
     <div
       data-tauri-drag-region
-      className="theme-transition no-select flex h-9 items-center border-b border-border bg-muted"
+      className="theme-transition no-select flex h-9 items-center border-b border-border bg-background"
     >
       {/* Left: sidebar toggle + tabs */}
       <div className="flex items-center gap-0.5 px-1.5">

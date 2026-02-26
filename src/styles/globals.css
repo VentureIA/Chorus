@@ -9,9 +9,9 @@
     /* Stone Dark Theme - HSL format */
     --background: 0 0% 0%;                /* #000000 - NOIR pur */
     --foreground: 60 9.1% 97.8%;          /* #fafaf9 - blanc cassé */
-    --card: 0 0% 4%;                      /* #0a0a0a - near-black pour cards */
+    --card: 0 0% 0%;                      /* #000000 - même que background */
     --card-foreground: 60 9.1% 97.8%;
-    --popover: 0 0% 4%;                   /* même que card */
+    --popover: 0 0% 0%;                   /* même que background */
     --popover-foreground: 60 9.1% 97.8%;
     --primary: 60 9.1% 97.8%;             /* blanc cassé */
     --primary-foreground: 0 0% 4%;        /* near-black */
@@ -23,8 +23,8 @@
     --accent-foreground: 60 9.1% 97.8%;
     --destructive: 0 62.8% 30.6%;         /* rouge */
     --destructive-foreground: 60 9.1% 97.8%;
-    --border: 0 0% 10%;                   /* #1a1a1a - bordures subtiles */
-    --input: 0 0% 10%;
+    --border: 0 0% 16%;                   /* #2a2a2a - bordures grises subtiles */
+    --input: 0 0% 16%;
     --ring: 0 0% 83.1%;                   /* #d4d4d4 */
     --radius: 0rem;
 
@@ -47,7 +47,7 @@
     --sidebar-primary-foreground: 0 0% 4%;
     --sidebar-accent: 0 0% 6.7%;          /* très foncé pour hover */
     --sidebar-accent-foreground: 60 9.1% 97.8%;
-    --sidebar-border: 0 0% 10%;
+    --sidebar-border: 0 0% 16%;
     --sidebar-ring: 0 0% 83.1%;
   }
 
@@ -202,14 +202,14 @@
 .terminal-cell {
   border-radius: 0px;
   overflow: hidden;
-  border: 1px solid #1a1a1a;
+  border: 1px solid #2a2a2a;
   box-shadow: none;
   transition:
     border-color 200ms ease;
 }
 
 .terminal-cell-idle {
-  border-color: #1a1a1a;
+  border-color: #2a2a2a;
 }
 
 .terminal-cell-starting {
