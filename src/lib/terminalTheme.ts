@@ -50,10 +50,10 @@ export interface TerminalTheme {
  * Chorus's default terminal theme (VS Code Dark+ inspired).
  */
 export const DEFAULT_THEME: TerminalTheme = {
-  background: "#1e1e1e",
+  background: "#0a0a0a",
   foreground: "#cccccc",
-  cursor: "#1e1e1e",
-  cursorAccent: "#1e1e1e",
+  cursor: "#0a0a0a",
+  cursorAccent: "#0a0a0a",
   selectionBackground: "#264f78",
   selectionForeground: undefined,
 

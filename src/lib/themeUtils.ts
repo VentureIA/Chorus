@@ -29,10 +29,10 @@ export type ThemeColors = {
 
 /** Default dark theme colors (hex values). */
 export const DEFAULT_DARK_COLORS: ThemeColors = {
-  bg: "#1a1a1e",
-  surface: "#1e1f23",
-  card: "#252529",
-  border: "#333338",
+  bg: "#000000",
+  surface: "#0a0a0a",
+  card: "#0f0f0f",
+  border: "#1a1a1a",
   text: "#e5e5e9",
   muted: "#8c8c96",
   accent: "#58a6ff",

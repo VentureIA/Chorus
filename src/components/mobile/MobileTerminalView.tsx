@@ -192,7 +192,7 @@ export function MobileTerminalView() {
     const isConnected = wsStatus === "connected";
 
     return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center bg-[#1e1e1e] text-white">
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-[#0a0a0a] text-white">
         {/* Logo / branding */}
         <div className="mb-8 text-4xl font-bold tracking-tight text-white/90">
           Chorus
@@ -226,9 +226,9 @@ export function MobileTerminalView() {
   const dotColor = STATUS_DOT_COLOR[currentStatus] ?? "bg-gray-400";
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-[#1e1e1e]">
+    <div className="flex h-screen w-screen flex-col bg-[#0a0a0a]">
       {/* Minimal top bar */}
-      <div className="flex h-9 shrink-0 items-center gap-2 border-b border-white/10 bg-[#252526] px-3">
+      <div className="flex h-9 shrink-0 items-center gap-2 border-b border-white/10 bg-[#0f0f0f] px-3">
         <div className={`h-2 w-2 rounded-full ${dotColor}`} />
         <span className="flex-1 truncate text-xs font-medium text-white/80">
           {session.title}

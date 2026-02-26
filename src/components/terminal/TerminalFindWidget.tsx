@@ -74,12 +74,12 @@ export function TerminalFindWidget({ searchAddon, onClose }: TerminalFindWidgetP
     `flex h-[22px] w-[22px] items-center justify-center rounded text-xs ${
       active
         ? "bg-[#0e639c] text-white"
-        : "text-[#cccccc] hover:bg-[#3c3c3c]"
+        : "text-[#cccccc] hover:bg-[#1a1a1a]"
     }`;
 
   return (
     <div
-      className="absolute top-1 right-2 z-50 flex items-center gap-1 rounded border border-[#3c3c3c] bg-[#252526] px-2 py-1 shadow-lg"
+      className="absolute top-1 right-2 z-50 flex items-center gap-1 rounded border border-[#1a1a1a] bg-[#0a0a0a] px-2 py-1 shadow-lg"
       onKeyDown={handleKeyDown}
     >
       {/* Search input */}
@@ -89,7 +89,7 @@ export function TerminalFindWidget({ searchAddon, onClose }: TerminalFindWidgetP
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Find"
-        className="h-[22px] w-[160px] rounded-sm border border-[#3c3c3c] bg-[#3c3c3c] px-1.5 text-xs text-[#cccccc] outline-none placeholder:text-[#666] focus:border-[#0e639c]"
+        className="h-[22px] w-[160px] rounded-sm border border-[#1a1a1a] bg-[#0f0f0f] px-1.5 text-xs text-[#cccccc] outline-none placeholder:text-[#666] focus:border-[#0e639c]"
       />
 
       {/* Case sensitive toggle */}
@@ -125,7 +125,7 @@ export function TerminalFindWidget({ searchAddon, onClose }: TerminalFindWidgetP
       <button
         type="button"
         title="Previous Match (Shift+Enter)"
-        className="flex h-[22px] w-[22px] items-center justify-center rounded text-[#cccccc] hover:bg-[#3c3c3c]"
+        className="flex h-[22px] w-[22px] items-center justify-center rounded text-[#cccccc] hover:bg-[#1a1a1a]"
         onClick={findPrevious}
       >
         <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
@@ -137,7 +137,7 @@ export function TerminalFindWidget({ searchAddon, onClose }: TerminalFindWidgetP
       <button
         type="button"
         title="Next Match (Enter)"
-        className="flex h-[22px] w-[22px] items-center justify-center rounded text-[#cccccc] hover:bg-[#3c3c3c]"
+        className="flex h-[22px] w-[22px] items-center justify-center rounded text-[#cccccc] hover:bg-[#1a1a1a]"
         onClick={findNext}
       >
         <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
@@ -149,7 +149,7 @@ export function TerminalFindWidget({ searchAddon, onClose }: TerminalFindWidgetP
       <button
         type="button"
         title="Close (Escape)"
-        className="flex h-[22px] w-[22px] items-center justify-center rounded text-[#cccccc] hover:bg-[#3c3c3c]"
+        className="flex h-[22px] w-[22px] items-center justify-center rounded text-[#cccccc] hover:bg-[#1a1a1a]"
         onClick={() => {
           searchAddon.clearDecorations();
           onClose();

@@ -7,24 +7,24 @@
   /* Background = BLACK, Cards/Surfaces = GRAY (comme sur shadcn) */
   :root {
     /* Stone Dark Theme - HSL format */
-    --background: 0 0% 3.9%;              /* #0a0a0a - NOIR pur */
+    --background: 0 0% 0%;                /* #000000 - NOIR pur */
     --foreground: 60 9.1% 97.8%;          /* #fafaf9 - blanc cassé */
-    --card: 0 0% 9%;                      /* #171717 - gris foncé pour cards */
+    --card: 0 0% 4%;                      /* #0a0a0a - near-black pour cards */
     --card-foreground: 60 9.1% 97.8%;
-    --popover: 0 0% 9%;                   /* même que card */
+    --popover: 0 0% 4%;                   /* même que card */
     --popover-foreground: 60 9.1% 97.8%;
     --primary: 60 9.1% 97.8%;             /* blanc cassé */
-    --primary-foreground: 0 0% 9%;        /* gris foncé */
-    --secondary: 0 0% 14.9%;              /* #262626 - gris moyen */
+    --primary-foreground: 0 0% 4%;        /* near-black */
+    --secondary: 0 0% 6.7%;               /* #111111 - très foncé */
     --secondary-foreground: 60 9.1% 97.8%;
-    --muted: 0 0% 14.9%;                  /* #262626 - surfaces grises */
+    --muted: 0 0% 6.7%;                   /* #111111 - surfaces très foncées */
     --muted-foreground: 0 0% 63.9%;       /* #a3a3a3 - texte gris */
-    --accent: 0 0% 14.9%;                 /* gris moyen */
+    --accent: 0 0% 6.7%;                  /* très foncé */
     --accent-foreground: 60 9.1% 97.8%;
     --destructive: 0 62.8% 30.6%;         /* rouge */
     --destructive-foreground: 60 9.1% 97.8%;
-    --border: 0 0% 14.9%;                 /* #262626 - bordures grises */
-    --input: 0 0% 14.9%;
+    --border: 0 0% 10%;                   /* #1a1a1a - bordures subtiles */
+    --input: 0 0% 10%;
     --ring: 0 0% 83.1%;                   /* #d4d4d4 */
     --radius: 0rem;
 
@@ -40,14 +40,14 @@
     --chart-4: 210 80% 78%;
     --chart-5: 0 80% 82%;
 
-    /* Sidebar - fond noir, accents gris */
-    --sidebar-background: 0 0% 3.9%;      /* NOIR */
+    /* Sidebar - fond noir, accents sombres */
+    --sidebar-background: 0 0% 0%;        /* NOIR pur */
     --sidebar-foreground: 60 9.1% 97.8%;
     --sidebar-primary: 60 9.1% 97.8%;
-    --sidebar-primary-foreground: 0 0% 9%;
-    --sidebar-accent: 0 0% 14.9%;         /* gris pour hover */
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 6.7%;          /* très foncé pour hover */
     --sidebar-accent-foreground: 60 9.1% 97.8%;
-    --sidebar-border: 0 0% 14.9%;
+    --sidebar-border: 0 0% 10%;
     --sidebar-ring: 0 0% 83.1%;
   }
 
@@ -202,14 +202,14 @@
 .terminal-cell {
   border-radius: 0px;
   overflow: hidden;
-  border: 1px solid #333333;
+  border: 1px solid #1a1a1a;
   box-shadow: none;
   transition:
     border-color 200ms ease;
 }
 
 .terminal-cell-idle {
-  border-color: #333333;
+  border-color: #1a1a1a;
 }
 
 .terminal-cell-starting {

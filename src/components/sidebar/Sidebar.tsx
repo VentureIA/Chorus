@@ -1475,17 +1475,19 @@ function AppearanceSection({
         </button>
       </div>
 
-      {showThemeSettings && (
+      {showThemeSettings && createPortal(
         <ThemeSettingsModal
           onClose={() => setShowThemeSettings(false)}
           currentTheme={theme ?? "dark"}
-        />
+        />,
+        document.body,
       )}
       {showTerminalSettings && (
         <TerminalSettingsModal onClose={() => setShowTerminalSettings(false)} />
       )}
-      {showShortcuts && (
-        <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
+      {showShortcuts && createPortal(
+        <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />,
+        document.body,
       )}
     </>
   );
