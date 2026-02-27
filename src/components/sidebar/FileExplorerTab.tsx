@@ -1,6 +1,8 @@
+import * as ContextMenu from "@radix-ui/react-context-menu";
 import {
   ChevronDown,
   ChevronRight,
+  Copy,
   File,
   Folder,
   FolderOpen,
@@ -46,7 +48,7 @@ function getFileColor(ext: string | null): string {
 
 /* ── Tree Node (recursive) ── */
 
-function FileTreeNode({ entry, depth = 0 }: { entry: FileEntry; depth?: number }) {
+function FileTreeNode({ entry, depth = 0, repoPath }: { entry: FileEntry; depth?: number; repoPath: string }) {
   const expanded = useFileExplorerStore((s) => s.expanded);
   const isLoading = useFileExplorerStore((s) => s.isLoading);
   const tree = useFileExplorerStore((s) => s.tree);
@@ -57,47 +59,78 @@ function FileTreeNode({ entry, depth = 0 }: { entry: FileEntry; depth?: number }
   const isLoadingDir = isLoading.has(entry.path);
   const children = tree.get(entry.path) ?? [];
 
+  const relativePath = entry.path.startsWith(repoPath + "/")
+    ? entry.path.slice(repoPath.length + 1)
+    : entry.path;
+
+  const menuItemClass =
+    "flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-xs text-[#cccccc] outline-none data-[highlighted]:bg-[#094771] data-[highlighted]:text-white";
+
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => (entry.isDirectory ? toggleExpand(entry.path) : openFile(entry))}
-        className="group flex w-full items-center gap-1 rounded py-[1px] px-1 text-xs cursor-pointer hover:bg-muted/50"
-        style={{ paddingLeft: `${depth * 12 + 4}px` }}
-      >
-        {/* Chevron / spacer */}
-        {entry.isDirectory ? (
-          isLoadingDir ? (
-            <Loader2 size={12} className="shrink-0 animate-spin text-muted-foreground" />
-          ) : isExpanded ? (
-            <ChevronDown size={12} className="shrink-0 text-muted-foreground" />
-          ) : (
-            <ChevronRight size={12} className="shrink-0 text-muted-foreground" />
-          )
-        ) : (
-          <span className="w-3 shrink-0" />
-        )}
+      <ContextMenu.Root>
+        <ContextMenu.Trigger asChild>
+          <div>
+            <button
+              type="button"
+              onClick={() => (entry.isDirectory ? toggleExpand(entry.path) : openFile(entry))}
+              className="group flex w-full items-center gap-1 rounded py-[1px] px-1 text-xs cursor-pointer hover:bg-muted/50"
+              style={{ paddingLeft: `${depth * 12 + 4}px` }}
+            >
+              {/* Chevron / spacer */}
+              {entry.isDirectory ? (
+                isLoadingDir ? (
+                  <Loader2 size={12} className="shrink-0 animate-spin text-muted-foreground" />
+                ) : isExpanded ? (
+                  <ChevronDown size={12} className="shrink-0 text-muted-foreground" />
+                ) : (
+                  <ChevronRight size={12} className="shrink-0 text-muted-foreground" />
+                )
+              ) : (
+                <span className="w-3 shrink-0" />
+              )}
 
-        {/* Icon */}
-        {entry.isDirectory ? (
-          isExpanded ? (
-            <FolderOpen size={13} className="shrink-0 text-blue-400" />
-          ) : (
-            <Folder size={13} className="shrink-0 text-blue-400" />
-          )
-        ) : (
-          <File size={13} className={`shrink-0 ${getFileColor(entry.extension)}`} />
-        )}
+              {/* Icon */}
+              {entry.isDirectory ? (
+                isExpanded ? (
+                  <FolderOpen size={13} className="shrink-0 text-blue-400" />
+                ) : (
+                  <Folder size={13} className="shrink-0 text-blue-400" />
+                )
+              ) : (
+                <File size={13} className={`shrink-0 ${getFileColor(entry.extension)}`} />
+              )}
 
-        {/* Name */}
-        <span className="truncate text-foreground/80">{entry.name}</span>
-      </button>
+              {/* Name */}
+              <span className="truncate text-foreground/80">{entry.name}</span>
+            </button>
+          </div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Content className="z-50 min-w-[180px] overflow-hidden rounded-md border border-border bg-background p-1 shadow-xl">
+            <ContextMenu.Item
+              className={menuItemClass}
+              onSelect={() => navigator.clipboard.writeText(entry.path).catch(console.error)}
+            >
+              <Copy size={12} />
+              Copy Path
+            </ContextMenu.Item>
+            <ContextMenu.Item
+              className={menuItemClass}
+              onSelect={() => navigator.clipboard.writeText(relativePath).catch(console.error)}
+            >
+              <Copy size={12} />
+              Copy Relative Path
+            </ContextMenu.Item>
+          </ContextMenu.Content>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>
 
       {/* Children */}
       {entry.isDirectory && isExpanded && (
         <div>
           {children.map((child) => (
-            <FileTreeNode key={child.path} entry={child} depth={depth + 1} />
+            <FileTreeNode key={child.path} entry={child} depth={depth + 1} repoPath={repoPath} />
           ))}
         </div>
       )}
@@ -161,7 +194,7 @@ export function FileExplorerTab() {
       {/* Tree */}
       <div>
         {rootEntries.map((entry) => (
-          <FileTreeNode key={entry.path} entry={entry} />
+          <FileTreeNode key={entry.path} entry={entry} repoPath={repoPath} />
         ))}
       </div>
     </div>

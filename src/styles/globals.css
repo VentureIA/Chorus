@@ -4,22 +4,22 @@
 
 @layer base {
   /* ── shadcn/ui Theme: Stone Dark + Lyra Style + Radius None ── */
-  /* Background = BLACK, Cards/Surfaces = GRAY (comme sur shadcn) */
+  /* Background = #121212 (noir adouci), Sidebar = #0a0a0a, Surfaces = #1f1f1f */
   :root {
     /* Stone Dark Theme - HSL format */
-    --background: 0 0% 0%;                /* #000000 - NOIR pur */
+    --background: 0 0% 7%;                /* #121212 - noir adouci (entre VS Code et noir pur) */
     --foreground: 60 9.1% 97.8%;          /* #fafaf9 - blanc cassé */
-    --card: 0 0% 0%;                      /* #000000 - même que background */
+    --card: 0 0% 7%;                      /* #121212 - même que background */
     --card-foreground: 60 9.1% 97.8%;
-    --popover: 0 0% 0%;                   /* même que background */
+    --popover: 0 0% 7%;                   /* même que background */
     --popover-foreground: 60 9.1% 97.8%;
     --primary: 60 9.1% 97.8%;             /* blanc cassé */
     --primary-foreground: 0 0% 4%;        /* near-black */
-    --secondary: 0 0% 6.7%;               /* #111111 - très foncé */
+    --secondary: 0 0% 12%;                /* #1f1f1f - surfaces foncées */
     --secondary-foreground: 60 9.1% 97.8%;
-    --muted: 0 0% 6.7%;                   /* #111111 - surfaces très foncées */
+    --muted: 0 0% 12%;                    /* #1f1f1f - surfaces foncées */
     --muted-foreground: 0 0% 63.9%;       /* #a3a3a3 - texte gris */
-    --accent: 0 0% 6.7%;                  /* très foncé */
+    --accent: 0 0% 12%;                   /* #1f1f1f - surfaces foncées */
     --accent-foreground: 60 9.1% 97.8%;
     --destructive: 0 62.8% 30.6%;         /* rouge */
     --destructive-foreground: 60 9.1% 97.8%;
@@ -41,11 +41,11 @@
     --chart-5: 0 80% 82%;
 
     /* Sidebar - fond noir, accents sombres */
-    --sidebar-background: 0 0% 0%;        /* NOIR pur */
+    --sidebar-background: 0 0% 4%;        /* #0a0a0a - sidebar légèrement plus sombre */
     --sidebar-foreground: 60 9.1% 97.8%;
     --sidebar-primary: 60 9.1% 97.8%;
     --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 0 0% 6.7%;          /* très foncé pour hover */
+    --sidebar-accent: 0 0% 10%;           /* hover sur sidebar */
     --sidebar-accent-foreground: 60 9.1% 97.8%;
     --sidebar-border: 0 0% 16%;
     --sidebar-ring: 0 0% 83.1%;
