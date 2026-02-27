@@ -223,6 +223,8 @@ function DesktopApp() {
       .catch((err) => {
         console.error("Failed to clean up orphaned sessions:", err);
       });
+    // Clean up leftover paste temp images from previous sessions
+    invoke<number>("cleanup_paste_images").catch(() => {});
   }, []);
 
   // Initialize session store: fetch initial state and subscribe to events

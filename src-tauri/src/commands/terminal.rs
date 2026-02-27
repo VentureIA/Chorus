@@ -277,3 +277,36 @@ pub async fn check_cli_available(command: String) -> Result<bool, String> {
         Ok(output.status.success())
     }
 }
+
+/// Saves raw image bytes (from clipboard paste) to a temp file.
+/// Returns the absolute path to the saved file.
+#[tauri::command]
+pub async fn save_clipboard_image(data: Vec<u8>) -> Result<String, String> {
+    let temp_dir = std::env::temp_dir();
+    let filename = format!("chorus-paste-{}.png", uuid::Uuid::new_v4());
+    let path = temp_dir.join(&filename);
+    std::fs::write(&path, &data).map_err(|e| format!("Failed to save image: {}", e))?;
+    Ok(path.to_string_lossy().into_owned())
+}
+
+/// Cleans up old chorus-paste temp images.
+/// Called at app startup to remove leftover files from previous sessions.
+#[tauri::command]
+pub async fn cleanup_paste_images() -> Result<u32, String> {
+    let temp_dir = std::env::temp_dir();
+    let mut count = 0u32;
+    let entries = std::fs::read_dir(&temp_dir).map_err(|e| e.to_string())?;
+    for entry in entries.flatten() {
+        if let Some(name) = entry.file_name().to_str() {
+            if name.starts_with("chorus-paste-") && name.ends_with(".png") {
+                if std::fs::remove_file(entry.path()).is_ok() {
+                    count += 1;
+                }
+            }
+        }
+    }
+    if count > 0 {
+        log::debug!("Cleaned up {} paste temp images", count);
+    }
+    Ok(count)
+}

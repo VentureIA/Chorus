@@ -577,6 +577,40 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
     }
   }, [isFocused]);
 
+  // Handle image paste from clipboard (screenshots, copied images)
+  // Saves image to temp file and sends "/image <path>" to Claude Code via stdin
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handlePaste = async (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith("image/")) {
+          e.preventDefault();
+          e.stopPropagation();
+          const blob = item.getAsFile();
+          if (!blob) continue;
+          try {
+            const arrayBuffer = await blob.arrayBuffer();
+            const bytes = Array.from(new Uint8Array(arrayBuffer));
+            const filePath = await invoke<string>("save_clipboard_image", { data: bytes });
+            // Send as /image command so Claude Code picks it up as an attachment
+            await writeStdin(sessionId, `/image ${filePath}\n`);
+          } catch (err) {
+            console.error("Failed to paste image:", err);
+          }
+          return;
+        }
+      }
+    };
+
+    container.addEventListener("paste", handlePaste, true);
+    return () => container.removeEventListener("paste", handlePaste, true);
+  }, [sessionId]);
+
   return (
     <div
       className={`terminal-cell flex h-full flex-col ${cellStatusClass(effectiveStatus)}`}
