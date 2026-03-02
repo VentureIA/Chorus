@@ -578,7 +578,7 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
   }, [isFocused]);
 
   // Handle image paste from clipboard (screenshots, copied images)
-  // Saves image to temp file and sends "/image <path>" to Claude Code via stdin
+  // Saves image to temp file and sends a timestamped prompt to Claude Code via stdin
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -597,8 +597,13 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
             const arrayBuffer = await blob.arrayBuffer();
             const bytes = Array.from(new Uint8Array(arrayBuffer));
             const filePath = await invoke<string>("save_clipboard_image", { data: bytes });
-            // Send as a plain prompt so Claude Code reads the image via its Read tool
-            await writeStdin(sessionId, `View this image I just pasted from my clipboard: ${filePath}\n`);
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, "0");
+            const mm = String(now.getMinutes()).padStart(2, "0");
+            const ss = String(now.getSeconds()).padStart(2, "0");
+            const ms = String(now.getMilliseconds()).padStart(3, "0");
+            const label = `clipboard_screenshot_${hh}h${mm}m${ss}s${ms}ms`;
+            await writeStdin(sessionId, `[Pasted: ${label}] ${filePath}\n`);
           } catch (err) {
             console.error("Failed to paste image:", err);
           }
