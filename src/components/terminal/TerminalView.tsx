@@ -597,8 +597,8 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
             const arrayBuffer = await blob.arrayBuffer();
             const bytes = Array.from(new Uint8Array(arrayBuffer));
             const filePath = await invoke<string>("save_clipboard_image", { data: bytes });
-            // Send as /image command so Claude Code picks it up as an attachment
-            await writeStdin(sessionId, `/image ${filePath}\n`);
+            // Send as a plain prompt so Claude Code reads the image via its Read tool
+            await writeStdin(sessionId, `View this image I just pasted from my clipboard: ${filePath}\n`);
           } catch (err) {
             console.error("Failed to paste image:", err);
           }
