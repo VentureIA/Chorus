@@ -1,6 +1,6 @@
 import { useMarketplaceStore } from "@/stores/useMarketplaceStore";
 import type { MarketplacePlugin } from "@/types/marketplace";
-import { Check, Download, ExternalLink, Package } from "lucide-react";
+import { ArrowUpCircle, Check, Download, ExternalLink, Package } from "lucide-react";
 
 interface MarketplacePluginCardProps {
   plugin: MarketplacePlugin;
@@ -9,12 +9,15 @@ interface MarketplacePluginCardProps {
 
 export function MarketplacePluginCard({ plugin, onInstall }: MarketplacePluginCardProps) {
   // Subscribe to installedPlugins to ensure re-render when installation status changes
-  const { isInstalled, getInstalledVersion, installingPluginId, installedPlugins } = useMarketplaceStore();
+  const { isInstalled, hasUpdate, updatePlugin, installingPluginId, updatingPluginId, installedPlugins, availableUpdates } = useMarketplaceStore();
   void installedPlugins; // Ensure subscription triggers re-render
+  void availableUpdates; // Ensure subscription triggers re-render on update changes
 
   const installed = isInstalled(plugin.id);
-  const installedVersion = getInstalledVersion(plugin.id);
+  const updateAvailable = hasUpdate(plugin.id);
   const isInstalling = installingPluginId === plugin.id;
+  const installedPlugin = installedPlugins.find((p) => p.plugin_id === plugin.id);
+  const isUpdating = installedPlugin ? updatingPluginId === installedPlugin.id : false;
 
   // Format category for display
   const categoryLabel = plugin.category.charAt(0).toUpperCase() + plugin.category.slice(1);
@@ -111,15 +114,29 @@ export function MarketplacePluginCard({ plugin, onInstall }: MarketplacePluginCa
 
       {/* Actions */}
       <div className="flex items-center gap-2">
-        {installed ? (
+        {installed && updateAvailable ? (
+          <button
+            type="button"
+            onClick={() => installedPlugin && updatePlugin(installedPlugin.id)}
+            disabled={isUpdating}
+            className="flex flex-1 items-center justify-center gap-1 rounded bg-yellow-500/20 py-1.5 text-xs text-yellow-400 transition-colors hover:bg-yellow-500/30 disabled:opacity-50"
+          >
+            {isUpdating ? (
+              <>
+                <span className="h-3 w-3 animate-spin rounded-full border-2 border-yellow-400/30 border-t-yellow-400" />
+                <span>Updating...</span>
+              </>
+            ) : (
+              <>
+                <ArrowUpCircle size={14} />
+                <span>Update to v{plugin.version}</span>
+              </>
+            )}
+          </button>
+        ) : installed ? (
           <div className="flex flex-1 items-center justify-center gap-1 rounded bg-green-500/10 py-1.5 text-xs text-green-400">
             <Check size={14} />
             <span>Installed</span>
-            {installedVersion && installedVersion !== plugin.version && (
-              <span className="ml-1 text-[10px] text-yellow-400">
-                (v{installedVersion})
-              </span>
-            )}
           </div>
         ) : (
           <button

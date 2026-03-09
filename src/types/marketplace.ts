@@ -154,6 +154,14 @@ export interface SessionMarketplaceConfig {
   disabled_plugins: string[];
 }
 
+/** Plugin update information. */
+export interface PluginUpdate {
+  installed_plugin_id: string;
+  plugin_id: string;
+  installed_version: string;
+  available_version: string;
+}
+
 /** Filter options for browsing plugins. */
 export interface MarketplaceFilters {
   /** Filter by category. */
@@ -166,6 +174,8 @@ export interface MarketplaceFilters {
   showInstalled: boolean;
   /** Filter to only show not-installed plugins. */
   showNotInstalled: boolean;
+  /** Filter to only show plugins with available updates. */
+  showUpdatesAvailable: boolean;
 }
 
 /** View mode for the marketplace browser. */

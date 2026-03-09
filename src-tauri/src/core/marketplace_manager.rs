@@ -707,6 +707,159 @@ impl MarketplaceManager {
         Ok(installed_plugin)
     }
 
+    /// Updates an installed plugin to the latest marketplace version.
+    /// Uses atomic clone-to-temp-then-swap to prevent data loss on failure.
+    pub async fn update_plugin(&self, installed_plugin_id: &str) -> MarketplaceResult<InstalledPlugin> {
+        // Extract plugin info under read lock (clone to release lock before async work)
+        let old_plugin = {
+            let installed = self.installed_plugins.read().unwrap();
+            installed.iter()
+                .find(|p| p.id == installed_plugin_id)
+                .cloned()
+                .ok_or_else(|| MarketplaceError::NotInstalled(installed_plugin_id.to_string()))?
+        };
+
+        // Get marketplace source info
+        let marketplace_plugin_id = match &old_plugin.source {
+            InstalledPluginSource::Marketplace { plugin_id, .. } => plugin_id.clone(),
+            _ => return Err(MarketplaceError::PluginNotFound(
+                "Only marketplace-installed plugins can be updated".to_string()
+            )),
+        };
+
+        // Find the latest version from available plugins
+        let latest = self.get_available_plugins()
+            .into_iter()
+            .find(|p| p.id == marketplace_plugin_id)
+            .ok_or_else(|| MarketplaceError::PluginNotFound(
+                format!("{}: not found in available plugins (refresh marketplace first)", marketplace_plugin_id)
+            ))?;
+
+        // Get repository URL
+        let repo_url = latest.repository_url.as_ref()
+            .or(latest.download_url.as_ref())
+            .ok_or_else(|| MarketplaceError::PluginNotFound(
+                format!("{}: No repository URL", marketplace_plugin_id)
+            ))?
+            .clone();
+
+        let source_path = latest.source_path.clone();
+        let plugin_dir = PathBuf::from(&old_plugin.path);
+
+        // Clone to temp directory first (atomic: don't delete old until new is ready)
+        let temp_dir = plugin_dir.with_extension("update-tmp");
+        if temp_dir.exists() {
+            tokio::fs::remove_dir_all(&temp_dir).await?;
+        }
+
+        // Clone new version to temp dir
+        let clone_result = Self::clone_repository(&repo_url, &temp_dir, source_path.as_deref()).await;
+        if let Err(e) = clone_result {
+            // Cleanup temp on failure, original plugin remains intact
+            let _ = tokio::fs::remove_dir_all(&temp_dir).await;
+            return Err(e);
+        }
+
+        // Create plugin manifest in temp dir (cleanup temp on any failure)
+        let manifest_result = async {
+            let manifest_dir = temp_dir.join(".claude-plugin");
+            tokio::fs::create_dir_all(&manifest_dir).await?;
+
+            let plugin_dir_name = latest.id.replace('/', "-");
+            let manifest = serde_json::json!({
+                "name": plugin_dir_name,
+                "version": latest.version,
+                "description": latest.description,
+            });
+            tokio::fs::write(
+                manifest_dir.join("plugin.json"),
+                serde_json::to_string_pretty(&manifest).map_err(MarketplaceError::from)?,
+            ).await?;
+
+            let chorus_metadata = serde_json::json!({
+                "display_name": latest.name,
+                "marketplace_id": latest.marketplace_id,
+                "plugin_id": marketplace_plugin_id,
+            });
+            tokio::fs::write(
+                manifest_dir.join("chorus-metadata.json"),
+                serde_json::to_string_pretty(&chorus_metadata).map_err(MarketplaceError::from)?,
+            ).await?;
+
+            Ok::<(), MarketplaceError>(())
+        }.await;
+
+        if let Err(e) = manifest_result {
+            let _ = tokio::fs::remove_dir_all(&temp_dir).await;
+            return Err(e);
+        }
+
+        // Swap: remove old, rename temp to final location
+        if plugin_dir.exists() {
+            tokio::fs::remove_dir_all(&plugin_dir).await?;
+        }
+        if let Err(e) = tokio::fs::rename(&temp_dir, &plugin_dir).await {
+            // Cleanup temp dir on rename failure
+            let _ = tokio::fs::remove_dir_all(&temp_dir).await;
+            return Err(MarketplaceError::IoError(e));
+        }
+
+        // Re-discover components from the new directory
+        let (skills, commands, mcp_servers, agents, hooks) = Self::discover_plugin_components(&plugin_dir);
+
+        // Create updated record preserving identity
+        let updated_plugin = InstalledPlugin {
+            id: old_plugin.id.clone(),
+            name: latest.name.clone(),
+            version: latest.version.clone(),
+            source: old_plugin.source.clone(),
+            install_scope: old_plugin.install_scope,
+            path: old_plugin.path.clone(),
+            installed_at: old_plugin.installed_at.clone(),
+            updated_at: Some(Self::now_iso8601()),
+            skills,
+            commands,
+            mcp_servers,
+            agents,
+            hooks,
+            is_enabled: old_plugin.is_enabled,
+        };
+
+        // Atomically replace in installed plugins list using write lock + id match (no stale index)
+        {
+            let mut installed = self.installed_plugins.write().unwrap();
+            if let Some(entry) = installed.iter_mut().find(|p| p.id == installed_plugin_id) {
+                *entry = updated_plugin.clone();
+            }
+        }
+
+        Ok(updated_plugin)
+    }
+
+    /// Checks which installed plugins have updates available.
+    /// Returns a list of (installed_plugin_id, plugin_id, installed_version, available_version).
+    pub fn check_updates(&self) -> Vec<(String, String, String, String)> {
+        let installed = self.installed_plugins.read().unwrap();
+        let available = self.get_available_plugins();
+
+        let mut updates = Vec::new();
+        for plugin in installed.iter() {
+            if let InstalledPluginSource::Marketplace { plugin_id, .. } = &plugin.source {
+                if let Some(latest) = available.iter().find(|a| a.id == *plugin_id) {
+                    if latest.version != plugin.version {
+                        updates.push((
+                            plugin.id.clone(),
+                            plugin_id.clone(),
+                            plugin.version.clone(),
+                            latest.version.clone(),
+                        ));
+                    }
+                }
+            }
+        }
+        updates
+    }
+
     /// Uninstalls a plugin by ID.
     pub async fn uninstall_plugin(&self, installed_plugin_id: &str) -> MarketplaceResult<()> {
         // Extract the plugin path while holding the lock, then release it

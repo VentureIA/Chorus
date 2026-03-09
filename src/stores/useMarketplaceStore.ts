@@ -9,6 +9,7 @@ import { create } from "zustand";
 
 import {
   addMarketplaceSource,
+  checkPluginUpdates,
   getAvailablePlugins,
   getInstalledPlugins,
   getMarketplaceSources,
@@ -19,6 +20,7 @@ import {
   removeMarketplaceSource,
   toggleMarketplaceSource,
   uninstallPlugin,
+  updateMarketplacePlugin,
 } from "@/lib/marketplace";
 import type {
   InstallScope,
@@ -26,6 +28,7 @@ import type {
   MarketplaceFilters,
   MarketplacePlugin,
   MarketplaceSource,
+  PluginUpdate,
   ViewMode,
 } from "@/types/marketplace";
 
@@ -71,6 +74,12 @@ interface MarketplaceState {
 
   /** Plugin currently being uninstalled (ID). */
   uninstallingPluginId: string | null;
+
+  /** Plugin currently being updated (ID). */
+  updatingPluginId: string | null;
+
+  /** Available updates for installed plugins. */
+  availableUpdates: PluginUpdate[];
 
   // ========== Actions ==========
 
@@ -132,11 +141,26 @@ interface MarketplaceState {
   /** Uninstalls a plugin. */
   uninstallPluginById: (installedPluginId: string) => Promise<void>;
 
+  /** Updates an installed plugin to the latest version. */
+  updatePlugin: (installedPluginId: string) => Promise<InstalledPlugin | null>;
+
+  /** Updates all plugins that have available updates. */
+  updateAllPlugins: () => Promise<void>;
+
+  /** Checks for available updates. */
+  fetchUpdates: () => Promise<void>;
+
   /** Checks if a marketplace plugin is installed. */
   isInstalled: (marketplacePluginId: string) => boolean;
 
   /** Gets the installed version of a marketplace plugin. */
   getInstalledVersion: (marketplacePluginId: string) => string | null;
+
+  /** Checks if a marketplace plugin has an update available. */
+  hasUpdate: (marketplacePluginId: string) => boolean;
+
+  /** Gets the number of available updates. */
+  getUpdatesCount: () => number;
 
   /** Gets filtered and searched plugins. */
   getFilteredPlugins: () => MarketplacePlugin[];
@@ -148,6 +172,7 @@ const defaultFilters: MarketplaceFilters = {
   tags: [],
   showInstalled: false,
   showNotInstalled: false,
+  showUpdatesAvailable: false,
 };
 
 export const useMarketplaceStore = create<MarketplaceState>()((set, get) => ({
@@ -165,6 +190,8 @@ export const useMarketplaceStore = create<MarketplaceState>()((set, get) => ({
   error: null,
   installingPluginId: null,
   uninstallingPluginId: null,
+  updatingPluginId: null,
+  availableUpdates: [],
 
   open: () => {
     set({ isOpen: true });
@@ -208,6 +235,9 @@ export const useMarketplaceStore = create<MarketplaceState>()((set, get) => ({
         isLoading: false,
       });
 
+      // Check for updates after loading
+      get().fetchUpdates();
+
       // If no plugins are cached, trigger a refresh to fetch from marketplaces
       if (availablePlugins.length === 0 && sources.some((s) => s.is_enabled)) {
         get().refreshMarketplaces();
@@ -239,6 +269,9 @@ export const useMarketplaceStore = create<MarketplaceState>()((set, get) => ({
         installedPlugins,
         isRefreshing: false,
       });
+
+      // Check for updates after refresh
+      get().fetchUpdates();
     } catch (err) {
       console.error("Failed to refresh marketplaces:", err);
       set({
@@ -397,6 +430,54 @@ export const useMarketplaceStore = create<MarketplaceState>()((set, get) => ({
     }
   },
 
+  updatePlugin: async (installedPluginId: string): Promise<InstalledPlugin | null> => {
+    set({ updatingPluginId: installedPluginId, error: null });
+
+    try {
+      const updated = await updateMarketplacePlugin(installedPluginId);
+      set((state) => ({
+        installedPlugins: state.installedPlugins.map((p) =>
+          p.id === installedPluginId ? updated : p
+        ),
+        availableUpdates: state.availableUpdates.filter(
+          (u) => u.installed_plugin_id !== installedPluginId
+        ),
+        updatingPluginId: null,
+      }));
+      return updated;
+    } catch (err) {
+      console.error(`Failed to update plugin ${installedPluginId}:`, err);
+      set({ updatingPluginId: null, error: String(err) });
+      return null;
+    }
+  },
+
+  updateAllPlugins: async () => {
+    // Guard against concurrent batch updates
+    if (get().updatingPluginId !== null) return;
+
+    const updates = [...get().availableUpdates];
+    for (const update of updates) {
+      await get().updatePlugin(update.installed_plugin_id);
+    }
+
+    // Clear the "updates available" filter since there are no more updates
+    if (get().filters.showUpdatesAvailable) {
+      set((state) => ({
+        filters: { ...state.filters, showUpdatesAvailable: false },
+      }));
+    }
+  },
+
+  fetchUpdates: async () => {
+    try {
+      const updates = await checkPluginUpdates();
+      set({ availableUpdates: updates });
+    } catch (err) {
+      console.error("Failed to check for updates:", err);
+    }
+  },
+
   isInstalled: (marketplacePluginId: string): boolean => {
     return get().installedPlugins.some(
       (p) => p.plugin_id === marketplacePluginId
@@ -410,8 +491,18 @@ export const useMarketplaceStore = create<MarketplaceState>()((set, get) => ({
     return installed?.version ?? null;
   },
 
+  hasUpdate: (marketplacePluginId: string): boolean => {
+    return get().availableUpdates.some(
+      (u) => u.plugin_id === marketplacePluginId
+    );
+  },
+
+  getUpdatesCount: (): number => {
+    return get().availableUpdates.length;
+  },
+
   getFilteredPlugins: (): MarketplacePlugin[] => {
-    const { availablePlugins, installedPlugins, searchText, filters } = get();
+    const { availablePlugins, installedPlugins, availableUpdates, searchText, filters } = get();
 
     return availablePlugins.filter((plugin) => {
       // Search filter
@@ -455,6 +546,14 @@ export const useMarketplaceStore = create<MarketplaceState>()((set, get) => ({
 
       if (filters.showNotInstalled && isInstalled) {
         return false;
+      }
+
+      // Updates available filter
+      if (filters.showUpdatesAvailable) {
+        const hasUpdate = availableUpdates.some(
+          (u) => u.plugin_id === plugin.id
+        );
+        if (!hasUpdate) return false;
       }
 
       return true;

@@ -10,6 +10,7 @@ import type {
   InstalledPlugin,
   MarketplacePlugin,
   MarketplaceSource,
+  PluginUpdate,
   SessionMarketplaceConfig,
 } from "@/types/marketplace";
 
@@ -114,6 +115,22 @@ export async function installMarketplacePlugin(
  */
 export async function uninstallPlugin(installedPluginId: string): Promise<void> {
   return invoke("uninstall_plugin", { installedPluginId });
+}
+
+/**
+ * Updates an installed plugin to the latest marketplace version.
+ */
+export async function updateMarketplacePlugin(
+  installedPluginId: string
+): Promise<InstalledPlugin> {
+  return invoke<InstalledPlugin>("update_marketplace_plugin", { installedPluginId });
+}
+
+/**
+ * Checks which installed plugins have updates available.
+ */
+export async function checkPluginUpdates(): Promise<PluginUpdate[]> {
+  return invoke<PluginUpdate[]>("check_plugin_updates");
 }
 
 /**

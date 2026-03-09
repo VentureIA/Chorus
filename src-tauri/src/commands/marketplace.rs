@@ -222,6 +222,46 @@ pub async fn uninstall_plugin(
     Ok(())
 }
 
+/// Updates an installed plugin to the latest marketplace version.
+#[tauri::command]
+pub async fn update_marketplace_plugin(
+    app: AppHandle,
+    state: State<'_, MarketplaceManager>,
+    installed_plugin_id: String,
+) -> Result<InstalledPlugin, String> {
+    let updated = state
+        .update_plugin(&installed_plugin_id)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    save_marketplace_data(&app, &state).await?;
+
+    // Emit event
+    let _ = app.emit("marketplace:plugin-updated", &updated);
+    if let Some(bus) = app.try_state::<std::sync::Arc<EventBus>>() {
+        bus.send("marketplace:plugin-updated".to_string(), serde_json::to_value(&updated).unwrap_or_default());
+    }
+
+    Ok(updated)
+}
+
+/// Checks which installed plugins have updates available.
+/// Returns a list of { installed_plugin_id, plugin_id, installed_version, available_version }.
+#[tauri::command]
+pub async fn check_plugin_updates(
+    state: State<'_, MarketplaceManager>,
+) -> Result<Vec<serde_json::Value>, String> {
+    let updates = state.check_updates();
+    Ok(updates.into_iter().map(|(id, plugin_id, installed_v, available_v)| {
+        serde_json::json!({
+            "installed_plugin_id": id,
+            "plugin_id": plugin_id,
+            "installed_version": installed_v,
+            "available_version": available_v,
+        })
+    }).collect())
+}
+
 /// Checks if a marketplace plugin is installed.
 #[tauri::command]
 pub async fn is_marketplace_plugin_installed(

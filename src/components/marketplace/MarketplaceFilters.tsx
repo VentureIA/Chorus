@@ -1,5 +1,40 @@
 import { useMarketplaceStore } from "@/stores/useMarketplaceStore";
 import type { PluginCategory, PluginType } from "@/types/marketplace";
+import { ArrowUpCircle } from "lucide-react";
+
+function UpdatesFilterChip() {
+  const { filters, setFilter, getUpdatesCount, updateAllPlugins, availableUpdates } = useMarketplaceStore();
+  void availableUpdates; // trigger re-render
+  const count = getUpdatesCount();
+
+  if (count === 0) return null;
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setFilter("showUpdatesAvailable", !filters.showUpdatesAvailable)}
+        className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs transition-colors ${
+          filters.showUpdatesAvailable
+            ? "bg-yellow-500/20 text-yellow-400"
+            : "bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20"
+        }`}
+      >
+        <ArrowUpCircle size={10} />
+        {count} update{count > 1 ? "s" : ""}
+      </button>
+      {count > 1 && (
+        <button
+          type="button"
+          onClick={() => updateAllPlugins()}
+          className="rounded-full bg-yellow-500/20 px-2 py-0.5 text-xs text-yellow-400 transition-colors hover:bg-yellow-500/30"
+        >
+          Update all
+        </button>
+      )}
+    </>
+  );
+}
 
 const CATEGORIES: { value: PluginCategory; label: string }[] = [
   { value: "development", label: "Development" },
@@ -106,6 +141,7 @@ export function MarketplaceFilters() {
         >
           Not Installed
         </button>
+        <UpdatesFilterChip />
       </div>
 
       {/* Clear button */}

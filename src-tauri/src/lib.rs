@@ -244,6 +244,8 @@ pub fn run() {
             commands::marketplace::get_installed_plugins,
             commands::marketplace::install_marketplace_plugin,
             commands::marketplace::uninstall_plugin,
+            commands::marketplace::update_marketplace_plugin,
+            commands::marketplace::check_plugin_updates,
             commands::marketplace::is_marketplace_plugin_installed,
             commands::marketplace::get_session_marketplace_config,
             commands::marketplace::set_marketplace_plugin_enabled,
