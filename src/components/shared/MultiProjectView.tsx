@@ -1,4 +1,4 @@
-import { useRef, forwardRef, useImperativeHandle, useMemo } from "react";
+import { useRef, useEffect, forwardRef, useImperativeHandle, useMemo } from "react";
 import { useWorkspaceStore } from "@/stores/useWorkspaceStore";
 import { IdleLandingView } from "./IdleLandingView";
 import { TerminalGrid, type TerminalGridHandle } from "../terminal/TerminalGrid";
@@ -130,6 +130,17 @@ export const MultiProjectView = forwardRef<MultiProjectViewHandle, MultiProjectV
     }
     return setters;
   }, [tabs]);
+
+  // Re-focus the active terminal when switching project tabs
+  const activeTabId = useMemo(() => tabs.find((t) => t.active)?.id, [tabs]);
+  useEffect(() => {
+    if (!activeTabId) return;
+    // Small delay to let CSS visibility transition complete before focusing
+    const timer = setTimeout(() => {
+      gridRefs.current.get(activeTabId)?.refocusActiveTerminal();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [activeTabId]);
 
   // No projects open - show simple message
   if (tabs.length === 0) {

@@ -135,6 +135,8 @@ export interface TerminalGridHandle {
   restartSession: () => Promise<void>;
   maximizeTerminal: () => void;
   handoffSession: () => void;
+  /** Re-apply DOM focus to the currently focused terminal (used after tab switch). */
+  refocusActiveTerminal: () => void;
 }
 
 /**
@@ -1050,6 +1052,11 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     }
   }, [focusedSlotId, handleHandoffRequest]);
 
+  const refocusActiveTerminal = useCallback(() => {
+    if (!focusedSlotId) return;
+    terminalRefs.current.get(focusedSlotId)?.focus();
+  }, [focusedSlotId]);
+
   useImperativeHandle(ref, () => ({
     addSession,
     launchAll,
@@ -1063,6 +1070,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     restartSession,
     maximizeTerminal,
     handoffSession,
+    refocusActiveTerminal,
   }), [
     addSession,
     launchAll,
@@ -1076,6 +1084,7 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     restartSession,
     maximizeTerminal,
     handoffSession,
+    refocusActiveTerminal,
   ]);
 
   if (error) {
