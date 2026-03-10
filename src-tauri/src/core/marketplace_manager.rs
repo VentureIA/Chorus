@@ -463,6 +463,108 @@ impl MarketplaceManager {
         Ok(())
     }
 
+    /// Restructures a cloned plugin directory into the layout Claude CLI expects.
+    ///
+    /// Claude CLI discovers skills at `<plugin>/skills/<name>/SKILL.md` and
+    /// commands at `<plugin>/commands/<name>.md`. Marketplace single-skill plugins
+    /// are cloned with SKILL.md at the root, so we move all content into the
+    /// proper subdirectory structure.
+    ///
+    /// Must be called AFTER cloning but BEFORE writing `.claude-plugin/` manifest.
+    async fn restructure_plugin_layout(
+        plugin_dir: &Path,
+        plugin_name: &str,
+    ) -> MarketplaceResult<()> {
+        // Sanitize plugin_name: use only the final path component, reject traversal
+        let safe_name = Path::new(plugin_name)
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or(plugin_name);
+
+        if safe_name.is_empty() || safe_name == "." || safe_name == ".." || safe_name.contains('\0') {
+            return Err(MarketplaceError::InvalidPath(
+                format!("Invalid plugin name for restructuring: {}", plugin_name),
+            ));
+        }
+
+        // Skip if already has proper structure
+        let has_skills_dir = plugin_dir.join("skills").exists();
+        let has_commands_dir = plugin_dir.join("commands").exists();
+
+        if has_skills_dir || has_commands_dir {
+            return Ok(());
+        }
+
+        let root_skill = plugin_dir.join("SKILL.md");
+        if root_skill.exists() {
+            // Single-skill plugin: move all files into skills/<name>/
+            let skill_dir = plugin_dir.join("skills").join(safe_name);
+            tokio::fs::create_dir_all(&skill_dir).await?;
+
+            // Collect all entries first, then move
+            let entries: Vec<_> = std::fs::read_dir(plugin_dir)
+                .map_err(MarketplaceError::IoError)?
+                .flatten()
+                .collect();
+
+            for entry in &entries {
+                let name = entry.file_name();
+                let name_str = name.to_string_lossy();
+
+                // Skip directories we shouldn't move
+                if name_str == "skills" || name_str == ".git" || name_str == ".claude-plugin" {
+                    continue;
+                }
+
+                let src = entry.path();
+                let dst = skill_dir.join(&name);
+                tokio::fs::rename(&src, &dst).await.map_err(MarketplaceError::IoError)?;
+            }
+
+            log::info!(
+                "Restructured single-skill plugin into skills/{}/",
+                safe_name
+            );
+            return Ok(());
+        }
+
+        // Check for root-level .md command files
+        let root_md_files: Vec<_> = std::fs::read_dir(plugin_dir)
+            .map_err(MarketplaceError::IoError)?
+            .flatten()
+            .filter(|e| {
+                let path = e.path();
+                path.is_file()
+                    && path.extension().map_or(false, |ext| ext == "md")
+                    && !matches!(
+                        path.file_name().and_then(|n| n.to_str()),
+                        Some(
+                            "README.md"
+                                | "CHANGELOG.md"
+                                | "LICENSE.md"
+                                | "CONTRIBUTING.md"
+                        )
+                    )
+            })
+            .collect();
+
+        if !root_md_files.is_empty() {
+            // Command plugin: move .md files into commands/
+            let cmds_dir = plugin_dir.join("commands");
+            tokio::fs::create_dir_all(&cmds_dir).await?;
+
+            for entry in root_md_files {
+                let src = entry.path();
+                let dst = cmds_dir.join(entry.file_name());
+                tokio::fs::rename(&src, &dst).await.map_err(MarketplaceError::IoError)?;
+            }
+
+            log::info!("Restructured command plugin into commands/");
+        }
+
+        Ok(())
+    }
+
     /// Discovers plugin components from an installed directory.
     fn discover_plugin_components(plugin_dir: &Path) -> (Vec<String>, Vec<String>, Vec<String>, Vec<String>, Vec<String>) {
         use std::collections::HashSet;
@@ -653,6 +755,9 @@ impl MarketplaceManager {
         // Clone the repository (with sparse checkout for monorepo plugins)
         Self::clone_repository(repo_url, &plugin_dir, plugin.source_path.as_deref()).await?;
 
+        // Restructure into Claude CLI-compatible layout (skills/<name>/SKILL.md)
+        Self::restructure_plugin_layout(&plugin_dir, &plugin_dir_name).await?;
+
         // Create plugin manifest directory
         let manifest_dir = plugin_dir.join(".claude-plugin");
         tokio::fs::create_dir_all(&manifest_dir).await?;
@@ -756,6 +861,13 @@ impl MarketplaceManager {
         let clone_result = Self::clone_repository(&repo_url, &temp_dir, source_path.as_deref()).await;
         if let Err(e) = clone_result {
             // Cleanup temp on failure, original plugin remains intact
+            let _ = tokio::fs::remove_dir_all(&temp_dir).await;
+            return Err(e);
+        }
+
+        // Restructure into Claude CLI-compatible layout
+        let plugin_dir_name = latest.id.replace('/', "-");
+        if let Err(e) = Self::restructure_plugin_layout(&temp_dir, &plugin_dir_name).await {
             let _ = tokio::fs::remove_dir_all(&temp_dir).await;
             return Err(e);
         }
