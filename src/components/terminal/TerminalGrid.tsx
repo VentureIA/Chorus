@@ -904,6 +904,8 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
     const slot = slotsRef.current.find((s) => s.id === focusedSlotId);
     if (slot?.sessionId) {
       await killSession(slot.sessionId);
+      // Remove session from the session store so pixel avatar disappears
+      useSessionStore.getState().removeSession(slot.sessionId);
       // Clean up worktree if present
       if (slot.worktreePath && projectPath) {
         try {
@@ -936,6 +938,8 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
 
     // Kill the current session
     await killSession(slot.sessionId);
+    // Remove session from the session store so pixel avatar disappears
+    useSessionStore.getState().removeSession(slot.sessionId);
     if (slot.worktreePath && projectPath) {
       try {
         await cleanupSessionWorktree(projectPath, slot.worktreePath);
@@ -1027,6 +1031,8 @@ export const TerminalGrid = forwardRef<TerminalGridHandle, TerminalGridProps>(fu
       const oldSlot = slotsRef.current.find((s) => s.id === slotId);
       if (oldSlot?.sessionId) {
         await killSession(sessionId);
+        // Remove session from the session store so pixel avatar disappears
+        useSessionStore.getState().removeSession(sessionId);
         if (oldSlot.worktreePath && projectPath) {
           await cleanupSessionWorktree(projectPath, oldSlot.worktreePath).catch(console.error);
         }
