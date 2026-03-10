@@ -20,6 +20,10 @@ let rafId: number | null = null
 let lastTime = 0
 let initialized = false
 
+/** Logical (pre-DPR) canvas dimensions, exported for CSS sizing */
+export let baseWidth = 0
+export let baseHeight = 0
+
 function loadImg(src: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
     const img = new Image()
@@ -48,8 +52,11 @@ export async function init(canvas: HTMLCanvasElement): Promise<void> {
   laptopClosed = { down: lfc, up: lbc, left: llc, right: lrc }
   laptopOpen = { down: lfo, up: lbo, left: llo, right: lro }
 
-  canvas.width = layers.width
-  canvas.height = layers.height
+  baseWidth = layers.width
+  baseHeight = layers.height
+  const dpr = window.devicePixelRatio || 1
+  canvas.width = layers.width * dpr
+  canvas.height = layers.height * dpr
 
   // Init subsystems that need map dimensions
   await Promise.all([
@@ -65,6 +72,8 @@ export function startLoop(canvas: HTMLCanvasElement, sessions: SessionConfig[]):
   if (!ctx || !layers || !coords) return
 
   ctx.imageSmoothingEnabled = false
+  const dpr = window.devicePixelRatio || 1
+  ctx.scale(dpr, dpr)
 
   // Sync initial sessions
   syncSessions(sessions, coords, layers.width, layers.height)
@@ -79,8 +88,8 @@ export function startLoop(canvas: HTMLCanvasElement, sessions: SessionConfig[]):
     // Update characters
     updateAll(deltaSec, deltaMs)
 
-    // Render
-    render(ctx, canvas.width, canvas.height)
+    // Render (use logical dimensions since ctx is DPR-scaled)
+    render(ctx, baseWidth, baseHeight)
 
     rafId = requestAnimationFrame(loop)
   }
@@ -196,6 +205,8 @@ export function stop(): void {
   initialized = false
   layers = null
   coords = null
+  baseWidth = 0
+  baseHeight = 0
 }
 
 export function isInitialized(): boolean {

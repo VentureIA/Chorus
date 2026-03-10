@@ -67,12 +67,14 @@ export function OfficeModal({ sessions, onClose }: OfficeModalProps) {
     const container = containerRef.current
     if (!canvas || !container) return
 
+    const logicalW = officeRenderer.baseWidth || canvas.width
+    const logicalH = officeRenderer.baseHeight || canvas.height
     const maxW = window.innerWidth * 0.9
     const maxH = window.innerHeight * 0.9
-    const scale = Math.min(maxW / canvas.width, maxH / canvas.height, 2)
+    const scale = Math.min(maxW / logicalW, maxH / logicalH, 2)
 
-    canvas.style.width = `${Math.floor(canvas.width * scale)}px`
-    canvas.style.height = `${Math.floor(canvas.height * scale)}px`
+    canvas.style.width = `${Math.floor(logicalW * scale)}px`
+    canvas.style.height = `${Math.floor(logicalH * scale)}px`
   }, [])
 
   useEffect(() => {

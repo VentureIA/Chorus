@@ -19,10 +19,14 @@ export interface OfficeCharacter {
   agentState: string
   bubble: { text: string; color: string; expiresAt: number }
   name: string
+  deskGraceUntil: number
 }
+
+const DESK_GRACE_MS = 10_000
 
 const characters = new Map<number, OfficeCharacter>()
 const seatAssignments = new Map<number, number>() // deskId → characterId
+let cachedCoords: OfficeCoords | null = null
 
 function mapStatus(status: BackendSessionStatus): string {
   switch (status) {
@@ -50,6 +54,7 @@ export function syncSessions(
   bgW: number,
   bgH: number,
 ): void {
+  cachedCoords = coords
   const activeIds = new Set(sessions.map((s) => s.id))
 
   // Remove characters for removed sessions
@@ -89,6 +94,7 @@ export function syncSessions(
           expiresAt: Date.now() + 8000,
         },
         name: session.title ?? `${session.mode} #${session.id}`,
+        deskGraceUntil: 0,
       }
 
       if (stateZone(state) === "desk") {
@@ -110,13 +116,25 @@ export function syncSessions(
           expiresAt: Date.now() + 8000,
         }
 
-        if (stateZone(prevState) !== stateZone(state)) {
-          if (stateZone(state) === "desk") {
-            assignDesk(existing, coords)
+        const prevZone = stateZone(prevState)
+        const newZone = stateZone(state)
+
+        if (prevZone !== newZone) {
+          if (newZone === "desk") {
+            // Returning to work — cancel grace, stay at desk
+            if (existing.deskGraceUntil > 0) {
+              existing.deskGraceUntil = 0
+              setArrivalAnim(existing)
+            } else {
+              assignDesk(existing, coords)
+              setTarget(existing, coords)
+            }
           } else {
-            releaseDesk(existing.id)
+            // desk → idle: start grace period, stay seated but show idle anim
+            existing.deskGraceUntil = Date.now() + DESK_GRACE_MS
+            setArrivalAnim(existing)
+            // DON'T release desk or setTarget — character stays at desk
           }
-          setTarget(existing, coords)
         }
       }
     }
@@ -179,6 +197,15 @@ function setTarget(char: OfficeCharacter, coords: OfficeCoords): void {
 
 export function updateAll(deltaSec: number, deltaMs: number): void {
   for (const char of characters.values()) {
+    // Check grace period expiry
+    if (char.deskGraceUntil > 0 && Date.now() > char.deskGraceUntil) {
+      char.deskGraceUntil = 0
+      if (stateZone(char.agentState) === "idle") {
+        releaseDesk(char.id)
+        if (cachedCoords) setTarget(char, cachedCoords)
+      }
+    }
+
     // Move along path
     if (char.path.length > 0 && char.pathIndex < char.path.length) {
       const target = char.path[char.pathIndex]
@@ -237,7 +264,7 @@ function setArrivalAnim(char: OfficeCharacter): void {
     return
   }
 
-  if (zone === "desk" && char.deskIndex !== undefined) {
+  if ((zone === "desk" || char.deskGraceUntil > 0) && char.deskIndex !== undefined) {
     const seat = SEAT_MAP[char.deskIndex]
     if (seat) {
       const prefix = seat.dir === "down" ? "front" : seat.dir === "up" ? "back" : seat.dir
