@@ -88,7 +88,7 @@ export function AgentsTab() {
       {/* Office modal */}
       {officeOpen && (
         <OfficeModal
-          sessions={projectSessions}
+          sessions={allSessions}
           onClose={() => setOfficeOpen(false)}
         />
       )}
