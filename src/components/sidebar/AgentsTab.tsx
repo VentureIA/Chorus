@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Building2, Users } from "lucide-react"
 import { useSessionStore } from "@/stores/useSessionStore"
-import { useWorkspaceStore } from "@/stores/useWorkspaceStore"
 import { PixelAgentCard } from "@/components/pixel-agents/PixelAgentCard"
 import { OfficeModal } from "@/components/pixel-agents/OfficeModal"
 import "@/components/pixel-agents/pixel-agents.css"
@@ -11,14 +10,7 @@ const cardClass =
 
 export function AgentsTab() {
   const allSessions = useSessionStore((s) => s.sessions)
-  const tabs = useWorkspaceStore((s) => s.tabs)
-  const activeTab = tabs.find((t) => t.active)
-  const activeProjectPath = activeTab?.projectPath ?? ""
   const [officeOpen, setOfficeOpen] = useState(false)
-
-  const projectSessions = activeProjectPath
-    ? allSessions.filter((s) => s.project_path === activeProjectPath)
-    : allSessions
 
   return (
     <div className="space-y-2.5">
@@ -28,9 +20,9 @@ export function AgentsTab() {
           <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
             <Users size={12} />
             Agents
-            {projectSessions.length > 0 && (
+            {allSessions.length > 0 && (
               <span className="rounded-full bg-primary/15 px-1.5 text-[10px] text-primary">
-                {projectSessions.length}
+                {allSessions.length}
               </span>
             )}
           </div>
@@ -46,7 +38,7 @@ export function AgentsTab() {
         </div>
 
         {/* Agent grid */}
-        {projectSessions.length === 0 ? (
+        {allSessions.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-4 text-center text-[10px] text-muted-foreground">
             <div
               className="pixel-agent-character"
@@ -63,7 +55,7 @@ export function AgentsTab() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2 justify-items-center">
-            {projectSessions.map((session) => (
+            {allSessions.map((session) => (
               <PixelAgentCard
                 key={session.id}
                 sessionId={session.id}

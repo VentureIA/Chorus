@@ -140,30 +140,32 @@ function render(ctx: CanvasRenderingContext2D, w: number, h: number): void {
     drawSprite(ctx, char)
 
     // Name tag
-    ctx.font = "bold 8px monospace"
+    const safeName = sanitizeText(char.name, 20)
+    ctx.font = "bold 10px monospace"
     ctx.textAlign = "center"
     ctx.fillStyle = "rgba(0,0,0,0.6)"
     const nameY = char.y - 68
-    const nameW = ctx.measureText(char.name).width + 6
-    ctx.fillRect(char.x - nameW / 2, nameY - 7, nameW, 12)
+    const nameW = ctx.measureText(safeName).width + 6
+    ctx.fillRect(char.x - nameW / 2, nameY - 8, nameW, 14)
     ctx.fillStyle = "#fff"
-    ctx.fillText(char.name, char.x, nameY + 2)
+    ctx.fillText(safeName, char.x, nameY + 3)
 
     // Bubble
     if (char.bubble && (char.bubble.expiresAt > Date.now() || isActiveState(char.agentState))) {
       const bubbleY = char.y + 4
-      ctx.font = "7px monospace"
-      const tw = ctx.measureText(char.bubble.text).width + 8
+      const safeBubble = sanitizeText(char.bubble.text, 30)
+      ctx.font = "9px monospace"
+      const tw = ctx.measureText(safeBubble).width + 8
       ctx.fillStyle = "rgba(255,255,255,0.9)"
       ctx.strokeStyle = char.bubble.color
       ctx.lineWidth = 1.5
       ctx.beginPath()
-      roundRect(ctx, char.x - tw / 2, bubbleY, tw, 14, 4)
+      roundRect(ctx, char.x - tw / 2, bubbleY, tw, 16, 4)
       ctx.fill()
       ctx.stroke()
       ctx.fillStyle = "#333"
       ctx.textAlign = "center"
-      ctx.fillText(char.bubble.text, char.x, bubbleY + 10)
+      ctx.fillText(safeBubble, char.x, bubbleY + 11)
     }
 
     ctx.restore()
@@ -173,6 +175,11 @@ function render(ctx: CanvasRenderingContext2D, w: number, h: number): void {
   if (layers?.fgImage) {
     ctx.drawImage(layers.fgImage, 0, 0)
   }
+}
+
+function sanitizeText(text: string, maxLen: number): string {
+  const clean = text.replace(/[^\x20-\x7E\u00C0-\u024F]/g, "")
+  return clean.length > maxLen ? clean.slice(0, maxLen) + "\u2026" : clean
 }
 
 function isActiveState(state: string): boolean {
