@@ -1,0 +1,208 @@
+/* ============================================ */
+/* Pixel Agent Cards & Office Styles            */
+/* ============================================ */
+
+/* ---- Agent Card ---- */
+.pixel-agent-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  padding: 6px 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+}
+
+.pixel-agent-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pixel-agent-card:active {
+  transform: translateY(0);
+}
+
+/* ---- Sprite Character ---- */
+.pixel-agent-character {
+  width: 48px;
+  height: 64px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background-size: 384px 576px;
+  background-repeat: no-repeat;
+  will-change: background-position;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.pixel-agent-card:hover .pixel-agent-character {
+  transform: translateY(-3px);
+}
+
+/* ---- Speech Bubble ---- */
+.pixel-agent-bubble {
+  position: relative;
+  font-size: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.2;
+  padding: 3px 6px;
+  border-radius: 6px;
+  border: 2px solid var(--pixel-state-color, #94a3b8);
+  background: var(--card);
+  color: var(--foreground);
+  text-align: center;
+  max-width: 72px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+  transition: border-color 0.3s ease;
+}
+
+.pixel-agent-bubble::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--pixel-state-color, #94a3b8);
+}
+
+/* ---- Timer ---- */
+.pixel-agent-timer {
+  font-size: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted-foreground);
+  margin-top: 1px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ---- State Colors ---- */
+.pixel-agent-card[data-state="working"] {
+  --pixel-state-color: #f97316;
+}
+.pixel-agent-card[data-state="thinking"] {
+  --pixel-state-color: #8b5cf6;
+}
+.pixel-agent-card[data-state="waiting"] {
+  --pixel-state-color: #94a3b8;
+}
+.pixel-agent-card[data-state="complete"] {
+  --pixel-state-color: #22c55e;
+}
+.pixel-agent-card[data-state="error"],
+.pixel-agent-card[data-state="help"] {
+  --pixel-state-color: #ef4444;
+}
+.pixel-agent-card[data-state="poke"] {
+  --pixel-state-color: #ff4081;
+}
+
+/* ---- Pulse animation for working/thinking ---- */
+.pixel-agent-card[data-state="working"] .pixel-agent-bubble,
+.pixel-agent-card[data-state="thinking"] .pixel-agent-bubble {
+  animation: pixel-pulse 2s ease-in-out infinite;
+}
+
+@keyframes pixel-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ---- Thinking dots ---- */
+.thinking-dots span {
+  animation: dot-blink 1.4s infinite;
+  opacity: 0;
+}
+.thinking-dots span:nth-child(1) { animation-delay: 0s; }
+.thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot-blink {
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---- Agent enter/exit ---- */
+.pixel-agent-enter {
+  animation: agent-enter 0.3s ease-out forwards;
+}
+
+@keyframes agent-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ---- Office Modal ---- */
+.pixel-office-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.pixel-office-canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.pixel-office-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 101;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.pixel-office-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+.pixel-office-loading {
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.pixel-office-loading-sprite {
+  width: 48px;
+  height: 64px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background-size: 384px 576px;
+  background-repeat: no-repeat;
+}

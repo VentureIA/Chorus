@@ -54,12 +54,13 @@ import { KeyboardShortcutsModal } from "@/components/shortcuts/KeyboardShortcuts
 import { ThemeSettingsModal } from "@/components/settings/ThemeSettingsModal";
 import { FileExplorerTab } from "@/components/sidebar/FileExplorerTab";
 import { IntelligenceSection } from "@/components/sidebar/IntelligenceSection";
+import { AgentsTab } from "@/components/sidebar/AgentsTab";
 import type { McpCustomServer } from "@/lib/mcp";
 import { checkClaudeMd, type ClaudeMdStatus } from "@/lib/claudemd";
 import { invoke } from "@/lib/transport";
 import { WebAccessModal } from "@/components/webaccess/WebAccessModal";
 
-export type SidebarTab = "config" | "processes" | "explorer";
+export type SidebarTab = "config" | "processes" | "explorer" | "agents";
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -210,6 +211,7 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme, activeTab
           { id: "config" as const, icon: Settings, label: "Config" },
           { id: "processes" as const, icon: Activity, label: "Processes" },
           { id: "explorer" as const, icon: FolderTree, label: "Explorer" },
+          { id: "agents" as const, icon: User, label: "Agents" },
         ]).map(({ id, icon: Icon, label }) => (
           <button
             key={id}
@@ -233,6 +235,8 @@ export function Sidebar({ collapsed, onCollapse, theme, onToggleTheme, activeTab
           <ConfigTab theme={theme} onToggleTheme={onToggleTheme} />
         ) : activeTab === "explorer" ? (
           <FileExplorerTab />
+        ) : activeTab === "agents" ? (
+          <AgentsTab />
         ) : (
           <ProcessesTab />
         )}
