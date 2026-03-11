@@ -4,6 +4,7 @@ import { parseMapCoordinates, type OfficeCoords } from "./office-coords"
 import { initPathfinder } from "./office-pathfinder"
 import { loadAllSkins, drawSprite } from "./office-sprites"
 import { syncSessions, updateAll, getCharacters, clearAll } from "./office-characters"
+import { spawnParticles, updateParticles, drawParticles, clearParticles } from "./office-particles"
 
 interface LaptopImages {
   down: HTMLImageElement | null
@@ -19,6 +20,10 @@ let laptopOpen: LaptopImages = { down: null, up: null, left: null, right: null }
 let rafId: number | null = null
 let lastTime = 0
 let initialized = false
+
+// Particle tracking state
+let steamTimer = 0
+const prevStates = new Map<number, string>()
 
 /** Logical (pre-DPR) canvas dimensions, exported for CSS sizing */
 export let baseWidth = 0
@@ -73,7 +78,7 @@ export function startLoop(canvas: HTMLCanvasElement, sessions: SessionConfig[]):
 
   ctx.imageSmoothingEnabled = false
   const dpr = window.devicePixelRatio || 1
-  ctx.scale(dpr, dpr)
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0) // F2: idempotent, won't accumulate on re-init
 
   // Sync initial sessions
   syncSessions(sessions, coords, layers.width, layers.height)
@@ -87,6 +92,41 @@ export function startLoop(canvas: HTMLCanvasElement, sessions: SessionConfig[]):
 
     // Update characters
     updateAll(deltaSec, deltaMs)
+
+    // Update particles
+    updateParticles(deltaSec)
+
+    // Spawn steam periodically for working chars at desks
+    steamTimer += deltaSec
+    if (steamTimer >= 2) {
+      steamTimer = 0
+      const chars = getCharacters()
+      for (const char of chars) {
+        if (char.agentState === "working" && char.deskIndex !== undefined) {
+          spawnParticles(char.x, char.y, "steam")
+        }
+      }
+    }
+
+    // Detect state transitions for sparkle/error particles
+    const chars = getCharacters()
+    for (const char of chars) {
+      const prev = prevStates.get(char.id)
+      if (prev !== char.agentState) {
+        if (char.agentState === "complete") {
+          spawnParticles(char.x, char.y, "sparkle")
+        } else if (char.agentState === "error" || char.agentState === "help") {
+          spawnParticles(char.x, char.y, "error")
+        }
+        prevStates.set(char.id, char.agentState)
+      }
+    }
+    // Clean up removed chars
+    for (const id of prevStates.keys()) {
+      if (!chars.find((c) => c.id === id)) {
+        prevStates.delete(id)
+      }
+    }
 
     // Render (use logical dimensions since ctx is DPR-scaled)
     render(ctx, baseWidth, baseHeight)
@@ -130,6 +170,24 @@ function render(ctx: CanvasRenderingContext2D, w: number, h: number): void {
       if (img) {
         ctx.drawImage(img, spot.x - img.width / 2, spot.y - img.height / 2)
       }
+
+      // Laptop screen glow when occupied
+      if (isOccupied) {
+        const glowAlpha = Math.sin(Date.now() / 1000) * 0.05 + 0.12
+        ctx.save()
+        ctx.globalAlpha = glowAlpha
+        ctx.fillStyle = "rgba(100, 180, 255, 1)"
+        const gw = 12
+        const gh = 6
+        let gx = spot.x - gw / 2
+        let gy = spot.y - gh / 2
+        if (spot.dir === "down") gy += 8
+        else if (spot.dir === "up") gy -= 8
+        else if (spot.dir === "left") gx -= 8
+        else if (spot.dir === "right") gx += 8
+        ctx.fillRect(gx, gy, gw, gh)
+        ctx.restore()
+      }
     }
   }
 
@@ -137,43 +195,109 @@ function render(ctx: CanvasRenderingContext2D, w: number, h: number): void {
   const chars = getCharacters().sort((a, b) => a.y - b.y)
   for (const char of chars) {
     ctx.save()
+
+    // Drop shadow under each character
+    ctx.globalAlpha = 0.2
+    ctx.fillStyle = "#000"
+    ctx.beginPath()
+    ctx.ellipse(char.x, char.y + 2, 12, 4, 0, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.globalAlpha = 1
+
     drawSprite(ctx, char)
+
+    // Mini progress bar above name tag for working/complete/error/help agents
+    const nameX = Math.round(char.x)
+    const nameY = Math.round(char.y - 68)
+    if (
+      char.agentState === "working" ||
+      char.agentState === "complete" ||
+      char.agentState === "error" ||
+      char.agentState === "help"
+    ) {
+      const barW = 24
+      const barH = 3
+      const barX = nameX - barW / 2
+      const barY = nameY - 8
+
+      // Background
+      ctx.fillStyle = "rgba(0,0,0,0.4)"
+      ctx.fillRect(barX, barY, barW, barH)
+
+      if (char.agentState === "working") {
+        // Animated indeterminate bar
+        ctx.fillStyle = "#60a5fa"
+        ctx.fillRect(barX, barY, barW, barH)
+        const progress = (Date.now() / 1000) % 1
+        const highlightW = 8
+        const highlightX = barX + progress * (barW - highlightW)
+        ctx.fillStyle = "rgba(255,255,255,0.6)"
+        ctx.fillRect(highlightX, barY, highlightW, barH)
+      } else if (char.agentState === "complete") {
+        ctx.fillStyle = "#22c55e"
+        ctx.fillRect(barX, barY, barW, barH)
+      } else if (char.agentState === "error") {
+        ctx.fillStyle = "#ef4444"
+        ctx.fillRect(barX, barY, barW, barH)
+      } else if (char.agentState === "help") {
+        ctx.fillStyle = "#eab308"
+        ctx.fillRect(barX, barY, barW, barH)
+      }
+    }
 
     // Name tag
     const safeName = sanitizeText(char.name, 20)
-    ctx.font = "bold 10px monospace"
+    ctx.font = "bold 12px monospace"
     ctx.textAlign = "center"
     ctx.fillStyle = "rgba(0,0,0,0.6)"
-    const nameY = char.y - 68
     const nameW = ctx.measureText(safeName).width + 6
-    ctx.fillRect(char.x - nameW / 2, nameY - 8, nameW, 14)
+    ctx.fillRect(Math.round(nameX - nameW / 2), nameY - 10, nameW, 16)
     ctx.fillStyle = "#fff"
-    ctx.fillText(safeName, char.x, nameY + 3)
+    ctx.fillText(safeName, nameX, nameY + 3)
 
     // Bubble
     if (char.bubble && (char.bubble.expiresAt > Date.now() || isActiveState(char.agentState))) {
-      const bubbleY = char.y + 4
+      const bubbleX = Math.round(char.x)
+      const bubbleY = Math.round(char.y + 4)
       const safeBubble = sanitizeText(char.bubble.text, 30)
-      ctx.font = "9px monospace"
+      ctx.font = "11px monospace"
       const tw = ctx.measureText(safeBubble).width + 8
       ctx.fillStyle = "rgba(255,255,255,0.9)"
       ctx.strokeStyle = char.bubble.color
       ctx.lineWidth = 1.5
       ctx.beginPath()
-      roundRect(ctx, char.x - tw / 2, bubbleY, tw, 16, 4)
+      roundRect(ctx, Math.round(bubbleX - tw / 2), bubbleY, tw, 18, 4)
       ctx.fill()
       ctx.stroke()
       ctx.fillStyle = "#333"
       ctx.textAlign = "center"
-      ctx.fillText(safeBubble, char.x, bubbleY + 11)
+      ctx.fillText(safeBubble, bubbleX, bubbleY + 13)
     }
 
     ctx.restore()
   }
 
+  // Draw particles (after characters, before foreground)
+  drawParticles(ctx)
+
   // 4. Foreground
   if (layers?.fgImage) {
     ctx.drawImage(layers.fgImage, 0, 0)
+  }
+
+  // 5. Day/night cycle overlay
+  const hour = new Date().getHours()
+  let overlayColor: string | null = null
+  if (hour >= 18 && hour < 22) {
+    overlayColor = "rgba(255, 160, 50, 0.08)"
+  } else if (hour >= 22 || hour < 6) {
+    overlayColor = "rgba(30, 40, 80, 0.12)"
+  } else if (hour >= 6 && hour < 8) {
+    overlayColor = "rgba(255, 200, 150, 0.06)"
+  }
+  if (overlayColor) {
+    ctx.fillStyle = overlayColor
+    ctx.fillRect(0, 0, w, h)
   }
 }
 
@@ -203,12 +327,25 @@ function roundRect(
   ctx.closePath()
 }
 
+export function hitTest(cx: number, cy: number): number | null {
+  const chars = getCharacters()
+  for (const char of chars) {
+    const dx = cx - char.x
+    const dy = cy - (char.y - 24) // sprite center is above foot position
+    if (dx * dx + dy * dy < 32 * 32) return char.id
+  }
+  return null
+}
+
 export function stop(): void {
   if (rafId !== null) {
     cancelAnimationFrame(rafId)
     rafId = null
   }
   clearAll()
+  clearParticles()
+  prevStates.clear()
+  steamTimer = 0 // F3: reset steam timer on stop
   initialized = false
   layers = null
   coords = null

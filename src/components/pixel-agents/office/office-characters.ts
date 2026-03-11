@@ -1,6 +1,6 @@
 import type { SessionConfig, BackendSessionStatus } from "@/stores/useSessionStore"
 import { AVATAR_FILES, avatarFromSessionId, OFFICE, SEAT_MAP, IDLE_SEAT_MAP, STATE_COLORS } from "./office-config"
-import { findPath } from "./office-pathfinder"
+import { findPath, findNearestWalkable } from "./office-pathfinder"
 import { tickAnimation } from "./office-sprites"
 import type { OfficeCoords } from "./office-coords"
 
@@ -20,6 +20,7 @@ export interface OfficeCharacter {
   bubble: { text: string; color: string; expiresAt: number }
   name: string
   deskGraceUntil: number
+  idleActionTimer: number
 }
 
 const DESK_GRACE_MS = 10_000
@@ -51,7 +52,7 @@ export function getCharacters(): OfficeCharacter[] {
 export function syncSessions(
   sessions: SessionConfig[],
   coords: OfficeCoords,
-  bgW: number,
+  _bgW: number,
   bgH: number,
 ): void {
   cachedCoords = coords
@@ -73,12 +74,17 @@ export function syncSessions(
     if (!existing) {
       // Spawn new character
       const avatarIdx = avatarFromSessionId(session.id)
-      const centerX = bgW / 2 + (Math.random() - 0.5) * 160
-      const centerY = bgH / 2 + (Math.random() - 0.5) * 160
+      // Spawn from entrance (left edge of office)
+      const enterX = 16
+      const enterY = bgH / 2
+      // Use findNearestWalkable to ensure valid spawn position
+      const walkable = findNearestWalkable(enterX, enterY)
+      const spawnX = walkable?.x ?? enterX
+      const spawnY = walkable?.y ?? enterY
       const char: OfficeCharacter = {
         id: session.id,
-        x: centerX,
-        y: centerY,
+        x: spawnX,
+        y: spawnY,
         path: [],
         pathIndex: 0,
         facingDir: "down",
@@ -93,8 +99,9 @@ export function syncSessions(
           color: STATE_COLORS[state] ?? "#94a3b8",
           expiresAt: Date.now() + 8000,
         },
-        name: session.title ?? `${session.mode} #${session.id}`,
+        name: session.project_path?.split("/").pop() ?? session.mode,
         deskGraceUntil: 0,
+        idleActionTimer: 8 + Math.random() * 12,
       }
 
       if (stateZone(state) === "desk") {
@@ -106,7 +113,7 @@ export function syncSessions(
       // Update existing
       const prevState = existing.agentState
       existing.agentState = state
-      existing.name = session.title ?? `${session.mode} #${session.id}`
+      existing.name = session.project_path?.split("/").pop() ?? session.mode
 
       if (prevState !== state) {
         // State changed — update zone
@@ -244,6 +251,74 @@ export function updateAll(deltaSec: number, deltaMs: number): void {
           right: "right_walk",
         }
         char.currentAnim = dirMap[char.facingDir] ?? "front_walk"
+      }
+    }
+
+    // Idle behavior
+    if (stateZone(char.agentState) === "idle" && char.path.length === 0 && char.deskGraceUntil === 0) {
+      char.idleActionTimer -= deltaSec
+      if (char.idleActionTimer <= 0) {
+        const roll = Math.random()
+
+        if (roll < 0.4) {
+          // Head turn: cycle through idle directions
+          const dirs = ["front_idle", "left_idle", "right_idle", "front_idle"]
+          const currentIdx = dirs.indexOf(char.currentAnim)
+          const nextIdx = (currentIdx + 1) % dirs.length
+          char.currentAnim = dirs[nextIdx] || "front_idle"
+          char.animFrame = 0
+          char.animTimer = 0
+        } else if (roll < 0.7) {
+          // Micro-movement: walk to nearby idle spot
+          if (cachedCoords) {
+            const nearbySpots = cachedCoords.idle.filter(spot => {
+              const dx = spot.x - char.x
+              const dy = spot.y - char.y
+              const dist = dx * dx + dy * dy
+              return dist > 16 * 16 && dist < 96 * 96  // between 16 and 96 px away
+            })
+            if (nearbySpots.length > 0) {
+              const spot = nearbySpots[Math.floor(Math.random() * nearbySpots.length)]
+              char.path = findPath(char.x, char.y, spot.x, spot.y)
+              char.pathIndex = 0
+            }
+          }
+        } else {
+          // Social interaction: face nearby idle character
+          const others = Array.from(characters.values()).filter(other => {
+            if (other.id === char.id) return false
+            if (stateZone(other.agentState) !== "idle") return false
+            if (other.path.length > 0) return false
+            const dx = other.x - char.x
+            const dy = other.y - char.y
+            return dx * dx + dy * dy < 96 * 96
+          })
+          if (others.length > 0) {
+            const other = others[Math.floor(Math.random() * others.length)]
+            // Face each other
+            const dx = other.x - char.x
+            const dy = other.y - char.y
+            if (Math.abs(dx) > Math.abs(dy)) {
+              char.facingDir = dx > 0 ? "right" : "left"
+              other.facingDir = dx > 0 ? "left" : "right"
+            } else {
+              char.facingDir = dy > 0 ? "down" : "up"
+              other.facingDir = dy > 0 ? "up" : "down"
+            }
+            const dirAnimMap: Record<string, string> = {
+              down: "front_idle", up: "back_idle", left: "left_idle", right: "right_idle"
+            }
+            char.currentAnim = dirAnimMap[char.facingDir] ?? "front_idle"
+            other.currentAnim = dirAnimMap[other.facingDir] ?? "front_idle"
+            char.animFrame = 0
+            other.animFrame = 0
+            // Both characters pause longer (social cooldown)
+            other.idleActionTimer = 5 + Math.random() * 3
+          }
+        }
+
+        // Reset timer
+        char.idleActionTimer = 12 + Math.random() * 13
       }
     }
 

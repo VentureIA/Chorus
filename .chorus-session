@@ -1,5 +1,5 @@
 # Chorus session configuration - auto-generated, do not edit
 # This file is used by Claude Code hooks to report status
 STATUS_URL="http://127.0.0.1:9900/status"
-SESSION_ID=4
-INSTANCE_ID="04a28172-3c6e-4e37-b035-f64e2c96b720"
+SESSION_ID=8
+INSTANCE_ID="eab0ec85-c51c-4533-85ae-b44e7537011a"
