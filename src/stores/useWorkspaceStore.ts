@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { createStorage } from "@/lib/storage";
 import { killSession } from "@/lib/terminal";
+import { useSessionStore } from "@/stores/useSessionStore";
 
 // --- Types ---
 
@@ -105,7 +106,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
       closeTab: (id: string) => {
         const tabToClose = get().tabs.find((t) => t.id === id);
 
-        // Kill all sessions belonging to this project (fire-and-forget)
+        // Kill all sessions belonging to this project and remove from session store
         if (tabToClose && tabToClose.sessionIds.length > 0) {
           Promise.allSettled(tabToClose.sessionIds.map((sessionId) => killSession(sessionId)))
             .then((results) => {
@@ -115,6 +116,8 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
                 }
               }
             });
+          // Remove sessions from the session store so pixel avatars disappear
+          useSessionStore.getState().removeSessionsForProject(tabToClose.projectPath);
         }
 
         const remaining = get().tabs.filter((t) => t.id !== id);
