@@ -578,43 +578,13 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
   }, [isFocused]);
 
   // Handle image paste from clipboard (screenshots, copied images)
-  // Saves image to temp file and sends a timestamped prompt to Claude Code via stdin
-  // Uses async clipboard.read() fallback for cross-device pastes (e.g. iPhone Universal Clipboard)
-  // where clipboardData may not have image data loaded yet
+  // Claude Code CLI natively reads images from the system clipboard via N-API bindings
+  // (hasClipboardImage/readClipboardImage) when it detects a bracket paste event.
+  // We intercept the paste to send bracket paste markers to the PTY, triggering
+  // Claude Code's native clipboard image detection while the image is still available.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
-    const saveAndSendImage = async (blob: Blob) => {
-      const arrayBuffer = await blob.arrayBuffer();
-      if (arrayBuffer.byteLength === 0) return false;
-      const bytes = Array.from(new Uint8Array(arrayBuffer));
-      const filePath = await invoke<string>("save_clipboard_image", { data: bytes });
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2, "0");
-      const mm = String(now.getMinutes()).padStart(2, "0");
-      const ss = String(now.getSeconds()).padStart(2, "0");
-      const ms = String(now.getMilliseconds()).padStart(3, "0");
-      const label = `clipboard_screenshot_${hh}h${mm}m${ss}s${ms}ms`;
-      await writeStdin(sessionId, `[Pasted: ${label}] ${filePath}\n`);
-      return true;
-    };
-
-    const readImageFromAsyncClipboard = async (): Promise<boolean> => {
-      try {
-        const clipboardItems = await navigator.clipboard.read();
-        for (const item of clipboardItems) {
-          const imageType = item.types.find((t) => t.startsWith("image/"));
-          if (imageType) {
-            const blob = await item.getType(imageType);
-            if (blob.size > 0) return saveAndSendImage(blob);
-          }
-        }
-      } catch {
-        // clipboard.read() may not be available or may require permission
-      }
-      return false;
-    };
 
     const handlePaste = async (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
@@ -626,30 +596,17 @@ export const TerminalView = forwardRef<TerminalViewHandle, TerminalViewProps>(fu
       e.preventDefault();
       e.stopPropagation();
 
-      // Try synchronous clipboardData first (works for local screenshots)
-      for (const item of Array.from(items)) {
-        if (item.type.startsWith("image/")) {
-          const blob = item.getAsFile();
-          if (blob && blob.size > 0) {
-            try {
-              const sent = await saveAndSendImage(blob);
-              if (sent) return;
-            } catch (err) {
-              console.error("Failed to paste image from clipboardData:", err);
-            }
-          }
-        }
-      }
+      // Preserve any text content alongside the image (e.g. copied from web page)
+      const text = e.clipboardData?.getData("text/plain") || "";
 
-      // Fallback: async clipboard API for cross-device pastes (Universal Clipboard)
-      // where blob data may not be immediately available in clipboardData
-      try {
-        const sent = await readImageFromAsyncClipboard();
-        if (!sent) {
-          console.warn("Clipboard image detected but no image data available");
-        }
-      } catch (err) {
-        console.error("Failed to paste image from async clipboard:", err);
+      // Send bracket paste markers to trigger Claude Code's native paste handler.
+      // Claude Code detects bracket paste and checks the system clipboard for images
+      // via native N-API (hasClipboardImage/readClipboardImage) or osascript fallback.
+      const term = termRef.current;
+      if (term?.modes.bracketedPasteMode) {
+        await writeStdin(sessionId, `\x1b[200~${text}\x1b[201~`);
+      } else if (text) {
+        await writeStdin(sessionId, text);
       }
     };
 
